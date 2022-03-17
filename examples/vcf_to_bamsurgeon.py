@@ -11,11 +11,12 @@ from os import path
 from argparse import ArgumentParser
 import re
 
-import sys
-sys.path.insert(0, '../../')
-from variant_extractor.VCFExtractor import VariantExtractor, VariationType
-
 if __name__ == '__main__':
+    import os
+    import sys
+    sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)) + '/../src/')
+    from variant_extractor import VariantExtractor, VariationType
+
     # Parse arguments
     parser = ArgumentParser(description='Generate BAMSurgeon input from a VCF file')
     parser.add_argument('vcf_file', help='VCF file')
@@ -33,7 +34,8 @@ if __name__ == '__main__':
         zero_based_pos = variant_record.pos - 1
 
         if var_type == VariationType.SNV:
-            output_file_snv.write(f'{variant_record.contig} {variant_record.pos} {variant_record.pos} 1.0 {variant_record.alts[0]}\n')
+            output_file_snv.write(
+                f'{variant_record.contig} {variant_record.pos} {variant_record.pos} 1.0 {variant_record.alts[0]}\n')
         elif var_type == VariationType.INDEL_DEL:
             output_file_indel.write(
                 f'{variant_record.contig} {zero_based_pos} {variant_record.end-1} 1.0 DEL\n')
@@ -49,9 +51,18 @@ if __name__ == '__main__':
                 alt_contig = variant_record.contig
                 zero_based_end_pos = variant_record.end - 1
             if var_type == VariationType.TRN:
-                # TODO: ++, -- ??
+                # Calculate strand notation
+                if variant_record.alt_sv_precise.bracket == '[' and variant_record.alt_sv_precise.prefix:
+                    strand_notation = '++'
+                elif variant_record.alt_sv_precise.bracket == ']' and variant_record.alt_sv_precise.prefix:
+                    strand_notation = '+-'
+                elif variant_record.alt_sv_precise.bracket == '[' and not variant_record.alt_sv_precise.prefix:
+                    strand_notation = '-+'
+                else:
+                    strand_notation = '--'
+
                 output_file_sv.write(
-                    f'{variant_record.contig} {zero_based_pos} {zero_based_pos} TRN {alt_contig} {zero_based_end_pos} {zero_based_end_pos} ++ 1.0\n')
+                    f'{variant_record.contig} {zero_based_pos} {zero_based_pos} TRN {alt_contig} {zero_based_end_pos} {zero_based_end_pos} {strand_notation} 1.0\n')
             elif var_type == VariationType.INV:
                 output_file_sv.write(f'{variant_record.contig} {zero_based_pos} {zero_based_end_pos} INV 1.0\n')
             elif var_type == VariationType.DUP:
@@ -64,8 +75,8 @@ if __name__ == '__main__':
     for var_type, variant_record in extractor.read_vcf(args.vcf_file):
         variant_callback(var_type, variant_record)
 
-
     output_file_sv.close()
     output_file_snv.close()
     output_file_indel.close()
-    print(f'Output files generated: {args.output_file_schema}_sv.in, {args.output_file_schema}_snv.in, {args.output_file_schema}_indel.in')
+    print(
+        f'Output files generated: {args.output_file_schema}_sv.in, {args.output_file_schema}_snv.in, {args.output_file_schema}_indel.in')
