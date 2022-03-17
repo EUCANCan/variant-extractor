@@ -1,0 +1,42 @@
+##fileformat=VCFv4.1
+##contig=<ID=1,length=249250621>
+##contig=<ID=2,length=243199373>
+##contig=<ID=3,length=198022430>
+##contig=<ID=4,length=191154276>
+##contig=<ID=5,length=180915260>
+##contig=<ID=6,length=171115067>
+##contig=<ID=7,length=159138663>
+##contig=<ID=8,length=146364022>
+##contig=<ID=9,length=141213431>
+##contig=<ID=10,length=135534747>
+##contig=<ID=11,length=135006516>
+##contig=<ID=12,length=133851895>
+##contig=<ID=13,length=115169878>
+##contig=<ID=14,length=107349540>
+##contig=<ID=15,length=102531392>
+##contig=<ID=16,length=90354753>
+##contig=<ID=17,length=81195210>
+##contig=<ID=18,length=78077248>
+##contig=<ID=19,length=59128983>
+##contig=<ID=20,length=63025520>
+##contig=<ID=21,length=48129895>
+##contig=<ID=22,length=51304566>
+##contig=<ID=X,length=155270560>
+##contig=<ID=Y,length=59373566>
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+##INFO=<ID=SVLEN,Number=1,Type=Float,Description="Length of the SV>"
+##INFO=<ID=SVTYPE,Number=1,Type=String,Description="Type of the SV">
+##INFO=<ID=SUPP_SEQ,Number=.,Type=String,Description="Vector of supporting technologies">
+##INFO=<ID=SUPP_VAL,Number=.,Type=String,Description="Vector of supporting technologies">
+##INFO=<ID=GENE,Number=.,Type=String,Description="Gene(s) overlap in breakpoint">
+##INFO=<ID=CLUSTER,Number=.,Type=String,Description="IDs of other clustered breakpoints">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	DESC
+1	1000	.	G	A	.	PASS	EXTRA=DUMMY_SNV
+1	1500	.	GAA	ACA	.	PASS	EXTRA=DUMMY_MULTI_SNV
+1	2000	.	CT	C	.	PASS	EXTRA=DUMMY_INDEL_DEL
+1	2100	.	C	CAA	.	PASS	EXTRA=DUMMY_INDEL_INS
+1	2200	.	CTGAAA	CA	.	PASS	EXTRA=DUMMY_INDEL_DEL_DIFF_SIZE
+1	2300	.	GT	CAATATATA	.	PASS	EXTRA=DUMMY_INDEL_INS_DIFF_SIZE
+1	3000	truthset_0	T	T[1:4000[	.	PASS	SVLEN=0;SVTYPE=BND;EXTRA=DEL
+2	3000	truthset_0_1	T	T[2:5000[	.	PASS	SVLEN=0;SVTYPE=BND;EXTRA=DEL_PAIRED
+2	5000	truthset_0_1	T	]2:5000]T	.	PASS	SVLEN=0;SVTYPE=BND;EXTRA=DEL_PAIRED
