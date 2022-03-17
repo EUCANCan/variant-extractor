@@ -1,7 +1,11 @@
 # Variant extractor from VCF files
-Extractor of INDELs, SNVs and structural variations (SVs) from VCF files.
+Extractor of INDELs, SNVs and structural variations (SVs) from VCF files built under the frame of [EUCANCan](https://eucancan.com/)'s second work package. This package provides a Python (requires Python version 3.6 or higher) package called `variant_extractor` with a set of classes and functions to extract variants from VCF files.
+
+DNA variants refer to differences among the genomes of members of the same species and consist in single (SNV), small (INDELs) or large structural differences (SVs). However, while there is somewhat of an agreement on how to label the SNVs and INDELs variants, this is not the case for the structural variants. In the current scenario of structural variants, different labeling between variant callers makes comparisons between results difficult. This one of the reasons why there is a need to standardize variant labeling procedures for cancer genomic analysis. This is precisely one of the objectives of EUCANCan's second work package.
+
 
 ## Features
+The objective of this **variant extractor** is to ingest different VCF files from different variant callers and extract the variants in a standardized and deterministic format.
 
 * Returns only one entry per variant. For paired breakends, since they are redudant, the breakend with the lowest chromosome and/or position is kept. For example:
 
@@ -45,4 +49,3 @@ Would be treated as:
 ## Getting started
 
 ### Examples
-
