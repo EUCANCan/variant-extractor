@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 __version__ = '0.0.1'
 
@@ -24,7 +24,7 @@ if __name__ == '__main__':
             'Operating System: : OS Independent'
         ],
         package_dir={'': 'src'},
-        packages=setuptools.find_packages(where="src"),
+        packages=find_packages(where="src"),
         python_requires='>= 3.6',
         install_requires=['pysam>=0.11.2.2']
     )
