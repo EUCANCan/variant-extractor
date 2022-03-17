@@ -10,9 +10,12 @@ Use --help for more information.
 import pandas as pd
 from argparse import ArgumentParser
 
-from VariantExtractor import VariantExtractor, VariationType
-
 if __name__ == '__main__':
+    import os
+    import sys
+    sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)) + '/../src/')
+    from variant_extractor import VariantExtractor, VariationType  
+
     # Parse arguments
     parser = ArgumentParser(description='Generate CSV file from a VCF file')
     parser.add_argument('vcf_file', help='VCF file')

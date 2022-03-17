@@ -11,7 +11,9 @@ from os import path
 from argparse import ArgumentParser
 import re
 
-from VariantExtractor import VariantExtractor, VariationType
+import sys
+sys.path.insert(0, '../../')
+from variant_extractor.VCFExtractor import VariantExtractor, VariationType
 
 if __name__ == '__main__':
     # Parse arguments
