@@ -1,15 +1,23 @@
 from setuptools import setup, find_packages
-
-__version__ = '0.1.0'
+import re
 
 if __name__ == '__main__':
     with open("README.md", "r", encoding="utf-8") as fh:
         long_description = fh.read()
 
+    with open("src/variant_extractor/__init__.py", "r") as fd:
+        init_content = fd.read()
+    version = re.search(
+        r'^__version__\s*=\s*[\'\"]([^\'\"]*)[\'\"]', init_content, re.MULTILINE
+    ).group(1)
+    author = re.search(
+        r'^__author__\s*=\s*[\'\"]([^\'\"]*)[\'\"]', init_content, re.MULTILINE
+    ).group(1)
+
     setup(
         name='variant-extractor',
-        version=__version__,
-        author='Rapsssito',
+        version=version,
+        author=author,
         author_email='contact@rodrigomartin.dev',
         description='Extractor of indels, SNVs and SVs from VCF files',
         long_description=long_description,
@@ -26,5 +34,8 @@ if __name__ == '__main__':
         package_dir={'': 'src'},
         packages=find_packages(where="src"),
         python_requires='>= 3.6',
-        install_requires=['pysam>=0.11.2.2']
+        install_requires=['pysam>=0.11.2.2'],
+        extras_require={
+            "docs": ["sphinx", "sphinx-rtd-theme", "myst_parser", "docutils>=0.18.0"],
+        }
     )

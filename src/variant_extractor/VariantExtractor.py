@@ -10,8 +10,7 @@ import warnings
 import re
 import pysam
 
-# TODO: What to do with REF=N ALT=.N
-# TODO: Single breakends
+# TODO: What to do with REF=N ALT=.N (Single breakends)
 # Regex for SVs
 BRACKET_SV_REGEX = re.compile(r'([.A-Za-z]*)(\[|\])([^\]\[:]+:[0-9]+)(\[|\])([.A-Za-z]*)')
 SHORTHAND_SV_REGEX = re.compile(r'<(DEL|INS|DUP|INV|CNV])(:[A-Z]+)*>')
@@ -90,6 +89,7 @@ def extract_sv_from_brackets(rec):
                                rec.alts, rec.filter, rec.info, alt_sv_bracket, None)
     return vcf_record
 
+
 def extract_sv_from_shorthand(rec):
     sv_match_shorthand = SHORTHAND_SV_REGEX.search(rec.alts[0])
     if not sv_match_shorthand:
@@ -104,12 +104,35 @@ def extract_sv_from_shorthand(rec):
                                rec.alts, rec.filter, rec.info, None, alt_sv_shorthand)
     return vcf_record
 
+
 class VariantExtractor:
     def __init__(self, indel_threshold=-1, ensure_pairs=True):
+        """Variant Extractor constructor
+
+        Parameters
+        ----------
+        indel_threshold : int, optional
+            indel threshold, by default -1
+        ensure_pairs : bool, optional
+            throw an exception if some pairs are not paired, by default True
+        """
         self.indel_threshold = indel_threshold
         self.ensure_pairs = ensure_pairs
 
     def read_vcf(self, vcf_file):
+        """Read VCF file
+
+        Parameters
+        ----------
+        vcf_file : str
+            VCF file path
+
+        Returns
+        -------
+        List[VariantRecord]
+            List of VariantRecord objects
+        """
+
         self.__variants = []
         self.__pairs_found = 0
         self.__pending_sv_pairs = {}

@@ -39,6 +39,8 @@ if __name__ == '__main__':
                 end = variant_record.alt_sv_bracket.pos
         else:
             end_chrom = variant_record.contig.replace('chr', '')
+            if var_type == VariationType.INS and 'SVLEN' in variant_record.info:
+                length = int(variant_record.info['SVLEN'])
         # Hotfix for indels INS
         if not variant_record.alt_sv_bracket and not variant_record.alt_sv_shorthand and var_type == VariationType.INS or var_type == VariationType.INDEL_INS:
             length = len(alt)-len(ref)
