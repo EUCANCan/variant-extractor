@@ -5,6 +5,9 @@ if __name__ == '__main__':
     with open("README.md", "r", encoding="utf-8") as fh:
         long_description = fh.read()
 
+    with open("requeriments.txt", "r") as f:
+        requirements = f.read().splitlines()
+
     with open("src/variant_extractor/__init__.py", "r") as fd:
         init_content = fd.read()
     version = re.search(
@@ -34,7 +37,7 @@ if __name__ == '__main__':
         package_dir={'': 'src'},
         packages=find_packages(where="src"),
         python_requires='>= 3.6',
-        install_requires=['pysam>=0.11.2.2'],
+        install_requires=requirements,
         extras_require={
             "docs": ["sphinx", "sphinx-rtd-theme", "myst_parser", "docutils>=0.18.0"],
         }
