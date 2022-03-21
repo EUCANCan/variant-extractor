@@ -32,16 +32,15 @@ if __name__ == '__main__':
         ref = variant_record.ref
         alt = variant_record.alts[0]
         length = variant_record.end - variant_record.pos
-        if variant_record.alt_sv_precise:
-            end_chrom = variant_record.alt_sv_precise.contig.replace('chr', '')
-            end = variant_record.alt_sv_precise.pos
-            if start_chrom == end_chrom:
-                length = end - start
+        end = variant_record.end
+        if variant_record.alt_sv_bracket:
+            end_chrom = variant_record.alt_sv_bracket.contig.replace('chr', '')
+            if start_chrom != end_chrom:
+                end = variant_record.alt_sv_bracket.pos
         else:
             end_chrom = variant_record.contig.replace('chr', '')
-            end = variant_record.end
-        # Hotfix for INDELs INS
-        if not variant_record.alt_sv_precise and not variant_record.alt_sv_named and var_type == VariationType.INS or var_type == VariationType.INDEL_INS:
+        # Hotfix for indels INS
+        if not variant_record.alt_sv_bracket and not variant_record.alt_sv_shorthand and var_type == VariationType.INS or var_type == VariationType.INDEL_INS:
             length = len(alt)-len(ref)
         variants.append([start_chrom, start, end_chrom, end, ref, alt, length, var_type.name])
 

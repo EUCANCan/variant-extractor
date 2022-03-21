@@ -11,9 +11,10 @@ import re
 import pysam
 
 # TODO: What to do with REF=N ALT=.N
+# TODO: Single breakends
 # Regex for SVs
-PRECISE_SV_REGEX = re.compile(r'([A-Za-z]*)(\[|\])([^\]\[:]+:[0-9]+)(\[|\])([A-Za-z]*)')
-NAMED_SV_REGEX = re.compile(r'<(DEL|INS|DUP|INV|CNV])(:[A-Z]+)*>')
+BRACKET_SV_REGEX = re.compile(r'([.A-Za-z]*)(\[|\])([^\]\[:]+:[0-9]+)(\[|\])([.A-Za-z]*)')
+SHORTHAND_SV_REGEX = re.compile(r'<(DEL|INS|DUP|INV|CNV])(:[A-Z]+)*>')
 NUMBER_CONTIG_REGEX = re.compile(r'[0-9]+')
 
 
@@ -29,7 +30,7 @@ class VariationType(Enum):
     TRN = auto()
 
 
-class PreciseSVRecord(NamedTuple):
+class BracketSVRecord(NamedTuple):
     prefix: Optional[str]
     bracket: str
     contig: str
@@ -37,7 +38,7 @@ class PreciseSVRecord(NamedTuple):
     suffix: Optional[str]
 
 
-class NamedSVRecord(NamedTuple):
+class ShorthandSVRecord(NamedTuple):
     type: str
     extra: List[str]
 
@@ -51,8 +52,8 @@ class VariantRecord(NamedTuple):
     alts: List[str]
     filter: str
     info: dict
-    alt_sv_precise: Optional[PreciseSVRecord]  # G]17:198982]
-    alt_sv_named: Optional[NamedSVRecord]  # <DEL:ME:ALU>
+    alt_sv_bracket: Optional[BracketSVRecord]  # G]17:198982]
+    alt_sv_shorthand: Optional[ShorthandSVRecord]  # <DEL:ME:ALU>
 
 
 def select_record(variant_record_1, variant_record_2):
@@ -71,6 +72,37 @@ def select_record(variant_record_1, variant_record_2):
             record = variant_record_1 if int(match_1.group()) < int(match_2.group()) else variant_record_2
             return record
 
+
+def extract_sv_from_brackets(rec):
+    sv_match_bracket = BRACKET_SV_REGEX.search(rec.alts[0])
+    if not sv_match_bracket:
+        return None
+    # Extract ALT data from regex
+    alt_prefix = sv_match_bracket.group(1)
+    alt_bracket = sv_match_bracket.group(2)
+    alt_contig, alt_pos = sv_match_bracket.group(3).split(':')
+    alt_suffix = sv_match_bracket.group(5)
+    alt_sv_bracket = BracketSVRecord(alt_prefix, alt_bracket, alt_contig, int(alt_pos), alt_suffix)
+    # End position
+    end_pos = int(alt_pos) if alt_contig == rec.contig else rec.stop
+    # Create new record
+    vcf_record = VariantRecord(rec.contig, rec.pos, end_pos, rec.id, rec.ref,
+                               rec.alts, rec.filter, rec.info, alt_sv_bracket, None)
+    return vcf_record
+
+def extract_sv_from_shorthand(rec):
+    sv_match_shorthand = SHORTHAND_SV_REGEX.search(rec.alts[0])
+    if not sv_match_shorthand:
+        return None
+    # Extract ALT data from regex
+    alt_type = sv_match_shorthand.group(1)
+    alt_extra = sv_match_shorthand.group(2).split(':') if sv_match_shorthand.group(2) else None
+    alt_sv_shorthand = ShorthandSVRecord(alt_type, alt_extra)
+
+    # Create new record
+    vcf_record = VariantRecord(rec.contig, rec.pos, rec.stop, rec.id, rec.ref,
+                               rec.alts, rec.filter, rec.info, None, alt_sv_shorthand)
+    return vcf_record
 
 class VariantExtractor:
     def __init__(self, indel_threshold=-1, ensure_pairs=True):
@@ -96,13 +128,13 @@ class VariantExtractor:
                 warnings.warn('WARNING: No SV breakend pairs found, assuming all records are single-paired')
             for alt_dicts in self.__pending_sv_pairs.values():
                 for vcf_record in alt_dicts.values():
-                    self.__parse_precise_individual_sv(vcf_record)
+                    self.__parse_bracket_individual_sv(vcf_record)
         # Found unpaired records
         elif len(self.__pending_sv_pairs) > 0:
             exception_text = ''
             for alt_dicts in self.__pending_sv_pairs.values():
                 for vcf_record in alt_dicts.values():
-                    exception_text += f'REF={vcf_record.contig}:{vcf_record.pos}\tALT={vcf_record.alt_sv_precise.contig}:{vcf_record.alt_sv_precise.pos}\n'
+                    exception_text += f'REF={vcf_record.contig}:{vcf_record.pos}\tALT={vcf_record.alt_sv_bracket.contig}:{vcf_record.alt_sv_bracket.pos}\n'
             raise Exception(
                 (f'Unpaired SV breakends:\n{exception_text}'
                  f'Exception: There are {len(self.__pending_sv_pairs)} unpaired SV breakends. '
@@ -114,28 +146,17 @@ class VariantExtractor:
         if len(rec.alts) != 1:
             warnings.warn(f'WARNING: Skipping record with multiple alternate alleles ({rec})')
             return
+        vcf_record = extract_sv_from_brackets(rec)
+        # Check if bracket SV record
+        if vcf_record:
+            return self.__parse_bracket_sv(vcf_record)
+        # Check if shorthand SV record
+        vcf_record = extract_sv_from_shorthand(rec)
+        if vcf_record:
+            return self.__parse_shorthand_sv(vcf_record)
+        # Indel or SNV
         vcf_record = VariantRecord(rec.contig, rec.pos, rec.stop, rec.id, rec.ref,
                                    rec.alts, rec.filter, rec.info, None, None)
-        sv_match_precise = PRECISE_SV_REGEX.search(rec.alts[0])
-        sv_match_named = NAMED_SV_REGEX.search(rec.alts[0])
-        # Check if precise SV
-        if sv_match_precise:
-            # Extract data from regex
-            alt_prefix = sv_match_precise.group(1)
-            alt_bracket = sv_match_precise.group(2)
-            alt_contig, alt_pos = sv_match_precise.group(3).split(':')
-            alt_suffix = sv_match_precise.group(5)
-            alt_sv_precise = PreciseSVRecord(alt_prefix, alt_bracket, alt_contig, int(alt_pos), alt_suffix)
-            vcf_record = vcf_record._replace(alt_sv_precise=alt_sv_precise)
-            return self.__parse_precise_sv(vcf_record)
-        # Check if named SV
-        elif sv_match_named:
-            # Extract data from regex
-            alt_type = sv_match_named.group(1)
-            alt_extra = sv_match_named.group(2).split(':') if sv_match_named.group(2) else None
-            alt_sv_named = NamedSVRecord(alt_type, alt_extra)
-            vcf_record = vcf_record._replace(alt_sv_named=alt_sv_named)
-            return self.__parse_named_sv(vcf_record)
         # Check if SNV
         if len(vcf_record.alts[0]) == len(vcf_record.ref):
             # REF=CTT ALT=ATG -> Normalize to 3 SNVs
@@ -157,7 +178,7 @@ class VariantExtractor:
             else:
                 return self.__variants.append((VariationType.INDEL_INS, vcf_record))
 
-    def __parse_precise_sv(self, vcf_record):
+    def __parse_bracket_sv(self, vcf_record):
         # Check for pending SVs
         previous_record = self.__pop_pending_sv_pair(vcf_record)
         if previous_record is None:
@@ -166,10 +187,10 @@ class VariantExtractor:
         # Mate SV found, parse it
         self.__pairs_found += 1
         record = select_record(previous_record, vcf_record)
-        self.__parse_precise_individual_sv(record)
+        self.__parse_bracket_individual_sv(record)
 
     def __store_pending_sv_pair(self, vcf_record):
-        alt_name = f'{vcf_record.alt_sv_precise.contig}{vcf_record.alt_sv_precise.pos}'
+        alt_name = f'{vcf_record.alt_sv_bracket.contig}{vcf_record.alt_sv_bracket.pos}'
         sv_name = f'{vcf_record.contig}{vcf_record.pos}'
         # Check if alt is already in the dictionary
         previous_records = self.__pending_sv_pairs.get(alt_name)
@@ -186,7 +207,7 @@ class VariantExtractor:
         previous_records = self.__pending_sv_pairs.get(sv_name)
         if previous_records is None:
             return None
-        previous_record_alt_name = f'{vcf_record.alt_sv_precise.contig}{vcf_record.alt_sv_precise.pos}'
+        previous_record_alt_name = f'{vcf_record.alt_sv_bracket.contig}{vcf_record.alt_sv_bracket.pos}'
         previous_record_alt = previous_records.get(previous_record_alt_name)
         if previous_record_alt is None:
             return None
@@ -195,55 +216,53 @@ class VariantExtractor:
             self.__pending_sv_pairs.pop(sv_name)
         return previous_record_alt
 
-    def __parse_precise_individual_sv(self, vcf_record):
+    def __parse_bracket_individual_sv(self, vcf_record):
         # Transform REF/ALT to equivalent notation so that REF contains the lowest position
-        if vcf_record.alt_sv_precise.contig == vcf_record.contig and vcf_record.alt_sv_precise.pos < vcf_record.pos:
-            new_contig = vcf_record.alt_sv_precise.contig
-            new_pos = vcf_record.alt_sv_precise.pos
+        if vcf_record.alt_sv_bracket.contig == vcf_record.contig and vcf_record.alt_sv_bracket.pos < vcf_record.pos:
+            new_contig = vcf_record.alt_sv_bracket.contig
+            new_pos = vcf_record.alt_sv_bracket.pos
             new_end = new_pos
-            alt_prefix = vcf_record.alt_sv_precise.suffix
-            alt_suffix = vcf_record.alt_sv_precise.prefix
-            alt_bracket = ']' if vcf_record.alt_sv_precise.bracket == '[' else '['
+            alt_prefix = vcf_record.alt_sv_bracket.suffix
+            alt_suffix = vcf_record.alt_sv_bracket.prefix
+            alt_bracket = ']' if vcf_record.alt_sv_bracket.bracket == '[' else '['
             alt_contig = vcf_record.contig
             alt_pos = vcf_record.pos
             new_alts = [f'{alt_prefix}{alt_bracket}{alt_contig}:{alt_pos}{alt_bracket}{alt_suffix}']
-            alt_sv_precise = PreciseSVRecord(alt_prefix, alt_bracket, alt_contig, alt_pos, alt_suffix)
+            alt_sv_bracket = BracketSVRecord(alt_prefix, alt_bracket, alt_contig, alt_pos, alt_suffix)
             vcf_record = VariantRecord(new_contig, new_pos, new_end, vcf_record.id, vcf_record.ref, new_alts,
-                                   vcf_record.filter, vcf_record.info, alt_sv_precise, None)
-
-        # TODO: Edit end property for DEL, INV and DUP
+                                       vcf_record.filter, vcf_record.info, alt_sv_bracket, None)
 
         # INV -> 1 10 N]1:20] or 1 20 N]1:10]
         #        1 10 [1:20[N or 1 20 [1:10[N
         # DEL -> 1 10 N[1:20[ or 1 20 ]1:10]N
         # DUP -> 1 10 ]1:20]N or 1 20 N[1:10[
         # INS or BND -> any posibility with different contigs
-        if vcf_record.contig != vcf_record.alt_sv_precise.contig:
+        if vcf_record.contig != vcf_record.alt_sv_bracket.contig:
             # BND & INS with different contig ~ TRN
             return self.__variants.append((VariationType.TRN, vcf_record))
-        elif vcf_record.alt_sv_precise.prefix and vcf_record.alt_sv_precise.bracket == '[':
+        elif vcf_record.alt_sv_bracket.prefix and vcf_record.alt_sv_bracket.bracket == '[':
             # DEL
-            if self.indel_threshold != -1 and abs(vcf_record.alt_sv_precise.pos - vcf_record.pos) < self.indel_threshold:
+            if self.indel_threshold != -1 and abs(vcf_record.alt_sv_bracket.pos - vcf_record.pos) < self.indel_threshold:
                 return self.__variants.append((VariationType.INDEL_DEL, vcf_record))
             else:
                 return self.__variants.append((VariationType.DEL, vcf_record))
-        elif not vcf_record.alt_sv_precise.prefix and vcf_record.alt_sv_precise.bracket == ']':
+        elif not vcf_record.alt_sv_bracket.prefix and vcf_record.alt_sv_bracket.bracket == ']':
             # DUP
             return self.__variants.append((VariationType.DUP, vcf_record))
         else:
             # INV
             return self.__variants.append((VariationType.INV, vcf_record))
 
-    def __parse_named_sv(self, vcf_record):
-        if vcf_record.alt_sv_named.type == 'DEL':
+    def __parse_shorthand_sv(self, vcf_record):
+        if vcf_record.alt_sv_shorthand.type == 'DEL':
             return self.__variants.append((VariationType.DEL, vcf_record))
-        elif vcf_record.alt_sv_named.type == 'DUP':
+        elif vcf_record.alt_sv_shorthand.type == 'DUP':
             return self.__variants.append((VariationType.DUP, vcf_record))
-        elif vcf_record.alt_sv_named.type == 'INV':
+        elif vcf_record.alt_sv_shorthand.type == 'INV':
             return self.__variants.append((VariationType.INV, vcf_record))
-        elif vcf_record.alt_sv_named.type == 'INS':
+        elif vcf_record.alt_sv_shorthand.type == 'INS':
             return self.__variants.append((VariationType.INS, vcf_record))
-        elif vcf_record.alt_sv_named.type == 'CNV':
+        elif vcf_record.alt_sv_shorthand.type == 'CNV':
             return self.__variants.append((VariationType.CNV, vcf_record))
 
     def __handle_uncertain_sv(self):
@@ -260,7 +279,7 @@ class VariantExtractor:
                     paired_records.append((alt_name, sv_name))
                     paired_records.append((previous_alt, previous_sv))
                     record = select_record(vcf_record, previous_record)
-                    self.__parse_precise_individual_sv(record)
+                    self.__parse_bracket_individual_sv(record)
                     continue
 
                 # Check if labeled with MATEID or PARID

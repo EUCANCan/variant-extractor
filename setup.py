@@ -11,7 +11,7 @@ if __name__ == '__main__':
         version=__version__,
         author='Rapsssito',
         author_email='contact@rodrigomartin.dev',
-        description='Extractor of INDELs, SNVs and SVs from VCF files',
+        description='Extractor of indels, SNVs and SVs from VCF files',
         long_description=long_description,
         long_description_content_type='text/markdown',
         url='https://github.com/Rapsssito/variant-extractor',

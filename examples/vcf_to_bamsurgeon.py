@@ -29,7 +29,7 @@ if __name__ == '__main__':
     output_file_indel = open(f'{args.output_file_schema}_indel.in', 'w')
 
     def variant_callback(var_type, variant_record):
-        # TODO: What with INDELs different REF/ALT sizes
+        # TODO: What with indels different REF/ALT sizes
         # TODO: Check if 0-based or 1-based for SVs, but probably 0-based
         zero_based_pos = variant_record.pos - 1
 
