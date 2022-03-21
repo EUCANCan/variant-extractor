@@ -211,6 +211,8 @@ class VariantExtractor:
             vcf_record = VariantRecord(new_contig, new_pos, new_end, vcf_record.id, vcf_record.ref, new_alts,
                                    vcf_record.filter, vcf_record.info, alt_sv_precise, None)
 
+        # TODO: Edit end property for DEL, INV and DUP
+
         # INV -> 1 10 N]1:20] or 1 20 N]1:10]
         #        1 10 [1:20[N or 1 20 [1:10[N
         # DEL -> 1 10 N[1:20[ or 1 20 ]1:10]N
