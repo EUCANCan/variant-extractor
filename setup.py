@@ -5,7 +5,7 @@ if __name__ == '__main__':
     with open("README.md", "r", encoding="utf-8") as fh:
         long_description = fh.read()
 
-    with open("requeriments.txt", "r") as f:
+    with open("requirements.txt", "r") as f:
         requirements = f.read().splitlines()
 
     with open("src/variant_extractor/__init__.py", "r") as fd:
@@ -31,9 +31,10 @@ if __name__ == '__main__':
             'Bug Tracker': 'https://github.com/Rapsssito/variant-extractor/issues',
         },
         classifiers=[
-            'Programming Language:: Python : : 3'
-            'License:: OSI Approved : : MIT License'
-            'Operating System: : OS Independent'
+            'Programming Language :: Python :: 3 :: Only',
+            'Development Status :: 5 - Production/Stable',
+            'License :: OSI Approved :: MIT License',
+            'Operating System :: OS Independent'
         ],
         package_dir={'': 'src'},
         packages=find_packages(where="src"),
