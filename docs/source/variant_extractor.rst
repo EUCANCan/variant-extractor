@@ -1,19 +1,9 @@
-API
+variant_extractor API
 ==========================
 
-variant\_extractor.VariantExtractor module
-------------------------------------------
-
-.. automodule:: variant_extractor.VariantExtractor
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
-Module contents
----------------
-
 .. automodule:: variant_extractor
+    :imported-members:
     :members:
+    :special-members: __init__
     :undoc-members:
     :show-inheritance:

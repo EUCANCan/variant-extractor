@@ -1,7 +1,7 @@
 # VCF Variant extractor <!-- omit in toc -->
 **Extractor of indels, SNVs and structural variants (SVs)** from VCF files built under the frame of [EUCANCan](https://eucancan.com/)'s second work package. While there is somewhat of an agreement on how to label the SNVs and indels variants, this is not the case for the structural variants. In the current scenario of structural variants, different labeling between variant callers makes comparisons between results difficult. This one of the reasons why there is a need to standardize variant labeling procedures for cancer genomic analysis. This is precisely one of the objectives of EUCANCan's second work package.
 
-This package provides a Python (**requires Python version 3.6 or higher**) package called `variant_extractor` with a set of classes and functions to read and extract variants from VCF files. The package is designed to be used in a pipeline, where the variants are ingested from VCF files and then used in downstream analysis.
+This package provides a Python (**requires Python version 3.6 or higher**) package called `variant_extractor` with a set of classes and functions to read and extract variants from VCF files. The package is designed to be used in a pipeline, where the variants are ingested from VCF files and then used in downstream analysis. Check the [available documentation](rapsssito.github.io/variant-extractor/) for more information.
 
 ## Table of contents <!-- omit in toc -->
 - [Installation](#installation)

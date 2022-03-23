@@ -17,7 +17,9 @@ SHORTHAND_SV_REGEX = re.compile(r'<(DEL|INS|DUP|INV|CNV])(:[A-Z]+)*>')
 NUMBER_CONTIG_REGEX = re.compile(r'[0-9]+')
 
 
-class VariationType(Enum):
+class VariantType(Enum):
+    """Enumeration with the different types of variations
+    """
     SNV = auto()
     INDEL_INS = auto()
     INDEL_DEL = auto()
@@ -30,32 +32,55 @@ class VariationType(Enum):
 
 
 class BracketSVRecord(NamedTuple):
+    """NamedTuple with the information of a bracketed SV record
+    """
     prefix: Optional[str]
+    """Prefix of the SV record with bracket notation. For example, for :code:`G]17:198982]` the prefix will be :code:`G`"""
     bracket: str
+    """Bracket of the SV record with bracket notation. For example, for :code:`G]17:198982]` the bracket will be :code:`]`"""
     contig: str
+    """Contig of the SV record with bracket notation. For example, for :code:`G]17:198982]` the contig will be :code:`17`"""
     pos: int
+    """Position of the SV record with bracket notation. For example, for :code:`G]17:198982]` the position will be :code:`198982`"""
     suffix: Optional[str]
+    """Suffix of the SV record with bracket notation. For example, for :code:`G]17:198982]` the suffix will be :code:`None`"""
 
 
 class ShorthandSVRecord(NamedTuple):
+    """NamedTuple with the information of a shorthand SV record
+    """
     type: str
+    """One of the following, :code:`'DEL'`, :code:`'INS'`, :code:`'DUP'`, :code:`'INV'` or :code:`'CNV'`"""
     extra: List[str]
+    """Extra information of the SV. For example, for :code:`<DUP:TANDEM:AA>` the extra will be :code:`['TANDEM', 'AA']`"""
 
 
 class VariantRecord(NamedTuple):
+    """NamedTuple with the information of a variant record
+    """
     contig: str
+    """Contig name"""
     pos: int
+    """Position of the variant in the contig"""
     end: int
+    """End position of the variant in the contig (same as `pos` for TRN and SNV)"""
     id: str
+    """Record identifier"""
     ref: str
+    """Reference sequence"""
     alts: List[str]
+    """List of alternative sequences"""
     filter: str
+    """Original record filter"""
     info: dict
-    alt_sv_bracket: Optional[BracketSVRecord]  # G]17:198982]
-    alt_sv_shorthand: Optional[ShorthandSVRecord]  # <DEL:ME:ALU>
+    """Original record info"""
+    alt_sv_bracket: Optional[BracketSVRecord]
+    """Bracketed SV info, present only for SVs with bracket notation. For example, :code:`G]17:198982]`"""
+    alt_sv_shorthand: Optional[ShorthandSVRecord]
+    """Shorthand SV info, present only for SVs with shorthand notation. For example, :code:`<DUP:TANDEM>`"""
 
 
-def select_record(variant_record_1, variant_record_2):
+def _select_record(variant_record_1, variant_record_2):
     # Same contig, select lowest position
     if variant_record_1.contig == variant_record_2.contig:
         return variant_record_1 if variant_record_1.pos < variant_record_2.pos else variant_record_2
@@ -72,7 +97,7 @@ def select_record(variant_record_1, variant_record_2):
             return record
 
 
-def extract_sv_from_brackets(rec):
+def _extract_sv_from_brackets(rec):
     sv_match_bracket = BRACKET_SV_REGEX.search(rec.alts[0])
     if not sv_match_bracket:
         return None
@@ -90,7 +115,7 @@ def extract_sv_from_brackets(rec):
     return vcf_record
 
 
-def extract_sv_from_shorthand(rec):
+def _extract_sv_from_shorthand(rec):
     sv_match_shorthand = SHORTHAND_SV_REGEX.search(rec.alts[0])
     if not sv_match_shorthand:
         return None
@@ -106,31 +131,31 @@ def extract_sv_from_shorthand(rec):
 
 
 class VariantExtractor:
-    def __init__(self, indel_threshold=-1, ensure_pairs=True):
-        """Variant Extractor constructor
+    """
+    Reads and extracts variants from VCF files. This class is designed to be
+    used in a pipeline, where the variants are ingested from VCF files and then used in downstream analysis.
+    """
 
+    def __init__(self, ensure_pairs=True):
+        """
         Parameters
         ----------
-        indel_threshold : int, optional
-            indel threshold, by default -1
         ensure_pairs : bool, optional
-            throw an exception if some pairs are not paired, by default True
+            If `True`, throws an exception if a breakend is missing a pair when all other were paired successfully.
         """
-        self.indel_threshold = indel_threshold
         self.ensure_pairs = ensure_pairs
 
     def read_vcf(self, vcf_file):
-        """Read VCF file
+        """Reads VCF file and extracts all variants.
 
         Parameters
         ----------
         vcf_file : str
-            VCF file path
+            A VCF formatted file. The file is automatically opened.
 
         Returns
         -------
-        List[VariantRecord]
-            List of VariantRecord objects
+        list[tuple[VariantType, VariantRecord]
         """
 
         self.__variants = []
@@ -169,12 +194,12 @@ class VariantExtractor:
         if len(rec.alts) != 1:
             warnings.warn(f'WARNING: Skipping record with multiple alternate alleles ({rec})')
             return
-        vcf_record = extract_sv_from_brackets(rec)
+        vcf_record = _extract_sv_from_brackets(rec)
         # Check if bracket SV record
         if vcf_record:
             return self.__parse_bracket_sv(vcf_record)
         # Check if shorthand SV record
-        vcf_record = extract_sv_from_shorthand(rec)
+        vcf_record = _extract_sv_from_shorthand(rec)
         if vcf_record:
             return self.__parse_shorthand_sv(vcf_record)
         # Indel or SNV
@@ -187,19 +212,13 @@ class VariantExtractor:
                 if vcf_record.alts[0][i] != vcf_record.ref[i]:
                     new_vcf_record = vcf_record._replace(
                         ref=vcf_record.ref[i], pos=i+vcf_record.pos, end=i+vcf_record.end, alts=[vcf_record.alts[0][i]])
-                    self.__variants.append((VariationType.SNV, new_vcf_record))
+                    self.__variants.append((VariantType.SNV, new_vcf_record))
         # Check if INDEL_DEL
         elif len(vcf_record.alts[0]) < len(vcf_record.ref):
-            if self.indel_threshold != -1 and abs(vcf_record.pos - vcf_record.end) > self.indel_threshold:
-                return self.__variants.append((VariationType.DEL, vcf_record))
-            else:
-                return self.__variants.append((VariationType.INDEL_DEL, vcf_record))
+            return self.__variants.append((VariantType.INDEL_DEL, vcf_record))
         # Check if INDEL_INS
         else:
-            if self.indel_threshold != -1 and len(vcf_record.alts[0]) > self.indel_threshold:
-                return self.__variants.append((VariationType.INS, vcf_record))
-            else:
-                return self.__variants.append((VariationType.INDEL_INS, vcf_record))
+            return self.__variants.append((VariantType.INDEL_INS, vcf_record))
 
     def __parse_bracket_sv(self, vcf_record):
         # Check for pending SVs
@@ -209,7 +228,7 @@ class VariantExtractor:
             return
         # Mate SV found, parse it
         self.__pairs_found += 1
-        record = select_record(previous_record, vcf_record)
+        record = _select_record(previous_record, vcf_record)
         self.__parse_bracket_individual_sv(record)
 
     def __store_pending_sv_pair(self, vcf_record):
@@ -262,31 +281,28 @@ class VariantExtractor:
         # INS or BND -> any posibility with different contigs
         if vcf_record.contig != vcf_record.alt_sv_bracket.contig:
             # BND & INS with different contig ~ TRN
-            return self.__variants.append((VariationType.TRN, vcf_record))
+            return self.__variants.append((VariantType.TRN, vcf_record))
         elif vcf_record.alt_sv_bracket.prefix and vcf_record.alt_sv_bracket.bracket == '[':
             # DEL
-            if self.indel_threshold != -1 and abs(vcf_record.alt_sv_bracket.pos - vcf_record.pos) < self.indel_threshold:
-                return self.__variants.append((VariationType.INDEL_DEL, vcf_record))
-            else:
-                return self.__variants.append((VariationType.DEL, vcf_record))
+            return self.__variants.append((VariantType.DEL, vcf_record))
         elif not vcf_record.alt_sv_bracket.prefix and vcf_record.alt_sv_bracket.bracket == ']':
             # DUP
-            return self.__variants.append((VariationType.DUP, vcf_record))
+            return self.__variants.append((VariantType.DUP, vcf_record))
         else:
             # INV
-            return self.__variants.append((VariationType.INV, vcf_record))
+            return self.__variants.append((VariantType.INV, vcf_record))
 
     def __parse_shorthand_sv(self, vcf_record):
         if vcf_record.alt_sv_shorthand.type == 'DEL':
-            return self.__variants.append((VariationType.DEL, vcf_record))
+            return self.__variants.append((VariantType.DEL, vcf_record))
         elif vcf_record.alt_sv_shorthand.type == 'DUP':
-            return self.__variants.append((VariationType.DUP, vcf_record))
+            return self.__variants.append((VariantType.DUP, vcf_record))
         elif vcf_record.alt_sv_shorthand.type == 'INV':
-            return self.__variants.append((VariationType.INV, vcf_record))
+            return self.__variants.append((VariantType.INV, vcf_record))
         elif vcf_record.alt_sv_shorthand.type == 'INS':
-            return self.__variants.append((VariationType.INS, vcf_record))
+            return self.__variants.append((VariantType.INS, vcf_record))
         elif vcf_record.alt_sv_shorthand.type == 'CNV':
-            return self.__variants.append((VariationType.CNV, vcf_record))
+            return self.__variants.append((VariantType.CNV, vcf_record))
 
     def __handle_uncertain_sv(self):
         pairs = {}
@@ -301,7 +317,7 @@ class VariantExtractor:
                     # Mark for deletion
                     paired_records.append((alt_name, sv_name))
                     paired_records.append((previous_alt, previous_sv))
-                    record = select_record(vcf_record, previous_record)
+                    record = _select_record(vcf_record, previous_record)
                     self.__parse_bracket_individual_sv(record)
                     continue
 

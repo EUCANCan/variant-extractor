@@ -14,7 +14,7 @@ if __name__ == '__main__':
     import os
     import sys
     sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)) + '/../src/')
-    from variant_extractor import VariantExtractor, VariationType  
+    from variant_extractor import VariantExtractor, VariantType  
 
     # Parse arguments
     parser = ArgumentParser(description='Generate CSV file from a VCF file')
@@ -39,10 +39,10 @@ if __name__ == '__main__':
                 end = variant_record.alt_sv_bracket.pos
         else:
             end_chrom = variant_record.contig.replace('chr', '')
-            if var_type == VariationType.INS and 'SVLEN' in variant_record.info:
+            if var_type == VariantType.INS and 'SVLEN' in variant_record.info:
                 length = int(variant_record.info['SVLEN'])
         # Hotfix for indels INS
-        if not variant_record.alt_sv_bracket and not variant_record.alt_sv_shorthand and var_type == VariationType.INS or var_type == VariationType.INDEL_INS:
+        if not variant_record.alt_sv_bracket and not variant_record.alt_sv_shorthand and var_type == VariantType.INS or var_type == VariantType.INDEL_INS:
             length = len(alt)-len(ref)
         variants.append([start_chrom, start, end_chrom, end, ref, alt, length, var_type.name])
 
