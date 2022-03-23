@@ -4,22 +4,21 @@
 This package provides a Python (**requires Python version 3.6 or higher**) package called `variant_extractor` with a set of classes and functions to read and extract variants from VCF files. The package is designed to be used in a pipeline, where the variants are ingested from VCF files and then used in downstream analysis. Check the [available documentation](https://rapsssito.github.io/variant-extractor/) for more information.
 
 ## Table of contents <!-- omit in toc -->
-- [Installation](#installation)
 - [Getting started](#getting-started)
-  - [Examples](#examples)
+- [Usage](#usage)
 - [How it works](#how-it-works)
   - [SNVs](#snvs)
   - [Indels](#indels)
   - [Structural variants](#structural-variants)
 - [Caveats](#caveats)
 
-## Installation
-(Not yet uploaded to pypi.org)
+## Getting started
+Install the package using `pip`:
 ```
 pip install variant_extractor
 ```
 
-## Getting started
+## Usage
 ```python
 # Import the package
 from variant_extractor import VariantExtractor, variantType  
@@ -33,7 +32,6 @@ for variant_type, variant_record in variants:
     print(f'Found variant of type {variant_type.name()}: {variant_record.contig}:{variant_record.pos}')
 ```
 
-### Examples
 For a list of examples, see the [examples](./examples/) directory.
 
 
