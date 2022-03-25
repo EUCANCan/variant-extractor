@@ -14,7 +14,8 @@ if __name__ == '__main__':
     import os
     import sys
     sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)) + '/../src/')
-    from variant_extractor import VariantExtractor, VariantType  
+    from variant_extractor import VariantExtractor
+    from variant_extractor.variants import VariantType
 
     # Parse arguments
     parser = ArgumentParser(description='Generate CSV file from a VCF file')
@@ -44,8 +45,14 @@ if __name__ == '__main__':
         # Hotfix for indels INS
         if not variant_record.alt_sv_bracket and not variant_record.alt_sv_shorthand and var_type == VariantType.INS or var_type == VariantType.INDEL_INS:
             length = len(alt)-len(ref)
-        variants.append([start_chrom, start, end_chrom, end, ref, alt, length, var_type.name])
+
+        # Inferred type
+        type_inferred = var_type.name
+        # Get called EVENTTYPE or SVTYPE from INFO field
+        type_called = variant_record.info['EVENTTYPE'] if 'EVENTTYPE' in variant_record.info else \
+            variant_record.info['SVTYPE'] if 'SVTYPE' in variant_record.info else None
+        variants.append([start_chrom, start, end_chrom, end, ref, alt, length, type_inferred, type_called])
 
     df = pd.DataFrame(variants, columns=['start_chrom', 'start',
-                      'end_chrom', 'end', 'ref', 'alt', 'length', 'var_type'])
-    df.to_csv(f'{args.output_file}.csv', index=False)
+                      'end_chrom', 'end', 'ref', 'alt', 'length', 'type_inferred', 'type_called'])
+    df.to_csv(f'{args.output_file}', index=False)

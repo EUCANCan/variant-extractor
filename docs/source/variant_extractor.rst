@@ -7,3 +7,9 @@ variant_extractor API
     :special-members: __init__
     :undoc-members:
     :show-inheritance:
+
+.. automodule:: variant_extractor.variants
+    :members:
+    :special-members: __init__
+    :undoc-members:
+    :show-inheritance:

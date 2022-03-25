@@ -22,7 +22,7 @@ if __name__ == '__main__':
         version=version,
         author=author,
         author_email='contact@rodrigomartin.dev',
-        description='Extractor of variants from VCF files: indels, SNVs and SVs',
+        description='Deterministic and standard extractor of indels, SNVs and structural variants (SVs) from VCF files',
         keywords='vcf genetics bioinformatics variant-annotation indel snv sv',
         long_description=long_description,
         long_description_content_type='text/markdown',

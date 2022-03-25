@@ -1,134 +1,14 @@
 # Copyright 2022 - Barcelona Supercomputing Center
 # Author: Rodrigo Martín Posada
 # MIT License
-from typing import NamedTuple, Optional, List
-from enum import Enum, auto
 from os import path
 from argparse import ArgumentParser
 import math
 import warnings
-import re
 import pysam
 
-# TODO: What to do with REF=N ALT=.N (Single breakends)
-# Regex for SVs
-BRACKET_SV_REGEX = re.compile(r'([.A-Za-z]*)(\[|\])([^\]\[:]+:[0-9]+)(\[|\])([.A-Za-z]*)')
-SHORTHAND_SV_REGEX = re.compile(r'<(DEL|INS|DUP|INV|CNV])(:[A-Z]+)*>')
-NUMBER_CONTIG_REGEX = re.compile(r'[0-9]+')
-
-
-class VariantType(Enum):
-    """Enumeration with the different types of variations
-    """
-    SNV = auto()
-    INDEL_INS = auto()
-    INDEL_DEL = auto()
-    DEL = auto()
-    INS = auto()
-    DUP = auto()
-    INV = auto()
-    CNV = auto()
-    TRN = auto()
-
-
-class BracketSVRecord(NamedTuple):
-    """NamedTuple with the information of a bracketed SV record
-    """
-    prefix: Optional[str]
-    """Prefix of the SV record with bracket notation. For example, for :code:`G]17:198982]` the prefix will be :code:`G`"""
-    bracket: str
-    """Bracket of the SV record with bracket notation. For example, for :code:`G]17:198982]` the bracket will be :code:`]`"""
-    contig: str
-    """Contig of the SV record with bracket notation. For example, for :code:`G]17:198982]` the contig will be :code:`17`"""
-    pos: int
-    """Position of the SV record with bracket notation. For example, for :code:`G]17:198982]` the position will be :code:`198982`"""
-    suffix: Optional[str]
-    """Suffix of the SV record with bracket notation. For example, for :code:`G]17:198982]` the suffix will be :code:`None`"""
-
-
-class ShorthandSVRecord(NamedTuple):
-    """NamedTuple with the information of a shorthand SV record
-    """
-    type: str
-    """One of the following, :code:`'DEL'`, :code:`'INS'`, :code:`'DUP'`, :code:`'INV'` or :code:`'CNV'`"""
-    extra: List[str]
-    """Extra information of the SV. For example, for :code:`<DUP:TANDEM:AA>` the extra will be :code:`['TANDEM', 'AA']`"""
-
-
-class VariantRecord(NamedTuple):
-    """NamedTuple with the information of a variant record
-    """
-    contig: str
-    """Contig name"""
-    pos: int
-    """Position of the variant in the contig"""
-    end: int
-    """End position of the variant in the contig (same as `pos` for TRN and SNV)"""
-    id: str
-    """Record identifier"""
-    ref: str
-    """Reference sequence"""
-    alts: List[str]
-    """List of alternative sequences"""
-    filter: str
-    """Original record filter"""
-    info: dict
-    """Original record info"""
-    alt_sv_bracket: Optional[BracketSVRecord]
-    """Bracketed SV info, present only for SVs with bracket notation. For example, :code:`G]17:198982]`"""
-    alt_sv_shorthand: Optional[ShorthandSVRecord]
-    """Shorthand SV info, present only for SVs with shorthand notation. For example, :code:`<DUP:TANDEM>`"""
-
-
-def _select_record(variant_record_1, variant_record_2):
-    # Same contig, select lowest position
-    if variant_record_1.contig == variant_record_2.contig:
-        return variant_record_1 if variant_record_1.pos < variant_record_2.pos else variant_record_2
-    # Different contig
-    else:
-        match_1 = NUMBER_CONTIG_REGEX.search(variant_record_1.contig)
-        match_2 = NUMBER_CONTIG_REGEX.search(variant_record_2.contig)
-        # Both contigs do not contain numbers or follow different structure, select lowest in lexicographical order
-        if not match_1 or not match_2 or match_1.start() != match_2.start():
-            return variant_record_1 if variant_record_1.contig < variant_record_2.contig else variant_record_2
-        else:
-            # Both contigs contain numbers, select lowest number
-            record = variant_record_1 if int(match_1.group()) < int(match_2.group()) else variant_record_2
-            return record
-
-
-def _extract_sv_from_brackets(rec):
-    sv_match_bracket = BRACKET_SV_REGEX.search(rec.alts[0])
-    if not sv_match_bracket:
-        return None
-    # Extract ALT data from regex
-    alt_prefix = sv_match_bracket.group(1)
-    alt_bracket = sv_match_bracket.group(2)
-    alt_contig, alt_pos = sv_match_bracket.group(3).split(':')
-    alt_suffix = sv_match_bracket.group(5)
-    alt_sv_bracket = BracketSVRecord(alt_prefix, alt_bracket, alt_contig, int(alt_pos), alt_suffix)
-    # End position
-    end_pos = int(alt_pos) if alt_contig == rec.contig else rec.stop
-    # Create new record
-    vcf_record = VariantRecord(rec.contig, rec.pos, end_pos, rec.id, rec.ref,
-                               rec.alts, rec.filter, rec.info, alt_sv_bracket, None)
-    return vcf_record
-
-
-def _extract_sv_from_shorthand(rec):
-    sv_match_shorthand = SHORTHAND_SV_REGEX.search(rec.alts[0])
-    if not sv_match_shorthand:
-        return None
-    # Extract ALT data from regex
-    alt_type = sv_match_shorthand.group(1)
-    alt_extra = sv_match_shorthand.group(2).split(':') if sv_match_shorthand.group(2) else None
-    alt_sv_shorthand = ShorthandSVRecord(alt_type, alt_extra)
-
-    # Create new record
-    vcf_record = VariantRecord(rec.contig, rec.pos, rec.stop, rec.id, rec.ref,
-                               rec.alts, rec.filter, rec.info, None, alt_sv_shorthand)
-    return vcf_record
-
+from .utils import select_record, extract_bracket_sv, extract_shorthand_sv, extract_sgl_sv, permute_bracket_sv
+from .variants import VariantType, VariantRecord
 
 class VariantExtractor:
     """
@@ -194,14 +74,18 @@ class VariantExtractor:
         if len(rec.alts) != 1:
             warnings.warn(f'WARNING: Skipping record with multiple alternate alleles ({rec})')
             return
-        vcf_record = _extract_sv_from_brackets(rec)
+        vcf_record = extract_bracket_sv(rec)
         # Check if bracket SV record
         if vcf_record:
             return self.__parse_bracket_sv(vcf_record)
         # Check if shorthand SV record
-        vcf_record = _extract_sv_from_shorthand(rec)
+        vcf_record = extract_shorthand_sv(rec)
         if vcf_record:
             return self.__parse_shorthand_sv(vcf_record)
+        # Check if single breakend SV record
+        vcf_record = extract_sgl_sv(rec)
+        if vcf_record:
+            return self.__variants.append((VariantType.SGL, vcf_record))
         # Indel or SNV
         vcf_record = VariantRecord(rec.contig, rec.pos, rec.stop, rec.id, rec.ref,
                                    rec.alts, rec.filter, rec.info, None, None)
@@ -228,7 +112,7 @@ class VariantExtractor:
             return
         # Mate SV found, parse it
         self.__pairs_found += 1
-        record = _select_record(previous_record, vcf_record)
+        record = select_record(previous_record, vcf_record)
         self.__parse_bracket_individual_sv(record)
 
     def __store_pending_sv_pair(self, vcf_record):
@@ -261,18 +145,7 @@ class VariantExtractor:
     def __parse_bracket_individual_sv(self, vcf_record):
         # Transform REF/ALT to equivalent notation so that REF contains the lowest position
         if vcf_record.alt_sv_bracket.contig == vcf_record.contig and vcf_record.alt_sv_bracket.pos < vcf_record.pos:
-            new_contig = vcf_record.alt_sv_bracket.contig
-            new_pos = vcf_record.alt_sv_bracket.pos
-            new_end = new_pos
-            alt_prefix = vcf_record.alt_sv_bracket.suffix
-            alt_suffix = vcf_record.alt_sv_bracket.prefix
-            alt_bracket = ']' if vcf_record.alt_sv_bracket.bracket == '[' else '['
-            alt_contig = vcf_record.contig
-            alt_pos = vcf_record.pos
-            new_alts = [f'{alt_prefix}{alt_bracket}{alt_contig}:{alt_pos}{alt_bracket}{alt_suffix}']
-            alt_sv_bracket = BracketSVRecord(alt_prefix, alt_bracket, alt_contig, alt_pos, alt_suffix)
-            vcf_record = VariantRecord(new_contig, new_pos, new_end, vcf_record.id, vcf_record.ref, new_alts,
-                                       vcf_record.filter, vcf_record.info, alt_sv_bracket, None)
+            vcf_record = permute_bracket_sv(vcf_record)
 
         # INV -> 1 10 N]1:20] or 1 20 N]1:10]
         #        1 10 [1:20[N or 1 20 [1:10[N
@@ -317,7 +190,7 @@ class VariantExtractor:
                     # Mark for deletion
                     paired_records.append((alt_name, sv_name))
                     paired_records.append((previous_alt, previous_sv))
-                    record = _select_record(vcf_record, previous_record)
+                    record = select_record(vcf_record, previous_record)
                     self.__parse_bracket_individual_sv(record)
                     continue
 
