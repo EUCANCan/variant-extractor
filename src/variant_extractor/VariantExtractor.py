@@ -10,20 +10,24 @@ import pysam
 from .utils import select_record, extract_bracket_sv, extract_shorthand_sv, extract_sgl_sv, permute_bracket_sv
 from .variants import VariantType, VariantRecord
 
+
 class VariantExtractor:
     """
     Reads and extracts variants from VCF files. This class is designed to be
     used in a pipeline, where the variants are ingested from VCF files and then used in downstream analysis.
     """
 
-    def __init__(self, ensure_pairs=True):
+    def __init__(self, only_pass=False, ensure_pairs=True):
         """
         Parameters
         ----------
+        only_pass : bool, optional
+            If :code:`True`, only records with PASS filter will be considered.
         ensure_pairs : bool, optional
-            If `True`, throws an exception if a breakend is missing a pair when all other were paired successfully.
+            If :code:`True`, throws an exception if a breakend is missing a pair when all other were paired successfully.
         """
         self.ensure_pairs = ensure_pairs
+        self.only_pass = only_pass
 
     def read_vcf(self, vcf_file):
         """Reads VCF file and extracts all variants.
@@ -71,6 +75,8 @@ class VariantExtractor:
         return self.__variants
 
     def __parse_record(self, rec):
+        if self.only_pass and 'PASS' not in rec.filter:
+            return
         if len(rec.alts) != 1:
             warnings.warn(f'WARNING: Skipping record with multiple alternate alleles ({rec})')
             return

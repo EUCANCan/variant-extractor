@@ -102,7 +102,7 @@ if __name__ == '__main__':
                     output_file_sv.write(f'{variant_record.contig} {variant_record.pos} {variant_record.pos} {insertion_prefix}{op}\n')
 
     print(f'Reading VCF file: {args.vcf_file}')
-    extractor = VariantExtractor()
+    extractor = VariantExtractor(only_pass=True)
     for var_type, variant_record in extractor.read_vcf(args.vcf_file):
         variant_callback(var_type, variant_record)
 
