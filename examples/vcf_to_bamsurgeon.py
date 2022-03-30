@@ -10,15 +10,25 @@ Use --help for more information.
 from os import path
 from argparse import ArgumentParser
 import re
+import random
 
 VAF = 0.5
-INDEL_THRESHOLD = 100
+INDEL_THRESHOLD = 90
+
+
+def generate_random_dna(length):
+    '''
+    Generates a random DNA sequence of the given length
+    '''
+    return ''.join(random.choices(['A', 'C', 'G', 'T'], weights=[0.3, 0.2, 0.2, 0.3], k=length))
+
 
 if __name__ == '__main__':
     import os
     import sys
     sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)) + '/../src/')
-    from variant_extractor import VariantExtractor, VariantType
+    from variant_extractor import VariantExtractor
+    from variant_extractor.variants import VariantType
 
     # Parse arguments
     parser = ArgumentParser(description='Generate BAMSurgeon input from a VCF file')
@@ -43,13 +53,18 @@ if __name__ == '__main__':
             output_file_indel.write(
                 f'{variant_record.contig} {zero_based_pos} {zero_based_end} {VAF} DEL\n')
         elif var_type == VariantType.INDEL_INS:
-            pass
-            # TODO: What to insert if not defined
-            # zero_based_pos = variant_record.pos - 1
-            # output_file_indel.write(
-            #     f'{variant_record.contig} {zero_based_pos} {zero_based_pos+1} {VAF} INS {variant_record.alts[0]}\n')
+            zero_based_pos = variant_record.pos - 1
+            output_file_indel.write(
+                f'{variant_record.contig} {zero_based_pos} {zero_based_pos+1} {VAF} INS {variant_record.alts[0]}\n')
         else:
-            if var_type == VariantType.TRN:
+            # Add prefix or suffix as insertion. Ex: AAAGGTC[1:12121[
+            insertion_prefix = ''
+            if variant_record.alt_sv_bracket:
+                insertion_prefix = f'INS {variant_record.alt_sv_bracket.prefix[1:]};' if len(variant_record.alt_sv_bracket.prefix) > 1 else ''
+                insertion_prefix = f'INS {variant_record.alt_sv_bracket.suffix[:-1]};' if len(variant_record.alt_sv_bracket.suffix) > 1 else ''
+
+            if var_type == VariantType.TRN or var_type == VariantType.INV:
+                # Convert INV to TRN since most of them are not complete
                 alt_contig = variant_record.alt_sv_bracket.contig
                 alt_pos = variant_record.alt_sv_bracket.pos
                 # Calculate strand notation
@@ -62,19 +77,29 @@ if __name__ == '__main__':
                 else:
                     strand_notation = '--'
 
-                output_file_sv.write(
-                    f'{variant_record.contig} {variant_record.pos} {variant_record.pos} TRN {alt_contig} {alt_pos} {alt_pos} {strand_notation} {VAF}\n')
-            elif var_type == VariantType.INV:
-                output_file_sv.write(f'{variant_record.contig} {variant_record.pos} {variant_record.end} INV {VAF}\n')
+                op = f'TRN {alt_contig} {alt_pos} {alt_pos} {strand_notation} {VAF}'
+                output_file_sv.write(f'{variant_record.contig} {variant_record.pos} {variant_record.pos} {insertion_prefix}{op}\n')
             elif var_type == VariantType.DUP:
-                output_file_sv.write(f'{variant_record.contig} {variant_record.pos} {variant_record.end} DUP 1 {VAF}\n')
+                op = f'DUP 1 {VAF}'
+                output_file_sv.write(f'{variant_record.contig} {variant_record.pos} {variant_record.end} {insertion_prefix}{op}\n')
             elif var_type == VariantType.DEL:
-                output_file_sv.write(f'{variant_record.contig} {variant_record.pos} {variant_record.end} DEL {VAF}\n')
-                # TODO: Add indel threshold
+                if variant_record.end - variant_record.pos < INDEL_THRESHOLD:
+                    output_file_indel.write(
+                        f'{variant_record.contig} {variant_record.pos-1} {variant_record.end-1} {VAF} DEL\n')
+                else:
+                    op = f'DEL {VAF}'
+                    output_file_sv.write(f'{variant_record.contig} {variant_record.pos} {variant_record.end} {insertion_prefix}{op}\n')
             elif var_type == VariantType.INS:
-                # TODO: What to insert if not defined
-                pass
-                # output_file_sv.write(f'{variant_record.contig} {variant_record.pos} {variant_record.pos} INS {VAF}\n')
+                insert_length = int(abs(variant_record.info['SVLEN'])) if 'SVLEN' in variant_record.info \
+                    else variant_record.pos - variant_record.end
+                dna_sequence = generate_random_dna(insert_length)
+                if insert_length < INDEL_THRESHOLD:
+                    output_file_indel.write(
+                        f'{variant_record.contig} {variant_record.pos-1} {variant_record.pos} {VAF} INS {dna_sequence}\n')
+                else:
+                    # Cannot set VAF for insertions
+                    op = f'INS {dna_sequence}'
+                    output_file_sv.write(f'{variant_record.contig} {variant_record.pos} {variant_record.pos} {insertion_prefix}{op}\n')
 
     print(f'Reading VCF file: {args.vcf_file}')
     extractor = VariantExtractor()
