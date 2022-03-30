@@ -8,7 +8,7 @@ from .variants import VariantRecord, BracketSVRecord, ShorthandSVRecord
 # Regex for SVs
 BRACKET_SV_REGEX = re.compile(r'([.A-Za-z]*)(\[|\])([^\]\[:]+:[0-9]+)(\[|\])([.A-Za-z]*)')
 SHORTHAND_SV_REGEX = re.compile(r'<(DEL|INS|DUP|INV|CNV])(:[A-Za-z]+)*>')
-SGL_SV_REGEX = re.compile(r'\.?[.A-Za-z]\.?')
+SGL_SV_REGEX = re.compile(r'\.[.A-Za-z]+|[.A-Za-z]+\.')
 
 NUMBER_CONTIG_REGEX = re.compile(r'[0-9]+')
 
