@@ -140,7 +140,7 @@ All would be returned as one entry (each one of them with their own `ALT` field)
 | 2     | 3000 | A   | ... | PASS   | ...  | DEL                           | 5000                                  |
 
 #### Paired breakends
-For **paired breakends**, the breakend with the lowest chromosome and/or position is returned. For example:
+For **paired breakends**, breakends are paired using their coordinates (contig+position). The breakend with the lowest chromosome and/or position is returned. For example:
 
 | CHROM | ID  | POS  | REF | ALT       | FILTER | INFO       |
 | ----- | --- | ---- | --- | --------- | ------ | ---------- |
@@ -157,7 +157,7 @@ Would be returned as one entry per variant:
 | 1     | b_o | 3000 | A   | A[1:5000[ | PASS   | SVTYPE=BND | DEL                           |
 
 #### Imprecise paired breakends
-Imprecise breakends with bracket notation are paired using the `INFO` fields `MATEID` or `PARID`. In order to keep the deterministic process, as with the rest of variants, only the breakend with the lowest chromosome and/or position is kept. However, it is important to notice that the uncertainty information (`CIPOS` field) is lost for the other breakend. For example:
+Imprecise breakends with bracket notation are paired using the `INFO` fields `MATEID` or `PARID` instead of their coordinates (since they may not match). In order to keep the deterministic process, as with the rest of variants, only the breakend with the lowest chromosome and/or position is returned. However, it is important to notice that the uncertainty information (`CIPOS` field) is lost for the other breakend. For example:
 
 | CHROM | ID  | POS  | REF | ALT       | FILTER | INFO                             |
 | ----- | --- | ---- | --- | --------- | ------ | -------------------------------- |
