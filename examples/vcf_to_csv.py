@@ -48,6 +48,8 @@ if __name__ == '__main__':
 
         # Inferred type
         type_inferred = var_type.name
+        # Transform INDEL_DEL and INDEL_INS to DEL and INS
+        type_inferred = type_inferred.replace('INDEL_', '')
         # Get called EVENTTYPE or SVTYPE from INFO field
         type_called = variant_record.info['EVENTTYPE'] if 'EVENTTYPE' in variant_record.info else \
             variant_record.info['SVTYPE'] if 'SVTYPE' in variant_record.info else None
