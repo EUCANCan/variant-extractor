@@ -7,7 +7,8 @@ import math
 import warnings
 import pysam
 
-from .utils import select_record, extract_bracket_sv, extract_shorthand_sv, extract_sgl_sv, permute_bracket_sv
+from ._common import _select_record, _permute_bracket_sv, _convert_inv_to_bracket
+from ._parser import _parse_bracket_sv, _parse_shorthand_sv, _parse_sgl_sv
 from .variants import VariantType, VariantRecord
 
 
@@ -80,16 +81,16 @@ class VariantExtractor:
         if len(rec.alts) != 1:
             warnings.warn(f'WARNING: Skipping record with multiple alternate alleles ({rec})')
             return
-        vcf_record = extract_bracket_sv(rec)
+        vcf_record = _parse_bracket_sv(rec)
         # Check if bracket SV record
         if vcf_record:
-            return self.__parse_bracket_sv(vcf_record)
+            return self.__handle_bracket_sv(vcf_record)
         # Check if shorthand SV record
-        vcf_record = extract_shorthand_sv(rec)
+        vcf_record = _parse_shorthand_sv(rec)
         if vcf_record:
-            return self.__parse_shorthand_sv(vcf_record)
+            return self.__handle_shorthand_sv(vcf_record)
         # Check if single breakend SV record
-        vcf_record = extract_sgl_sv(rec)
+        vcf_record = _parse_sgl_sv(rec)
         if vcf_record:
             return self.__variants.append((VariantType.SGL, vcf_record))
         # Indel or SNV
@@ -110,7 +111,7 @@ class VariantExtractor:
         else:
             return self.__variants.append((VariantType.INDEL_INS, vcf_record))
 
-    def __parse_bracket_sv(self, vcf_record):
+    def __handle_bracket_sv(self, vcf_record):
         # Check for pending SVs
         previous_record = self.__pop_pending_sv_pair(vcf_record)
         if previous_record is None:
@@ -118,7 +119,7 @@ class VariantExtractor:
             return
         # Mate SV found, parse it
         self.__pairs_found += 1
-        record = select_record(previous_record, vcf_record)
+        record = _select_record(previous_record, vcf_record)
         self.__parse_bracket_individual_sv(record)
 
     def __store_pending_sv_pair(self, vcf_record):
@@ -151,7 +152,7 @@ class VariantExtractor:
     def __parse_bracket_individual_sv(self, vcf_record):
         # Transform REF/ALT to equivalent notation so that REF contains the lowest position
         if vcf_record.alt_sv_bracket.contig == vcf_record.contig and vcf_record.alt_sv_bracket.pos < vcf_record.pos:
-            vcf_record = permute_bracket_sv(vcf_record)
+            vcf_record = _permute_bracket_sv(vcf_record)
 
         # INV -> 1 10 N]1:20] or 1 20 N]1:10]
         #        1 10 [1:20[N or 1 20 [1:10[N
@@ -171,13 +172,16 @@ class VariantExtractor:
             # INV
             return self.__variants.append((VariantType.INV, vcf_record))
 
-    def __parse_shorthand_sv(self, vcf_record):
+    def __handle_shorthand_sv(self, vcf_record):
         if vcf_record.alt_sv_shorthand.type == 'DEL':
             return self.__variants.append((VariantType.DEL, vcf_record))
         elif vcf_record.alt_sv_shorthand.type == 'DUP':
             return self.__variants.append((VariantType.DUP, vcf_record))
         elif vcf_record.alt_sv_shorthand.type == 'INV':
-            return self.__variants.append((VariantType.INV, vcf_record))
+            # Transform INV into bracket notation
+            vcf_record_1, vcf_record_2 = _convert_inv_to_bracket(vcf_record)
+            self.__variants.append((VariantType.INV, vcf_record_1))
+            self.__variants.append((VariantType.INV, vcf_record_2))
         elif vcf_record.alt_sv_shorthand.type == 'INS':
             return self.__variants.append((VariantType.INS, vcf_record))
         elif vcf_record.alt_sv_shorthand.type == 'CNV':
@@ -196,7 +200,7 @@ class VariantExtractor:
                     # Mark for deletion
                     paired_records.append((alt_name, sv_name))
                     paired_records.append((previous_alt, previous_sv))
-                    record = select_record(vcf_record, previous_record)
+                    record = _select_record(vcf_record, previous_record)
                     self.__parse_bracket_individual_sv(record)
                     continue
 

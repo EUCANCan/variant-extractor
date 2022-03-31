@@ -24,12 +24,14 @@
 ##contig=<ID=X,length=155270560>
 ##contig=<ID=Y,length=59373566>
 ##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
-##INFO=<ID=SVLEN,Number=1,Type=Float,Description="Length of the SV>"
+##INFO=<ID=SVLEN,Number=1,Type=Float,Description="Length of the SV">
 ##INFO=<ID=SVTYPE,Number=1,Type=String,Description="Type of the SV">
 ##INFO=<ID=SUPP_SEQ,Number=.,Type=String,Description="Vector of supporting technologies">
 ##INFO=<ID=SUPP_VAL,Number=.,Type=String,Description="Vector of supporting technologies">
 ##INFO=<ID=GENE,Number=.,Type=String,Description="Gene(s) overlap in breakpoint">
 ##INFO=<ID=CLUSTER,Number=.,Type=String,Description="IDs of other clustered breakpoints">
+##INFO=<ID=EXTRA,Number=.,Type=String,Description="Extra info for testing">
+##INFO=<ID=END,Number=1,Type=Integer,Description="End position of the variant described in this record">
 #CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	DESC
 1	1000	.	G	A	.	PASS	EXTRA=DUMMY_SNV
 1	1500	.	GAA	ACA	.	PASS	EXTRA=DUMMY_MULTI_SNV
@@ -39,3 +41,4 @@
 1	2300	.	GT	CAATATATA	.	PASS	EXTRA=DUMMY_INDEL_INS_DIFF_SIZE
 2	3000	truthset_0_1	T	T[2:5000[	.	PASS	SVLEN=0;SVTYPE=BND;EXTRA=DEL_PAIRED
 2	5000	truthset_0_1	T	]2:3000]T	.	PASS	SVLEN=0;SVTYPE=BND;EXTRA=DEL_PAIRED
+2	321682	INV0	T	<INV>	.	PASS	SVTYPE=INV;END=421681;EXTRA=INV_SHORTHAND
