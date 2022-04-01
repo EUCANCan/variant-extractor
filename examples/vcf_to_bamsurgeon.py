@@ -42,20 +42,10 @@ if __name__ == '__main__':
     output_file_indel = open(f'{args.output_file_schema}_indel.in', 'w')
 
     def variant_callback(var_type, variant_record):
+        # TODO: What with records with different REF/ALT sizes
         if var_type == VariantType.SNV:
             output_file_snv.write(
                 f'{variant_record.contig} {variant_record.pos} {variant_record.pos} {VAF} {variant_record.alts[0]}\n')
-        elif var_type == VariantType.INDEL_DEL:
-            # TODO: What with indels different REF/ALT sizes
-            # Must be 0-based
-            zero_based_pos = variant_record.pos - 1
-            zero_based_end = variant_record.end - 1
-            output_file_indel.write(
-                f'{variant_record.contig} {zero_based_pos} {zero_based_end} {VAF} DEL\n')
-        elif var_type == VariantType.INDEL_INS:
-            zero_based_pos = variant_record.pos - 1
-            output_file_indel.write(
-                f'{variant_record.contig} {zero_based_pos} {zero_based_pos+1} {VAF} INS {variant_record.alts[0]}\n')
         else:
             # Add prefix or suffix as insertion. Ex: AAAGGTC[1:12121[
             insertion_prefix = ''
@@ -83,6 +73,7 @@ if __name__ == '__main__':
                 op = f'DUP 1 {VAF}'
                 output_file_sv.write(f'{variant_record.contig} {variant_record.pos} {variant_record.end} {insertion_prefix}{op}\n')
             elif var_type == VariantType.DEL:
+                # Check if INDEL
                 if variant_record.end - variant_record.pos < INDEL_THRESHOLD:
                     output_file_indel.write(
                         f'{variant_record.contig} {variant_record.pos-1} {variant_record.end-1} {VAF} DEL\n')
@@ -90,9 +81,13 @@ if __name__ == '__main__':
                     op = f'DEL {VAF}'
                     output_file_sv.write(f'{variant_record.contig} {variant_record.pos} {variant_record.end} {insertion_prefix}{op}\n')
             elif var_type == VariantType.INS:
-                insert_length = int(abs(variant_record.info['SVLEN'])) if 'SVLEN' in variant_record.info \
-                    else variant_record.pos - variant_record.end
-                dna_sequence = generate_random_dna(insert_length)
+                if variant_record.alt_sv_shorthand:
+                    insert_length = int(abs(variant_record.info['SVLEN'])) if 'SVLEN' in variant_record.info \
+                        else variant_record.pos - variant_record.end
+                    dna_sequence = generate_random_dna(insert_length)
+                else:
+                    dna_sequence = variant_record.alts[0]
+                # Check if INDEL
                 if insert_length < INDEL_THRESHOLD:
                     output_file_indel.write(
                         f'{variant_record.contig} {variant_record.pos-1} {variant_record.pos} {VAF} INS {dna_sequence}\n')

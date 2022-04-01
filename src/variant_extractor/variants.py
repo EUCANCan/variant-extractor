@@ -10,8 +10,6 @@ class VariantType(Enum):
     """Enumeration with the different types of variations
     """
     SNV = auto()
-    INDEL_INS = auto()
-    INDEL_DEL = auto()
     DEL = auto()
     INS = auto()
     DUP = auto()

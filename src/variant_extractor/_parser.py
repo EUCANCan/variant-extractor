@@ -9,6 +9,8 @@ from .variants import VariantRecord, BracketSVRecord, ShorthandSVRecord
 BRACKET_SV_REGEX = re.compile(r'([.A-Za-z]*)(\[|\])([^\]\[:]+:[0-9]+)(\[|\])([.A-Za-z]*)')
 SHORTHAND_SV_REGEX = re.compile(r'<(DEL|INS|DUP|INV|CNV])(:[A-Za-z]+)*>')
 SGL_SV_REGEX = re.compile(r'\.[.A-Za-z]+|[.A-Za-z]+\.')
+STANDARD_RECORD_REGEX = re.compile(r'([.A-Za-z]+)')
+
 
 def _parse_bracket_sv(rec):
     sv_match_bracket = BRACKET_SV_REGEX.search(rec.alts[0])
@@ -46,6 +48,16 @@ def _parse_shorthand_sv(rec):
 def _parse_sgl_sv(rec):
     sv_match_sgl = SGL_SV_REGEX.search(rec.alts[0])
     if not sv_match_sgl or 'SVTYPE' not in rec.info:
+        return None
+    # Create new record
+    vcf_record = VariantRecord(rec.contig, rec.pos, rec.stop, rec.id, rec.ref,
+                               rec.alts, rec.filter, rec.info, None, None)
+    return vcf_record
+
+
+def _parse_standard_record(rec):
+    match = STANDARD_RECORD_REGEX.search(rec.alts[0])
+    if not match:
         return None
     # Create new record
     vcf_record = VariantRecord(rec.contig, rec.pos, rec.stop, rec.id, rec.ref,

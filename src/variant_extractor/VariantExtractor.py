@@ -8,8 +8,8 @@ import warnings
 import pysam
 
 from ._common import _select_record, _permute_bracket_sv, _convert_inv_to_bracket
-from ._parser import _parse_bracket_sv, _parse_shorthand_sv, _parse_sgl_sv
-from .variants import VariantType, VariantRecord
+from ._parser import _parse_bracket_sv, _parse_shorthand_sv, _parse_sgl_sv, _parse_standard_record
+from .variants import VariantType
 
 
 class VariantExtractor:
@@ -93,9 +93,14 @@ class VariantExtractor:
         vcf_record = _parse_sgl_sv(rec)
         if vcf_record:
             return self.__variants.append((VariantType.SGL, vcf_record))
-        # Indel or SNV
-        vcf_record = VariantRecord(rec.contig, rec.pos, rec.stop, rec.id, rec.ref,
-                                   rec.alts, rec.filter, rec.info, None, None)
+        # Check if standard record
+        vcf_record = _parse_standard_record(rec)
+        if vcf_record:
+            return self.__handel_standard_record(vcf_record)
+        else:
+            raise Exception(f'ERROR: Unrecognized record ({rec})')
+
+    def __handel_standard_record(self, vcf_record):
         # Check if SNV
         if len(vcf_record.alts[0]) == len(vcf_record.ref):
             # REF=CTT ALT=ATG -> Normalize to 3 SNVs
@@ -104,12 +109,12 @@ class VariantExtractor:
                     new_vcf_record = vcf_record._replace(
                         ref=vcf_record.ref[i], pos=i+vcf_record.pos, end=i+vcf_record.end, alts=[vcf_record.alts[0][i]])
                     self.__variants.append((VariantType.SNV, new_vcf_record))
-        # Check if INDEL_DEL
+        # Check if DEL
         elif len(vcf_record.alts[0]) < len(vcf_record.ref):
-            return self.__variants.append((VariantType.INDEL_DEL, vcf_record))
-        # Check if INDEL_INS
+            return self.__variants.append((VariantType.DEL, vcf_record))
+        # Check if INS
         else:
-            return self.__variants.append((VariantType.INDEL_INS, vcf_record))
+            return self.__variants.append((VariantType.INS, vcf_record))
 
     def __handle_bracket_sv(self, vcf_record):
         # Check for pending SVs
