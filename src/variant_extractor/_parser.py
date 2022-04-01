@@ -25,8 +25,8 @@ def _parse_bracket_sv(rec):
     # End position
     end_pos = int(alt_pos) if alt_contig == rec.contig else rec.stop
     # Create new record
-    vcf_record = VariantRecord(rec.contig, rec.pos, end_pos, rec.id, rec.ref,
-                               rec.alts, rec.filter, rec.info, alt_sv_bracket, None)
+    vcf_record = VariantRecord(rec.contig, rec.pos, end_pos, rec.id, rec.ref, rec.alts,
+                               rec.qual, rec.filter, rec.info, alt_sv_bracket, None)
     return vcf_record
 
 
@@ -40,8 +40,8 @@ def _parse_shorthand_sv(rec):
     alt_sv_shorthand = ShorthandSVRecord(alt_type, alt_extra)
 
     # Create new record
-    vcf_record = VariantRecord(rec.contig, rec.pos, rec.stop, rec.id, rec.ref,
-                               rec.alts, rec.filter, rec.info, None, alt_sv_shorthand)
+    vcf_record = VariantRecord(rec.contig, rec.pos, rec.stop, rec.id, rec.ref, rec.alts,
+                               rec.qual, rec.filter, rec.info, None, alt_sv_shorthand)
     return vcf_record
 
 
@@ -50,8 +50,8 @@ def _parse_sgl_sv(rec):
     if not sv_match_sgl or 'SVTYPE' not in rec.info:
         return None
     # Create new record
-    vcf_record = VariantRecord(rec.contig, rec.pos, rec.stop, rec.id, rec.ref,
-                               rec.alts, rec.filter, rec.info, None, None)
+    vcf_record = VariantRecord(rec.contig, rec.pos, rec.stop, rec.id, rec.ref, rec.alts,
+                               rec.qual, rec.filter, rec.info, None, None)
     return vcf_record
 
 
@@ -60,6 +60,6 @@ def _parse_standard_record(rec):
     if not match:
         return None
     # Create new record
-    vcf_record = VariantRecord(rec.contig, rec.pos, rec.stop, rec.id, rec.ref,
-                               rec.alts, rec.filter, rec.info, None, None)
+    vcf_record = VariantRecord(rec.contig, rec.pos, rec.stop, rec.id, rec.ref, rec.alts,
+                               rec.qual, rec.filter, rec.info, None, None)
     return vcf_record

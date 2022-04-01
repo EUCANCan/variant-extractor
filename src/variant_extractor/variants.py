@@ -43,7 +43,6 @@ class ShorthandSVRecord(NamedTuple):
     """Extra information of the SV. For example, for :code:`<DUP:TANDEM:AA>` the extra will be :code:`['TANDEM', 'AA']`"""
 
 
-# TODO: Add qual and format fields to the SV record
 class VariantRecord(NamedTuple):
     """NamedTuple with the information of a variant record
     """
@@ -59,6 +58,8 @@ class VariantRecord(NamedTuple):
     """Reference sequence"""
     alts: List[str]
     """List of alternative sequences"""
+    qual: Optional[float]
+    """Quality score for the assertion made in ALT"""
     filter: pysam.VariantRecordFilter
     """Record filter"""
     info: pysam.VariantRecordInfo
