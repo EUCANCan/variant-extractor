@@ -33,7 +33,6 @@ if __name__ == '__main__':
         classifiers=[
             'Programming Language :: Python :: 3 :: Only',
             'Development Status :: 5 - Production/Stable',
-            'License :: OSI Approved :: MIT License',
             'Operating System :: OS Independent'
         ],
         package_dir={'': 'src'},

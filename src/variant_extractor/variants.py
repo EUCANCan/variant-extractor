@@ -1,6 +1,6 @@
 # Copyright 2022 - Barcelona Supercomputing Center
 # Author: Rodrigo Martín Posada
-# MIT License
+# BSC AS IS License
 from typing import NamedTuple, Optional, List
 from enum import Enum, auto
 import pysam

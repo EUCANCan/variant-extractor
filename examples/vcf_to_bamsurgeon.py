@@ -1,6 +1,6 @@
 # Copyright 2022 - Barcelona Supercomputing Center
 # Author: Rodrigo Martín Posada
-# MIT License
+# BSC AS IS License
 '''
 Generates the BAMSurgeon input from a VCF file
 Expected usage:

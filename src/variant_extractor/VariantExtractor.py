@@ -1,6 +1,6 @@
 # Copyright 2022 - Barcelona Supercomputing Center
 # Author: Rodrigo Martín Posada
-# MIT License
+# BSC AS IS License
 from os import path
 from argparse import ArgumentParser
 import math
