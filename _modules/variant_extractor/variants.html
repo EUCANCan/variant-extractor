@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>variant_extractor.variants &mdash; variant-extractor 1.1.0 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> variant-extractor
+          </a>
+              <div class="version">
+                1.1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../variant_extractor.html">variant_extractor API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">variant-extractor</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>variant_extractor.variants</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for variant_extractor.variants</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright 2022 - Barcelona Supercomputing Center</span>
+<span class="c1"># Author: Rodrigo Martín Posada</span>
+<span class="c1"># MIT License</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">NamedTuple</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">auto</span>
+<span class="kn">import</span> <span class="nn">pysam</span>
+
+
+<div class="viewcode-block" id="VariantType"><a class="viewcode-back" href="../../variant_extractor.html#variant_extractor.variants.VariantType">[docs]</a><span class="k">class</span> <span class="nc">VariantType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Enumeration with the different types of variations</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">SNV</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">INDEL_INS</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">INDEL_DEL</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">DEL</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">INS</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">DUP</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">INV</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">CNV</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">TRN</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">SGL</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="BracketSVRecord"><a class="viewcode-back" href="../../variant_extractor.html#variant_extractor.variants.BracketSVRecord">[docs]</a><span class="k">class</span> <span class="nc">BracketSVRecord</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;NamedTuple with the information of a bracketed SV record</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">prefix</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="sd">&quot;&quot;&quot;Prefix of the SV record with bracket notation. For example, for :code:`G]17:198982]` the prefix will be :code:`G`&quot;&quot;&quot;</span>
+    <span class="n">bracket</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="sd">&quot;&quot;&quot;Bracket of the SV record with bracket notation. For example, for :code:`G]17:198982]` the bracket will be :code:`]`&quot;&quot;&quot;</span>
+    <span class="n">contig</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="sd">&quot;&quot;&quot;Contig of the SV record with bracket notation. For example, for :code:`G]17:198982]` the contig will be :code:`17`&quot;&quot;&quot;</span>
+    <span class="n">pos</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="sd">&quot;&quot;&quot;Position of the SV record with bracket notation. For example, for :code:`G]17:198982]` the position will be :code:`198982`&quot;&quot;&quot;</span>
+    <span class="n">suffix</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="sd">&quot;&quot;&quot;Suffix of the SV record with bracket notation. For example, for :code:`G]17:198982]` the suffix will be :code:`None`&quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="ShorthandSVRecord"><a class="viewcode-back" href="../../variant_extractor.html#variant_extractor.variants.ShorthandSVRecord">[docs]</a><span class="k">class</span> <span class="nc">ShorthandSVRecord</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;NamedTuple with the information of a shorthand SV record</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="sd">&quot;&quot;&quot;One of the following, :code:`&#39;DEL&#39;`, :code:`&#39;INS&#39;`, :code:`&#39;DUP&#39;`, :code:`&#39;INV&#39;` or :code:`&#39;CNV&#39;`&quot;&quot;&quot;</span>
+    <span class="n">extra</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="sd">&quot;&quot;&quot;Extra information of the SV. For example, for :code:`&lt;DUP:TANDEM:AA&gt;` the extra will be :code:`[&#39;TANDEM&#39;, &#39;AA&#39;]`&quot;&quot;&quot;</span></div>
+
+
+<span class="c1"># TODO: Add qual and format fields to the SV record</span>
+<div class="viewcode-block" id="VariantRecord"><a class="viewcode-back" href="../../variant_extractor.html#variant_extractor.variants.VariantRecord">[docs]</a><span class="k">class</span> <span class="nc">VariantRecord</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;NamedTuple with the information of a variant record</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">contig</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="sd">&quot;&quot;&quot;Contig name&quot;&quot;&quot;</span>
+    <span class="n">pos</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="sd">&quot;&quot;&quot;Position of the variant in the contig&quot;&quot;&quot;</span>
+    <span class="n">end</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="sd">&quot;&quot;&quot;End position of the variant in the contig (same as `pos` for TRN and SNV)&quot;&quot;&quot;</span>
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="sd">&quot;&quot;&quot;Record identifier&quot;&quot;&quot;</span>
+    <span class="n">ref</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="sd">&quot;&quot;&quot;Reference sequence&quot;&quot;&quot;</span>
+    <span class="n">alts</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="sd">&quot;&quot;&quot;List of alternative sequences&quot;&quot;&quot;</span>
+    <span class="nb">filter</span><span class="p">:</span> <span class="n">pysam</span><span class="o">.</span><span class="n">VariantRecordFilter</span>
+    <span class="sd">&quot;&quot;&quot;Record filter&quot;&quot;&quot;</span>
+    <span class="n">info</span><span class="p">:</span> <span class="n">pysam</span><span class="o">.</span><span class="n">VariantRecordInfo</span>
+    <span class="sd">&quot;&quot;&quot;Dictionary of information fields&quot;&quot;&quot;</span>
+    <span class="n">alt_sv_bracket</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BracketSVRecord</span><span class="p">]</span>
+    <span class="sd">&quot;&quot;&quot;Bracketed SV info, present only for SVs with bracket notation. For example, :code:`G]17:198982]`&quot;&quot;&quot;</span>
+    <span class="n">alt_sv_shorthand</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ShorthandSVRecord</span><span class="p">]</span>
+    <span class="sd">&quot;&quot;&quot;Shorthand SV info, present only for SVs with shorthand notation. For example, :code:`&lt;DUP:TANDEM&gt;`&quot;&quot;&quot;</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Rapsssito.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

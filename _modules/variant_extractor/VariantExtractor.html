@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>variant_extractor.VariantExtractor &mdash; variant-extractor 1.1.0 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> variant-extractor
+          </a>
+              <div class="version">
+                1.1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../variant_extractor.html">variant_extractor API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">variant-extractor</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>variant_extractor.VariantExtractor</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for variant_extractor.VariantExtractor</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright 2022 - Barcelona Supercomputing Center</span>
+<span class="c1"># Author: Rodrigo Martín Posada</span>
+<span class="c1"># MIT License</span>
+<span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">path</span>
+<span class="kn">from</span> <span class="nn">argparse</span> <span class="kn">import</span> <span class="n">ArgumentParser</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">pysam</span>
+
+<span class="kn">from</span> <span class="nn">._common</span> <span class="kn">import</span> <span class="n">_select_record</span><span class="p">,</span> <span class="n">_permute_bracket_sv</span><span class="p">,</span> <span class="n">_convert_inv_to_bracket</span>
+<span class="kn">from</span> <span class="nn">._parser</span> <span class="kn">import</span> <span class="n">_parse_bracket_sv</span><span class="p">,</span> <span class="n">_parse_shorthand_sv</span><span class="p">,</span> <span class="n">_parse_sgl_sv</span>
+<span class="kn">from</span> <span class="nn">.variants</span> <span class="kn">import</span> <span class="n">VariantType</span><span class="p">,</span> <span class="n">VariantRecord</span>
+
+
+<div class="viewcode-block" id="VariantExtractor"><a class="viewcode-back" href="../../variant_extractor.html#variant_extractor.VariantExtractor">[docs]</a><span class="k">class</span> <span class="nc">VariantExtractor</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Reads and extracts variants from VCF files. This class is designed to be</span>
+<span class="sd">    used in a pipeline, where the variants are ingested from VCF files and then used in downstream analysis.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="VariantExtractor.__init__"><a class="viewcode-back" href="../../variant_extractor.html#variant_extractor.VariantExtractor.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">only_pass</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ensure_pairs</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        only_pass : bool, optional</span>
+<span class="sd">            If :code:`True`, only records with PASS filter will be considered.</span>
+<span class="sd">        ensure_pairs : bool, optional</span>
+<span class="sd">            If :code:`True`, throws an exception if a breakend is missing a pair when all other were paired successfully.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ensure_pairs</span> <span class="o">=</span> <span class="n">ensure_pairs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">only_pass</span> <span class="o">=</span> <span class="n">only_pass</span></div>
+
+<div class="viewcode-block" id="VariantExtractor.read_vcf"><a class="viewcode-back" href="../../variant_extractor.html#variant_extractor.VariantExtractor.read_vcf">[docs]</a>    <span class="k">def</span> <span class="nf">read_vcf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vcf_file</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reads VCF file and extracts all variants.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        vcf_file : str</span>
+<span class="sd">            A VCF formatted file. The file is automatically opened.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list[tuple[VariantType, VariantRecord]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__variants</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__pairs_found</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__pending_sv_pairs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># Read the file</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="n">vcf_file</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">vcf_handle</span><span class="p">:</span>
+            <span class="n">save</span> <span class="o">=</span> <span class="n">pysam</span><span class="o">.</span><span class="n">set_verbosity</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">with</span> <span class="n">pysam</span><span class="o">.</span><span class="n">VariantFile</span><span class="p">(</span><span class="n">vcf_handle</span><span class="p">)</span> <span class="k">as</span> <span class="n">vcf</span><span class="p">:</span>
+                <span class="n">pysam</span><span class="o">.</span><span class="n">set_verbosity</span><span class="p">(</span><span class="n">save</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">rec</span> <span class="ow">in</span> <span class="n">vcf</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">__parse_record</span><span class="p">(</span><span class="n">rec</span><span class="p">)</span>
+        <span class="c1"># Handle uncertain unpaired SV</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__handle_uncertain_sv</span><span class="p">()</span>
+        <span class="c1"># Only single-paired records or not ensuring pairs</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">ensure_pairs</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">__pairs_found</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__pairs_found</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;WARNING: No SV breakend pairs found, assuming all records are single-paired&#39;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">alt_dicts</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__pending_sv_pairs</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                <span class="k">for</span> <span class="n">vcf_record</span> <span class="ow">in</span> <span class="n">alt_dicts</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">__parse_bracket_individual_sv</span><span class="p">(</span><span class="n">vcf_record</span><span class="p">)</span>
+        <span class="c1"># Found unpaired records</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__pending_sv_pairs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">exception_text</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+            <span class="k">for</span> <span class="n">alt_dicts</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__pending_sv_pairs</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                <span class="k">for</span> <span class="n">vcf_record</span> <span class="ow">in</span> <span class="n">alt_dicts</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                    <span class="n">exception_text</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39;REF=</span><span class="si">{</span><span class="n">vcf_record</span><span class="o">.</span><span class="n">contig</span><span class="si">}</span><span class="s1">:</span><span class="si">{</span><span class="n">vcf_record</span><span class="o">.</span><span class="n">pos</span><span class="si">}</span><span class="se">\t</span><span class="s1">ALT=</span><span class="si">{</span><span class="n">vcf_record</span><span class="o">.</span><span class="n">alt_sv_bracket</span><span class="o">.</span><span class="n">contig</span><span class="si">}</span><span class="s1">:</span><span class="si">{</span><span class="n">vcf_record</span><span class="o">.</span><span class="n">alt_sv_bracket</span><span class="o">.</span><span class="n">pos</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+                <span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unpaired SV breakends:</span><span class="se">\n</span><span class="si">{</span><span class="n">exception_text</span><span class="si">}</span><span class="s1">&#39;</span>
+                 <span class="sa">f</span><span class="s1">&#39;Exception: There are </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__pending_sv_pairs</span><span class="p">)</span><span class="si">}</span><span class="s1"> unpaired SV breakends. &#39;</span>
+                 <span class="s1">&#39;Please, check the entires show above in VCF file. &#39;</span>
+                 <span class="s1">&#39;Use ensure_pairs=False to ignore unpaired SV breakends.&#39;</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__variants</span></div>
+
+    <span class="k">def</span> <span class="nf">__parse_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rec</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">only_pass</span> <span class="ow">and</span> <span class="s1">&#39;PASS&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">rec</span><span class="o">.</span><span class="n">filter</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rec</span><span class="o">.</span><span class="n">alts</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;WARNING: Skipping record with multiple alternate alleles (</span><span class="si">{</span><span class="n">rec</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="n">vcf_record</span> <span class="o">=</span> <span class="n">_parse_bracket_sv</span><span class="p">(</span><span class="n">rec</span><span class="p">)</span>
+        <span class="c1"># Check if bracket SV record</span>
+        <span class="k">if</span> <span class="n">vcf_record</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__handle_bracket_sv</span><span class="p">(</span><span class="n">vcf_record</span><span class="p">)</span>
+        <span class="c1"># Check if shorthand SV record</span>
+        <span class="n">vcf_record</span> <span class="o">=</span> <span class="n">_parse_shorthand_sv</span><span class="p">(</span><span class="n">rec</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">vcf_record</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__handle_shorthand_sv</span><span class="p">(</span><span class="n">vcf_record</span><span class="p">)</span>
+        <span class="c1"># Check if single breakend SV record</span>
+        <span class="n">vcf_record</span> <span class="o">=</span> <span class="n">_parse_sgl_sv</span><span class="p">(</span><span class="n">rec</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">vcf_record</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__variants</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">VariantType</span><span class="o">.</span><span class="n">SGL</span><span class="p">,</span> <span class="n">vcf_record</span><span class="p">))</span>
+        <span class="c1"># Indel or SNV</span>
+        <span class="n">vcf_record</span> <span class="o">=</span> <span class="n">VariantRecord</span><span class="p">(</span><span class="n">rec</span><span class="o">.</span><span class="n">contig</span><span class="p">,</span> <span class="n">rec</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">rec</span><span class="o">.</span><span class="n">stop</span><span class="p">,</span> <span class="n">rec</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">rec</span><span class="o">.</span><span class="n">ref</span><span class="p">,</span>
+                                   <span class="n">rec</span><span class="o">.</span><span class="n">alts</span><span class="p">,</span> <span class="n">rec</span><span class="o">.</span><span class="n">filter</span><span class="p">,</span> <span class="n">rec</span><span class="o">.</span><span class="n">info</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="c1"># Check if SNV</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vcf_record</span><span class="o">.</span><span class="n">alts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">vcf_record</span><span class="o">.</span><span class="n">ref</span><span class="p">):</span>
+            <span class="c1"># REF=CTT ALT=ATG -&gt; Normalize to 3 SNVs</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">vcf_record</span><span class="o">.</span><span class="n">ref</span><span class="p">)):</span>
+                <span class="k">if</span> <span class="n">vcf_record</span><span class="o">.</span><span class="n">alts</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">!=</span> <span class="n">vcf_record</span><span class="o">.</span><span class="n">ref</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+                    <span class="n">new_vcf_record</span> <span class="o">=</span> <span class="n">vcf_record</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span>
+                        <span class="n">ref</span><span class="o">=</span><span class="n">vcf_record</span><span class="o">.</span><span class="n">ref</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">pos</span><span class="o">=</span><span class="n">i</span><span class="o">+</span><span class="n">vcf_record</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">i</span><span class="o">+</span><span class="n">vcf_record</span><span class="o">.</span><span class="n">end</span><span class="p">,</span> <span class="n">alts</span><span class="o">=</span><span class="p">[</span><span class="n">vcf_record</span><span class="o">.</span><span class="n">alts</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">i</span><span class="p">]])</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">__variants</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">VariantType</span><span class="o">.</span><span class="n">SNV</span><span class="p">,</span> <span class="n">new_vcf_record</span><span class="p">))</span>
+        <span class="c1"># Check if INDEL_DEL</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">vcf_record</span><span class="o">.</span><span class="n">alts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">vcf_record</span><span class="o">.</span><span class="n">ref</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__variants</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">VariantType</span><span class="o">.</span><span class="n">INDEL_DEL</span><span class="p">,</span> <span class="n">vcf_record</span><span class="p">))</span>
+        <span class="c1"># Check if INDEL_INS</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__variants</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">VariantType</span><span class="o">.</span><span class="n">INDEL_INS</span><span class="p">,</span> <span class="n">vcf_record</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">__handle_bracket_sv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vcf_record</span><span class="p">):</span>
+        <span class="c1"># Check for pending SVs</span>
+        <span class="n">previous_record</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__pop_pending_sv_pair</span><span class="p">(</span><span class="n">vcf_record</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">previous_record</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__store_pending_sv_pair</span><span class="p">(</span><span class="n">vcf_record</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="c1"># Mate SV found, parse it</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__pairs_found</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">record</span> <span class="o">=</span> <span class="n">_select_record</span><span class="p">(</span><span class="n">previous_record</span><span class="p">,</span> <span class="n">vcf_record</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__parse_bracket_individual_sv</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__store_pending_sv_pair</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vcf_record</span><span class="p">):</span>
+        <span class="n">alt_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">vcf_record</span><span class="o">.</span><span class="n">alt_sv_bracket</span><span class="o">.</span><span class="n">contig</span><span class="si">}{</span><span class="n">vcf_record</span><span class="o">.</span><span class="n">alt_sv_bracket</span><span class="o">.</span><span class="n">pos</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="n">sv_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">vcf_record</span><span class="o">.</span><span class="n">contig</span><span class="si">}{</span><span class="n">vcf_record</span><span class="o">.</span><span class="n">pos</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="c1"># Check if alt is already in the dictionary</span>
+        <span class="n">previous_records</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__pending_sv_pairs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">alt_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">previous_records</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Create new entry for alt</span>
+            <span class="n">new_records</span> <span class="o">=</span> <span class="p">{</span><span class="n">sv_name</span><span class="p">:</span> <span class="n">vcf_record</span><span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__pending_sv_pairs</span><span class="p">[</span><span class="n">alt_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_records</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Already exists alt entry, add new entry to alt</span>
+            <span class="n">previous_records</span><span class="p">[</span><span class="n">sv_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">vcf_record</span>
+
+    <span class="k">def</span> <span class="nf">__pop_pending_sv_pair</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vcf_record</span><span class="p">):</span>
+        <span class="n">sv_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">vcf_record</span><span class="o">.</span><span class="n">contig</span><span class="si">}{</span><span class="n">vcf_record</span><span class="o">.</span><span class="n">pos</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="n">previous_records</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__pending_sv_pairs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sv_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">previous_records</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">previous_record_alt_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">vcf_record</span><span class="o">.</span><span class="n">alt_sv_bracket</span><span class="o">.</span><span class="n">contig</span><span class="si">}{</span><span class="n">vcf_record</span><span class="o">.</span><span class="n">alt_sv_bracket</span><span class="o">.</span><span class="n">pos</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="n">previous_record_alt</span> <span class="o">=</span> <span class="n">previous_records</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">previous_record_alt_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">previous_record_alt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">previous_records</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">previous_record_alt_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">previous_records</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__pending_sv_pairs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">sv_name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">previous_record_alt</span>
+
+    <span class="k">def</span> <span class="nf">__parse_bracket_individual_sv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vcf_record</span><span class="p">):</span>
+        <span class="c1"># Transform REF/ALT to equivalent notation so that REF contains the lowest position</span>
+        <span class="k">if</span> <span class="n">vcf_record</span><span class="o">.</span><span class="n">alt_sv_bracket</span><span class="o">.</span><span class="n">contig</span> <span class="o">==</span> <span class="n">vcf_record</span><span class="o">.</span><span class="n">contig</span> <span class="ow">and</span> <span class="n">vcf_record</span><span class="o">.</span><span class="n">alt_sv_bracket</span><span class="o">.</span><span class="n">pos</span> <span class="o">&lt;</span> <span class="n">vcf_record</span><span class="o">.</span><span class="n">pos</span><span class="p">:</span>
+            <span class="n">vcf_record</span> <span class="o">=</span> <span class="n">_permute_bracket_sv</span><span class="p">(</span><span class="n">vcf_record</span><span class="p">)</span>
+
+        <span class="c1"># INV -&gt; 1 10 N]1:20] or 1 20 N]1:10]</span>
+        <span class="c1">#        1 10 [1:20[N or 1 20 [1:10[N</span>
+        <span class="c1"># DEL -&gt; 1 10 N[1:20[ or 1 20 ]1:10]N</span>
+        <span class="c1"># DUP -&gt; 1 10 ]1:20]N or 1 20 N[1:10[</span>
+        <span class="c1"># INS or BND -&gt; any posibility with different contigs</span>
+        <span class="k">if</span> <span class="n">vcf_record</span><span class="o">.</span><span class="n">contig</span> <span class="o">!=</span> <span class="n">vcf_record</span><span class="o">.</span><span class="n">alt_sv_bracket</span><span class="o">.</span><span class="n">contig</span><span class="p">:</span>
+            <span class="c1"># BND &amp; INS with different contig ~ TRN</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__variants</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">VariantType</span><span class="o">.</span><span class="n">TRN</span><span class="p">,</span> <span class="n">vcf_record</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">vcf_record</span><span class="o">.</span><span class="n">alt_sv_bracket</span><span class="o">.</span><span class="n">prefix</span> <span class="ow">and</span> <span class="n">vcf_record</span><span class="o">.</span><span class="n">alt_sv_bracket</span><span class="o">.</span><span class="n">bracket</span> <span class="o">==</span> <span class="s1">&#39;[&#39;</span><span class="p">:</span>
+            <span class="c1"># DEL</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__variants</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">VariantType</span><span class="o">.</span><span class="n">DEL</span><span class="p">,</span> <span class="n">vcf_record</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">vcf_record</span><span class="o">.</span><span class="n">alt_sv_bracket</span><span class="o">.</span><span class="n">prefix</span> <span class="ow">and</span> <span class="n">vcf_record</span><span class="o">.</span><span class="n">alt_sv_bracket</span><span class="o">.</span><span class="n">bracket</span> <span class="o">==</span> <span class="s1">&#39;]&#39;</span><span class="p">:</span>
+            <span class="c1"># DUP</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__variants</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">VariantType</span><span class="o">.</span><span class="n">DUP</span><span class="p">,</span> <span class="n">vcf_record</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># INV</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__variants</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">VariantType</span><span class="o">.</span><span class="n">INV</span><span class="p">,</span> <span class="n">vcf_record</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">__handle_shorthand_sv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vcf_record</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">vcf_record</span><span class="o">.</span><span class="n">alt_sv_shorthand</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">&#39;DEL&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__variants</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">VariantType</span><span class="o">.</span><span class="n">DEL</span><span class="p">,</span> <span class="n">vcf_record</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">vcf_record</span><span class="o">.</span><span class="n">alt_sv_shorthand</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">&#39;DUP&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__variants</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">VariantType</span><span class="o">.</span><span class="n">DUP</span><span class="p">,</span> <span class="n">vcf_record</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">vcf_record</span><span class="o">.</span><span class="n">alt_sv_shorthand</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">&#39;INV&#39;</span><span class="p">:</span>
+            <span class="c1"># Transform INV into bracket notation</span>
+            <span class="n">vcf_record_1</span><span class="p">,</span> <span class="n">vcf_record_2</span> <span class="o">=</span> <span class="n">_convert_inv_to_bracket</span><span class="p">(</span><span class="n">vcf_record</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__variants</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">VariantType</span><span class="o">.</span><span class="n">INV</span><span class="p">,</span> <span class="n">vcf_record_1</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__variants</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">VariantType</span><span class="o">.</span><span class="n">INV</span><span class="p">,</span> <span class="n">vcf_record_2</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">vcf_record</span><span class="o">.</span><span class="n">alt_sv_shorthand</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">&#39;INS&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__variants</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">VariantType</span><span class="o">.</span><span class="n">INS</span><span class="p">,</span> <span class="n">vcf_record</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">vcf_record</span><span class="o">.</span><span class="n">alt_sv_shorthand</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">&#39;CNV&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__variants</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">VariantType</span><span class="o">.</span><span class="n">CNV</span><span class="p">,</span> <span class="n">vcf_record</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">__handle_uncertain_sv</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">pairs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">paired_records</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">alt_name</span><span class="p">,</span> <span class="n">alt_dicts</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__pending_sv_pairs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">sv_name</span><span class="p">,</span> <span class="n">vcf_record</span> <span class="ow">in</span> <span class="n">alt_dicts</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="c1"># Check if is already in the dictionary</span>
+                <span class="n">sv_id</span> <span class="o">=</span> <span class="n">vcf_record</span><span class="o">.</span><span class="n">id</span>
+                <span class="k">if</span> <span class="n">sv_id</span> <span class="ow">in</span> <span class="n">pairs</span><span class="p">:</span>
+                    <span class="c1"># Retrieve saved data</span>
+                    <span class="n">previous_record</span><span class="p">,</span> <span class="n">previous_alt</span><span class="p">,</span> <span class="n">previous_sv</span> <span class="o">=</span> <span class="n">pairs</span><span class="p">[</span><span class="n">sv_id</span><span class="p">]</span>
+                    <span class="c1"># Mark for deletion</span>
+                    <span class="n">paired_records</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">alt_name</span><span class="p">,</span> <span class="n">sv_name</span><span class="p">))</span>
+                    <span class="n">paired_records</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">previous_alt</span><span class="p">,</span> <span class="n">previous_sv</span><span class="p">))</span>
+                    <span class="n">record</span> <span class="o">=</span> <span class="n">_select_record</span><span class="p">(</span><span class="n">vcf_record</span><span class="p">,</span> <span class="n">previous_record</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">__parse_bracket_individual_sv</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+                    <span class="k">continue</span>
+
+                <span class="c1"># Check if labeled with MATEID or PARID</span>
+                <span class="k">if</span> <span class="s1">&#39;MATEID&#39;</span> <span class="ow">in</span> <span class="n">vcf_record</span><span class="o">.</span><span class="n">info</span><span class="p">:</span>
+                    <span class="n">mate_id</span> <span class="o">=</span> <span class="n">vcf_record</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;MATEID&#39;</span><span class="p">]</span>
+                <span class="k">elif</span> <span class="s1">&#39;PARID&#39;</span> <span class="ow">in</span> <span class="n">vcf_record</span><span class="o">.</span><span class="n">info</span><span class="p">:</span>
+                    <span class="n">mate_id</span> <span class="o">=</span> <span class="n">vcf_record</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;PARID&#39;</span><span class="p">]</span>
+                <span class="n">mate_id</span> <span class="o">=</span> <span class="n">mate_id</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">mate_id</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">str</span> <span class="k">else</span> <span class="n">mate_id</span>
+                <span class="n">pairs</span><span class="p">[</span><span class="n">mate_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">vcf_record</span><span class="p">,</span> <span class="n">alt_name</span><span class="p">,</span> <span class="n">sv_name</span><span class="p">)</span>
+
+        <span class="c1"># Remove paired records from pending</span>
+        <span class="k">for</span> <span class="n">alt_name</span><span class="p">,</span> <span class="n">sv_name</span> <span class="ow">in</span> <span class="n">paired_records</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__pending_sv_pairs</span><span class="p">[</span><span class="n">alt_name</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">sv_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__pending_sv_pairs</span><span class="p">[</span><span class="n">alt_name</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__pending_sv_pairs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">alt_name</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Rapsssito.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
