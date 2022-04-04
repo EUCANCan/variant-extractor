@@ -82,8 +82,7 @@ if __name__ == '__main__':
                     output_file_sv.write(f'{variant_record.contig} {variant_record.pos} {variant_record.end} {insertion_prefix}{op}\n')
             elif variant_record.variant_type == VariantType.INS:
                 if variant_record.alt_sv_shorthand:
-                    insert_length = int(abs(variant_record.info['SVLEN'])) if 'SVLEN' in variant_record.info \
-                        else variant_record.pos - variant_record.end
+                    insert_length = variant_record.length
                     dna_sequence = generate_random_dna(insert_length)
                 else:
                     dna_sequence = variant_record.alt

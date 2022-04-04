@@ -45,6 +45,7 @@ The `VariantExtractor.read_vcf()` method returns a list of `VariantRecord`. The 
 | `contig`           | `str`                         | Contig name                                                                                  |
 | `pos`              | `int`                         | Position on the contig                                                                       |
 | `end`              | `int`                         | End position of the variant in the contig (same as `pos` for TRN and SNV)                    |
+| `length`           | `int`                         | Length of the variant                                                                        |
 | `id`               | `str`                         | Record identifier                                                                            |
 | `ref`              | `str`                         | Reference sequence                                                                           |
 | `alt`              | `str`                         | Alternative sequence                                                                         |

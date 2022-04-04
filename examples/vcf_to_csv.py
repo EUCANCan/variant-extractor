@@ -32,22 +32,14 @@ if __name__ == '__main__':
         start = variant_record.pos
         ref = variant_record.ref
         alt = variant_record.alt
-        length = variant_record.end - variant_record.pos
+        length = variant_record.length
         end = variant_record.end
         if variant_record.alt_sv_bracket:
             end_chrom = variant_record.alt_sv_bracket.contig.replace('chr', '')
             if start_chrom != end_chrom:
                 end = variant_record.alt_sv_bracket.pos
         else:
-            end_chrom = variant_record.contig.replace('chr', '')
-            if variant_record.variant_type == VariantType.INS and 'SVLEN' in variant_record.info:
-                if isinstance(variant_record.info['SVLEN'], tuple):
-                    length = int(variant_record.info['SVLEN'][0])
-                else:
-                    length = int(variant_record.info['SVLEN'])
-        # Hotfix for indels INS
-        if not variant_record.alt_sv_bracket and not variant_record.alt_sv_shorthand and variant_record.variant_type == VariantType.INS:
-            length = len(alt)-len(ref)
+            end_chrom = start_chrom
 
         # Inferred type
         type_inferred = variant_record.variant_type.name

@@ -52,6 +52,8 @@ class VariantRecord(NamedTuple):
     """Position of the variant in the contig"""
     end: int
     """End position of the variant in the contig (same as `pos` for TRN and SNV)"""
+    length: int
+    """Length of the variant"""
     id: str
     """Record identifier"""
     ref: str

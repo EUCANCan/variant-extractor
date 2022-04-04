@@ -79,7 +79,7 @@ class VariantExtractor:
         if self.only_pass and 'PASS' not in rec.filter:
             return
         if len(rec.alts) != 1:
-            warnings.warn(f'WARNING: Skipping record with multiple alternate alleles ({rec})')
+            warnings.warn(f'WARNING: Skipping record with multiple alternate alleles:\n{rec}')
             return
         vcf_record = _parse_bracket_sv(rec)
         # Check if bracket SV record
@@ -98,7 +98,7 @@ class VariantExtractor:
         if vcf_record:
             return self.__handle_standard_record(vcf_record)
         else:
-            raise Exception(f'ERROR: Unrecognized record ({rec})')
+            warnings.warn(f'ERROR: Unrecognized record:\n{rec}')
 
     def __handle_standard_record(self, vcf_record):
         if vcf_record.variant_type == VariantType.SNV:
@@ -106,7 +106,7 @@ class VariantExtractor:
             for i in range(len(vcf_record.ref)):
                 if vcf_record.alt[i] != vcf_record.ref[i]:
                     new_vcf_record = vcf_record._replace(
-                        ref=vcf_record.ref[i], pos=i+vcf_record.pos, end=i+vcf_record.pos, alt=vcf_record.alt[i])
+                        ref=vcf_record.ref[i], pos=i+vcf_record.pos, end=i+vcf_record.pos, length=0, alt=vcf_record.alt[i])
                     self.__variants.append(new_vcf_record)
         else:
             # INS or DEL

@@ -50,12 +50,14 @@ def _convert_inv_to_bracket(variant_record):
     # 2 321682 T [2:421682[T
     alt_1 = f'.]{variant_record.contig}:{variant_record.end}]'
     alt_sv_bracket_1 = BracketSVRecord('.', ']', variant_record.contig, variant_record.end, None)
+    length_1 = abs(variant_record.end - (variant_record.pos - 1))
     variant_record_1 = variant_record._replace(
-        pos=variant_record.pos-1, id=variant_record.id+'_1', ref='.', alt=alt_1, alt_sv_bracket=alt_sv_bracket_1)
+        pos=variant_record.pos-1, length=length_1, id=variant_record.id+'_1', ref='.', alt=alt_1, alt_sv_bracket=alt_sv_bracket_1)
 
     alt_2 = f'[{variant_record.contig}:{variant_record.end+1}[{variant_record.ref}'
     alt_sv_bracket_2 = BracketSVRecord(None, '[', variant_record.contig, variant_record.pos, variant_record.ref)
+    length_2 = abs(variant_record.end + 1 - variant_record.pos)
     variant_record_2 = variant_record._replace(
-        end=variant_record.end+1, id=variant_record.id+'_2', alt=alt_2, alt_sv_bracket=alt_sv_bracket_2)
+        end=variant_record.end+1, length=length_2, id=variant_record.id+'_2', alt=alt_2, alt_sv_bracket=alt_sv_bracket_2)
 
     return variant_record_1, variant_record_2
