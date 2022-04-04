@@ -104,9 +104,9 @@ class VariantExtractor:
         if vcf_record.variant_type == VariantType.SNV:
             # REF=CTT ALT=ATG -> Normalize to 3 SNVs
             for i in range(len(vcf_record.ref)):
-                if vcf_record.alts[0][i] != vcf_record.ref[i]:
+                if vcf_record.alt[i] != vcf_record.ref[i]:
                     new_vcf_record = vcf_record._replace(
-                        ref=vcf_record.ref[i], pos=i+vcf_record.pos, end=i+vcf_record.pos, alts=[vcf_record.alts[0][i]])
+                        ref=vcf_record.ref[i], pos=i+vcf_record.pos, end=i+vcf_record.pos, alt=vcf_record.alt[i])
                     self.__variants.append(new_vcf_record)
         else:
             # INS or DEL

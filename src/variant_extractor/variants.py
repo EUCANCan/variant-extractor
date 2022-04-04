@@ -56,8 +56,8 @@ class VariantRecord(NamedTuple):
     """Record identifier"""
     ref: str
     """Reference sequence"""
-    alts: List[str]
-    """List of alternative sequences"""
+    alt: str
+    """Alternative sequence"""
     qual: Optional[float]
     """Quality score for the assertion made in ALT"""
     filter: pysam.VariantRecordFilter

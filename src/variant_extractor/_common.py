@@ -35,10 +35,10 @@ def _permute_bracket_sv(variant_record):
     alt_bracket = ']' if variant_record.alt_sv_bracket.bracket == '[' else '['
     alt_contig = variant_record.contig
     alt_pos = variant_record.pos
-    new_alts = [f'{alt_prefix}{alt_bracket}{alt_contig}:{alt_pos}{alt_bracket}{alt_suffix}']
+    new_alt = f'{alt_prefix}{alt_bracket}{alt_contig}:{alt_pos}{alt_bracket}{alt_suffix}'
     alt_sv_bracket = BracketSVRecord(alt_prefix, alt_bracket, alt_contig, alt_pos, alt_suffix)
     variant_record = variant_record._replace(contig=new_contig, pos=new_pos,
-                                             end=new_end, alts=new_alts, alt_sv_bracket=alt_sv_bracket)
+                                             end=new_end, alt=new_alt, alt_sv_bracket=alt_sv_bracket)
     return variant_record
 
 
@@ -51,11 +51,11 @@ def _convert_inv_to_bracket(variant_record):
     alt_1 = f'.]{variant_record.contig}:{variant_record.end}]'
     alt_sv_bracket_1 = BracketSVRecord('.', ']', variant_record.contig, variant_record.end, None)
     variant_record_1 = variant_record._replace(
-        pos=variant_record.pos-1, id=variant_record.id+'_1', ref='.', alts=[alt_1], alt_sv_bracket=alt_sv_bracket_1)
+        pos=variant_record.pos-1, id=variant_record.id+'_1', ref='.', alt=alt_1, alt_sv_bracket=alt_sv_bracket_1)
 
     alt_2 = f'[{variant_record.contig}:{variant_record.end+1}[{variant_record.ref}'
     alt_sv_bracket_2 = BracketSVRecord(None, '[', variant_record.contig, variant_record.pos, variant_record.ref)
     variant_record_2 = variant_record._replace(
-        end=variant_record.end+1, id=variant_record.id+'_2', alts=[alt_2], alt_sv_bracket=alt_sv_bracket_2)
+        end=variant_record.end+1, id=variant_record.id+'_2', alt=alt_2, alt_sv_bracket=alt_sv_bracket_2)
 
     return variant_record_1, variant_record_2

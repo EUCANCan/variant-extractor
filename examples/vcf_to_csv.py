@@ -31,7 +31,7 @@ if __name__ == '__main__':
         start_chrom = variant_record.contig.replace('chr', '')
         start = variant_record.pos
         ref = variant_record.ref
-        alt = variant_record.alts[0]
+        alt = variant_record.alt
         length = variant_record.end - variant_record.pos
         end = variant_record.end
         if variant_record.alt_sv_bracket:

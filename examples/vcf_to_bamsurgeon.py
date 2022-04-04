@@ -45,7 +45,7 @@ if __name__ == '__main__':
         # TODO: What with records with different REF/ALT sizes
         if variant_record.variant_type == VariantType.SNV:
             output_file_snv.write(
-                f'{variant_record.contig} {variant_record.pos} {variant_record.pos} {VAF} {variant_record.alts[0]}\n')
+                f'{variant_record.contig} {variant_record.pos} {variant_record.pos} {VAF} {variant_record.alt}\n')
         else:
             # Add prefix or suffix as insertion. Ex: AAAGGTC[1:12121[
             insertion_prefix = ''
@@ -86,7 +86,7 @@ if __name__ == '__main__':
                         else variant_record.pos - variant_record.end
                     dna_sequence = generate_random_dna(insert_length)
                 else:
-                    dna_sequence = variant_record.alts[0]
+                    dna_sequence = variant_record.alt
                 # Check if INDEL
                 if insert_length < INDEL_THRESHOLD:
                     output_file_indel.write(

@@ -48,7 +48,7 @@ def _parse_bracket_sv(rec):
             variant_type = VariantType.INV
 
     # Create new record
-    vcf_record = VariantRecord(rec.contig, rec.pos, end_pos, rec.id, rec.ref, rec.alts,
+    vcf_record = VariantRecord(rec.contig, rec.pos, end_pos, rec.id, rec.ref, rec.alts[0],
                                rec.qual, rec.filter, rec.info, variant_type, alt_sv_bracket, None)
     return vcf_record
 
@@ -77,7 +77,7 @@ def _parse_shorthand_sv(rec):
         raise ValueError(f'Unknown variant type: {alt_type}')
 
     # Create new record
-    vcf_record = VariantRecord(rec.contig, rec.pos, rec.stop, rec.id, rec.ref, rec.alts,
+    vcf_record = VariantRecord(rec.contig, rec.pos, rec.stop, rec.id, rec.ref, rec.alts[0],
                                rec.qual, rec.filter, rec.info, variant_type, None, alt_sv_shorthand)
     return vcf_record
 
@@ -88,7 +88,7 @@ def _parse_sgl_sv(rec):
         return None
     variant_type = VariantType.SGL
     # Create new record
-    vcf_record = VariantRecord(rec.contig, rec.pos, rec.stop, rec.id, rec.ref, rec.alts,
+    vcf_record = VariantRecord(rec.contig, rec.pos, rec.stop, rec.id, rec.ref, rec.alts[0],
                                rec.qual, rec.filter, rec.info, variant_type, None, None)
     return vcf_record
 
@@ -104,6 +104,6 @@ def _parse_standard_record(rec):
     else:
         variant_type = VariantType.DEL
     # Create new record
-    vcf_record = VariantRecord(rec.contig, rec.pos, rec.stop, rec.id, rec.ref, rec.alts,
+    vcf_record = VariantRecord(rec.contig, rec.pos, rec.stop, rec.id, rec.ref, rec.alts[0],
                                rec.qual, rec.filter, rec.info, variant_type, None, None)
     return vcf_record
