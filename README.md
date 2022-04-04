@@ -38,7 +38,7 @@ for variant_type, variant_record in variants:
 For a complete list of examples, see the [examples](./examples/) directory.
 
 ## VariantRecord
-The `VariantExtractor.read_vcf()` method returns a list of tuples of the form `(variant_type, variant_record)`. The `variant_type` is an instance of the `VariantType` enum, and the `variant_record` is an instance of the `VariantRecord` class. The `VariantRecord` class is a container for the information contained in a VCF record.
+The `VariantExtractor.read_vcf()` method returns a list of `VariantRecord`. The `VariantRecord` class is a container for the information contained in a VCF record.
 
 | Property           | Type                          | Description                                                                                  |
 | ------------------ | ----------------------------- | -------------------------------------------------------------------------------------------- |
@@ -50,6 +50,7 @@ The `VariantExtractor.read_vcf()` method returns a list of tuples of the form `(
 | `alt`              | `list`                        | List of alternative sequences                                                                |
 | `filter`           | `pysam.VariantRecordFilter`   | Filter                                                                                       |
 | `info`             | `pysam.VariantRecordInfo`     | Dictionary of information fields                                                             |
+| `variant_type`     | [`VariantType`](#varianttype) | Variant type inferred                                                                        |
 | `alt_sv_bracket`   | `Optional[BracketSVRecord]`   | Bracketed SV info, present only for SVs with bracket notation. For example, `G]17:198982]`   |
 | `alt_sv_shorthand` | `Optional[ShorthandSVRecord]` | Shorthand SV info, present only for SVs with shorthand notation. For example, `<DUP:TANDEM>` |
 

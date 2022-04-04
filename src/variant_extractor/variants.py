@@ -64,6 +64,8 @@ class VariantRecord(NamedTuple):
     """Record filter"""
     info: pysam.VariantRecordInfo
     """Dictionary of information fields"""
+    variant_type: VariantType
+    """Variant type"""
     alt_sv_bracket: Optional[BracketSVRecord]
     """Bracketed SV info, present only for SVs with bracket notation. For example, :code:`G]17:198982]`"""
     alt_sv_shorthand: Optional[ShorthandSVRecord]

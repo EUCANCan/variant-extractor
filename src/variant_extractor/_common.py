@@ -3,7 +3,7 @@
 # BSC AS IS License
 import re
 
-from .variants import VariantRecord, BracketSVRecord
+from .variants import BracketSVRecord
 
 NUMBER_CONTIG_REGEX = re.compile(r'[0-9]+')
 
@@ -37,8 +37,8 @@ def _permute_bracket_sv(variant_record):
     alt_pos = variant_record.pos
     new_alts = [f'{alt_prefix}{alt_bracket}{alt_contig}:{alt_pos}{alt_bracket}{alt_suffix}']
     alt_sv_bracket = BracketSVRecord(alt_prefix, alt_bracket, alt_contig, alt_pos, alt_suffix)
-    variant_record = VariantRecord(new_contig, new_pos, new_end, variant_record.id, variant_record.ref, new_alts,
-                                   variant_record.qual, variant_record.filter, variant_record.info, alt_sv_bracket, None)
+    variant_record = variant_record._replace(contig=new_contig, pos=new_pos,
+                                             end=new_end, alts=new_alts, alt_sv_bracket=alt_sv_bracket)
     return variant_record
 
 
@@ -50,14 +50,12 @@ def _convert_inv_to_bracket(variant_record):
     # 2 321682 T [2:421682[T
     alt_1 = f'.]{variant_record.contig}:{variant_record.end}]'
     alt_sv_bracket_1 = BracketSVRecord('.', ']', variant_record.contig, variant_record.end, None)
-    variant_record_1 = VariantRecord(variant_record.contig, variant_record.pos-1, variant_record.end,
-                                     variant_record.id+'_1', '.', [alt_1], variant_record.qual,
-                                     variant_record.filter, variant_record.info, alt_sv_bracket_1, None)
+    variant_record_1 = variant_record._replace(
+        pos=variant_record.pos-1, id=variant_record.id+'_1', ref='.', alts=[alt_1], alt_sv_bracket=alt_sv_bracket_1)
 
     alt_2 = f'[{variant_record.contig}:{variant_record.end+1}[{variant_record.ref}'
     alt_sv_bracket_2 = BracketSVRecord(None, '[', variant_record.contig, variant_record.pos, variant_record.ref)
-    variant_record_2 = VariantRecord(variant_record.contig, variant_record.pos, variant_record.end+1,
-                                     variant_record.id+'_2', variant_record.ref, [alt_2], variant_record.qual,
-                                     variant_record.filter, variant_record.info, alt_sv_bracket_2, None)
+    variant_record_2 = variant_record._replace(
+        end=variant_record.end+1, id=variant_record.id+'_2', alts=[alt_2], alt_sv_bracket=alt_sv_bracket_2)
 
     return variant_record_1, variant_record_2

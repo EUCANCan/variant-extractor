@@ -40,7 +40,7 @@ class VariantExtractor:
 
         Returns
         -------
-        list[tuple[VariantType, VariantRecord]
+        list[VariantRecord]
         """
 
         self.__variants = []
@@ -61,7 +61,7 @@ class VariantExtractor:
                 warnings.warn('WARNING: No SV breakend pairs found, assuming all records are single-paired')
             for alt_dicts in self.__pending_sv_pairs.values():
                 for vcf_record in alt_dicts.values():
-                    self.__parse_bracket_individual_sv(vcf_record)
+                    self.__handle_bracket_individual_sv(vcf_record)
         # Found unpaired records
         elif len(self.__pending_sv_pairs) > 0:
             exception_text = ''
@@ -92,29 +92,25 @@ class VariantExtractor:
         # Check if single breakend SV record
         vcf_record = _parse_sgl_sv(rec)
         if vcf_record:
-            return self.__variants.append((VariantType.SGL, vcf_record))
+            return self.__variants.append(vcf_record)
         # Check if standard record
         vcf_record = _parse_standard_record(rec)
         if vcf_record:
-            return self.__handel_standard_record(vcf_record)
+            return self.__handle_standard_record(vcf_record)
         else:
             raise Exception(f'ERROR: Unrecognized record ({rec})')
 
-    def __handel_standard_record(self, vcf_record):
-        # Check if SNV
-        if len(vcf_record.alts[0]) == len(vcf_record.ref):
+    def __handle_standard_record(self, vcf_record):
+        if vcf_record.variant_type == VariantType.SNV:
             # REF=CTT ALT=ATG -> Normalize to 3 SNVs
             for i in range(len(vcf_record.ref)):
                 if vcf_record.alts[0][i] != vcf_record.ref[i]:
                     new_vcf_record = vcf_record._replace(
-                        ref=vcf_record.ref[i], pos=i+vcf_record.pos, end=i+vcf_record.end, alts=[vcf_record.alts[0][i]])
-                    self.__variants.append((VariantType.SNV, new_vcf_record))
-        # Check if DEL
-        elif len(vcf_record.alts[0]) < len(vcf_record.ref):
-            return self.__variants.append((VariantType.DEL, vcf_record))
-        # Check if INS
+                        ref=vcf_record.ref[i], pos=i+vcf_record.pos, end=i+vcf_record.pos, alts=[vcf_record.alts[0][i]])
+                    self.__variants.append(new_vcf_record)
         else:
-            return self.__variants.append((VariantType.INS, vcf_record))
+            # INS or DEL
+            return self.__variants.append(vcf_record)
 
     def __handle_bracket_sv(self, vcf_record):
         # Check for pending SVs
@@ -125,7 +121,7 @@ class VariantExtractor:
         # Mate SV found, parse it
         self.__pairs_found += 1
         record = _select_record(previous_record, vcf_record)
-        self.__parse_bracket_individual_sv(record)
+        self.__handle_bracket_individual_sv(record)
 
     def __store_pending_sv_pair(self, vcf_record):
         alt_name = f'{vcf_record.alt_sv_bracket.contig}{vcf_record.alt_sv_bracket.pos}'
@@ -154,43 +150,20 @@ class VariantExtractor:
             self.__pending_sv_pairs.pop(sv_name)
         return previous_record_alt
 
-    def __parse_bracket_individual_sv(self, vcf_record):
+    def __handle_bracket_individual_sv(self, vcf_record):
         # Transform REF/ALT to equivalent notation so that REF contains the lowest position
         if vcf_record.alt_sv_bracket.contig == vcf_record.contig and vcf_record.alt_sv_bracket.pos < vcf_record.pos:
             vcf_record = _permute_bracket_sv(vcf_record)
-
-        # INV -> 1 10 N]1:20] or 1 20 N]1:10]
-        #        1 10 [1:20[N or 1 20 [1:10[N
-        # DEL -> 1 10 N[1:20[ or 1 20 ]1:10]N
-        # DUP -> 1 10 ]1:20]N or 1 20 N[1:10[
-        # INS or BND -> any posibility with different contigs
-        if vcf_record.contig != vcf_record.alt_sv_bracket.contig:
-            # BND & INS with different contig ~ TRN
-            return self.__variants.append((VariantType.TRN, vcf_record))
-        elif vcf_record.alt_sv_bracket.prefix and vcf_record.alt_sv_bracket.bracket == '[':
-            # DEL
-            return self.__variants.append((VariantType.DEL, vcf_record))
-        elif not vcf_record.alt_sv_bracket.prefix and vcf_record.alt_sv_bracket.bracket == ']':
-            # DUP
-            return self.__variants.append((VariantType.DUP, vcf_record))
-        else:
-            # INV
-            return self.__variants.append((VariantType.INV, vcf_record))
+        return self.__variants.append(vcf_record)
 
     def __handle_shorthand_sv(self, vcf_record):
-        if vcf_record.alt_sv_shorthand.type == 'DEL':
-            return self.__variants.append((VariantType.DEL, vcf_record))
-        elif vcf_record.alt_sv_shorthand.type == 'DUP':
-            return self.__variants.append((VariantType.DUP, vcf_record))
-        elif vcf_record.alt_sv_shorthand.type == 'INV':
+        if vcf_record.variant_type == VariantType.INV:
             # Transform INV into bracket notation
             vcf_record_1, vcf_record_2 = _convert_inv_to_bracket(vcf_record)
-            self.__variants.append((VariantType.INV, vcf_record_1))
-            self.__variants.append((VariantType.INV, vcf_record_2))
-        elif vcf_record.alt_sv_shorthand.type == 'INS':
-            return self.__variants.append((VariantType.INS, vcf_record))
-        elif vcf_record.alt_sv_shorthand.type == 'CNV':
-            return self.__variants.append((VariantType.CNV, vcf_record))
+            self.__variants.append(vcf_record_1)
+            self.__variants.append(vcf_record_2)
+        else:
+            self.__variants.append(vcf_record)
 
     def __handle_uncertain_sv(self):
         pairs = {}
@@ -206,7 +179,7 @@ class VariantExtractor:
                     paired_records.append((alt_name, sv_name))
                     paired_records.append((previous_alt, previous_sv))
                     record = _select_record(vcf_record, previous_record)
-                    self.__parse_bracket_individual_sv(record)
+                    self.__handle_bracket_individual_sv(record)
                     continue
 
                 # Check if labeled with MATEID or PARID

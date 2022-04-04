@@ -41,9 +41,9 @@ if __name__ == '__main__':
     output_file_snv = open(f'{args.output_file_schema}_snv.in', 'w')
     output_file_indel = open(f'{args.output_file_schema}_indel.in', 'w')
 
-    def variant_callback(var_type, variant_record):
+    def variant_callback(variant_record):
         # TODO: What with records with different REF/ALT sizes
-        if var_type == VariantType.SNV:
+        if variant_record.variant_type == VariantType.SNV:
             output_file_snv.write(
                 f'{variant_record.contig} {variant_record.pos} {variant_record.pos} {VAF} {variant_record.alts[0]}\n')
         else:
@@ -53,7 +53,7 @@ if __name__ == '__main__':
                 insertion_prefix = f'INS {variant_record.alt_sv_bracket.prefix[1:]};' if len(variant_record.alt_sv_bracket.prefix) > 1 else ''
                 insertion_prefix = f'INS {variant_record.alt_sv_bracket.suffix[:-1]};' if len(variant_record.alt_sv_bracket.suffix) > 1 else ''
 
-            if var_type == VariantType.TRN or var_type == VariantType.INV:
+            if variant_record.variant_type == VariantType.TRN or variant_record.variant_type == VariantType.INV:
                 # Convert INV to TRN since most of them are not complete
                 alt_contig = variant_record.alt_sv_bracket.contig
                 alt_pos = variant_record.alt_sv_bracket.pos
@@ -69,10 +69,10 @@ if __name__ == '__main__':
 
                 op = f'TRN {alt_contig} {alt_pos} {alt_pos} {strand_notation} {VAF}'
                 output_file_sv.write(f'{variant_record.contig} {variant_record.pos} {variant_record.pos} {insertion_prefix}{op}\n')
-            elif var_type == VariantType.DUP:
+            elif variant_record.variant_type == VariantType.DUP:
                 op = f'DUP 1 {VAF}'
                 output_file_sv.write(f'{variant_record.contig} {variant_record.pos} {variant_record.end} {insertion_prefix}{op}\n')
-            elif var_type == VariantType.DEL:
+            elif variant_record.variant_type == VariantType.DEL:
                 # Check if INDEL
                 if variant_record.end - variant_record.pos < INDEL_THRESHOLD:
                     output_file_indel.write(
@@ -80,7 +80,7 @@ if __name__ == '__main__':
                 else:
                     op = f'DEL {VAF}'
                     output_file_sv.write(f'{variant_record.contig} {variant_record.pos} {variant_record.end} {insertion_prefix}{op}\n')
-            elif var_type == VariantType.INS:
+            elif variant_record.variant_type == VariantType.INS:
                 if variant_record.alt_sv_shorthand:
                     insert_length = int(abs(variant_record.info['SVLEN'])) if 'SVLEN' in variant_record.info \
                         else variant_record.pos - variant_record.end
@@ -98,8 +98,8 @@ if __name__ == '__main__':
 
     print(f'Reading VCF file: {args.vcf_file}')
     extractor = VariantExtractor(only_pass=True)
-    for var_type, variant_record in extractor.read_vcf(args.vcf_file):
-        variant_callback(var_type, variant_record)
+    for variant_record in extractor.read_vcf(args.vcf_file):
+        variant_callback(variant_record)
 
     output_file_sv.close()
     output_file_snv.close()
