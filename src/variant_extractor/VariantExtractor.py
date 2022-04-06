@@ -187,6 +187,8 @@ class VariantExtractor:
                     mate_id = vcf_record.info['MATEID']
                 elif 'PARID' in vcf_record.info:
                     mate_id = vcf_record.info['PARID']
+                else:
+                    continue
                 mate_id = mate_id[0] if type(mate_id) != str else mate_id
                 pairs[mate_id] = (vcf_record, alt_name, sv_name)
 
