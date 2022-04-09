@@ -101,16 +101,36 @@ class VariantExtractor:
             warnings.warn(f'ERROR: Unrecognized record:\n{rec}')
 
     def __handle_standard_record(self, vcf_record):
-        if vcf_record.variant_type == VariantType.SNV:
-            # REF=CTT ALT=ATG -> Normalize to 3 SNVs
-            for i in range(len(vcf_record.ref)):
-                if vcf_record.alt[i] != vcf_record.ref[i]:
-                    new_vcf_record = vcf_record._replace(
-                        ref=vcf_record.ref[i], pos=i+vcf_record.pos, end=i+vcf_record.pos, length=0, alt=vcf_record.alt[i])
-                    self.__variants.append(new_vcf_record)
+        # Normalize complex indels
+        i = 0
+        min_size = min(len(vcf_record.ref), len(vcf_record.alt)) - 1
+        while i < min_size:
+            # Atomize SNVs
+            if vcf_record.ref[i] != vcf_record.alt[i]:
+                new_vcf_record = vcf_record._replace(
+                    ref=vcf_record.ref[i], pos=i+vcf_record.pos, end=i+vcf_record.pos, length=0, alt=vcf_record.alt[i], id=f'{vcf_record.id}_{i}' if vcf_record.id else None, variant_type=VariantType.SNV)
+                self.__variants.append(new_vcf_record)
+            i += 1
+
+        id_offset = 1
+        if len(vcf_record.ref) > len(vcf_record.alt):
+            # Deletion
+            new_vcf_record = vcf_record._replace(
+                ref=vcf_record.ref[i:], pos=i+vcf_record.pos, end=i+vcf_record.pos, length=len(vcf_record.ref)-i-1, alt=vcf_record.ref[i], id=f'{vcf_record.id}_{i}' if vcf_record.id else None, variant_type=VariantType.DEL)
+            self.__variants.append(new_vcf_record)
+        elif len(vcf_record.ref) < len(vcf_record.alt):
+            # Insertion
+            new_vcf_record = vcf_record._replace(
+                ref=vcf_record.ref[i:], pos=i+vcf_record.pos, end=i+vcf_record.pos, length=len(vcf_record.alt)-i-1, alt=vcf_record.ref[i]+vcf_record.alt[i+1:], id=f'{vcf_record.id}_{i}' if vcf_record.id else None, variant_type=VariantType.INS)
+            self.__variants.append(new_vcf_record)
         else:
-            # INS or DEL
-            return self.__variants.append(vcf_record)
+            id_offset = 0
+
+        if vcf_record.ref[i] != vcf_record.alt[i]:
+            # Last SNV
+            new_vcf_record = vcf_record._replace(
+                ref=vcf_record.ref[i], pos=i+vcf_record.pos, end=i+vcf_record.pos, length=0, alt=vcf_record.alt[i], id=f'{vcf_record.id}_{i+id_offset}' if vcf_record.id else None, variant_type=VariantType.SNV)
+            self.__variants.append(new_vcf_record)
 
     def __handle_bracket_sv(self, vcf_record):
         # Check for pending SVs
