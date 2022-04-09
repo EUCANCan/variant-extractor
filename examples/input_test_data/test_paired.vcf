@@ -1,4 +1,3 @@
-
 ##fileformat=VCFv4.1
 ##contig=<ID=1,length=249250621>
 ##contig=<ID=2,length=243199373>
@@ -34,7 +33,8 @@
 ##INFO=<ID=EXTRA,Number=.,Type=String,Description="Extra info for testing">
 ##INFO=<ID=END,Number=1,Type=Integer,Description="End position of the variant described in this record">
 #CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	DESC
-1	1000	.	G	A	.	PASS	EXTRA=DUMMY_SNV
+1	1000	truthset_snv_1	G	A	.	PASS	EXTRA=DUMMY_SNV
+1	1000	truthset_multiallelic_1	G	C,T	.	PASS	EXTRA=SNV_MULTIALLELIC
 1	1500	truthset_mnp_1	GAA	ACA	.	PASS	EXTRA=DUMMY_MULTI_SNV
 1	2000	.	CT	C	.	PASS	EXTRA=DUMMY_DEL
 1	2100	.	C	CAA	.	PASS	EXTRA=DUMMY_INS

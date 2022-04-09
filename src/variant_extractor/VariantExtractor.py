@@ -3,7 +3,6 @@
 # BSC AS IS License
 from os import path
 from argparse import ArgumentParser
-import math
 import warnings
 import pysam
 
@@ -50,11 +49,12 @@ class VariantExtractor:
         with open(file=vcf_file, mode='r') as vcf_handle:
             save = pysam.set_verbosity(0)
             with pysam.VariantFile(vcf_handle) as vcf:
+                self.__variant_file = vcf
                 pysam.set_verbosity(save)
                 for rec in vcf:
                     self.__parse_record(rec)
-        # Handle uncertain unpaired SV
-        self.__handle_uncertain_sv()
+        # Handle imprecise unpaired SV
+        self.__handle_imprecise_sv()
         # Only single-paired records or not ensuring pairs
         if not self.ensure_pairs or self.__pairs_found == 0:
             if self.__pairs_found == 0:
@@ -79,7 +79,9 @@ class VariantExtractor:
         if self.only_pass and 'PASS' not in rec.filter:
             return
         if len(rec.alts) != 1:
-            warnings.warn(f'WARNING: Skipping record with multiple alternate alleles:\n{rec}')
+            recs = self.__divide_multiallelic_record(rec)
+            for rec in recs:
+                self.__parse_record(rec)
             return
         vcf_record = _parse_bracket_sv(rec)
         # Check if bracket SV record
@@ -112,7 +114,6 @@ class VariantExtractor:
                 self.__variants.append(new_vcf_record)
             i += 1
 
-        id_offset = 1
         if len(vcf_record.ref) > len(vcf_record.alt):
             # Deletion
             new_vcf_record = vcf_record._replace(
@@ -123,13 +124,15 @@ class VariantExtractor:
             new_vcf_record = vcf_record._replace(
                 ref=vcf_record.ref[i:], pos=i+vcf_record.pos, end=i+vcf_record.pos, length=len(vcf_record.alt)-i-1, alt=vcf_record.ref[i]+vcf_record.alt[i+1:], id=f'{vcf_record.id}_{i}' if vcf_record.id else None, variant_type=VariantType.INS)
             self.__variants.append(new_vcf_record)
-        else:
-            id_offset = 0
 
         if vcf_record.ref[i] != vcf_record.alt[i]:
+            # Setup record id
+            id_offset = 0 if len(vcf_record.ref) == len(vcf_record.alt) else 1
+            id_str = f'_{i+id_offset}' if i > 0 else ''
+            new_record_id = vcf_record.id+id_str if vcf_record.id else None
             # Last SNV
             new_vcf_record = vcf_record._replace(
-                ref=vcf_record.ref[i], pos=i+vcf_record.pos, end=i+vcf_record.pos, length=0, alt=vcf_record.alt[i], id=f'{vcf_record.id}_{i+id_offset}' if vcf_record.id else None, variant_type=VariantType.SNV)
+                ref=vcf_record.ref[i], pos=i+vcf_record.pos, end=i+vcf_record.pos, length=0, alt=vcf_record.alt[i], id=new_record_id, variant_type=VariantType.SNV)
             self.__variants.append(new_vcf_record)
 
     def __handle_bracket_sv(self, vcf_record):
@@ -185,7 +188,7 @@ class VariantExtractor:
         else:
             self.__variants.append(vcf_record)
 
-    def __handle_uncertain_sv(self):
+    def __handle_imprecise_sv(self):
         pairs = {}
         paired_records = []
         for alt_name, alt_dicts in self.__pending_sv_pairs.items():
@@ -217,3 +220,12 @@ class VariantExtractor:
             self.__pending_sv_pairs[alt_name].pop(sv_name)
             if len(self.__pending_sv_pairs[alt_name]) == 0:
                 self.__pending_sv_pairs.pop(alt_name)
+
+    def __divide_multiallelic_record(self, rec):
+        # Create new records
+        records = []
+        for i, alt in enumerate(rec.alts):
+            new_rec = self.__variant_file.header.new_record(
+                contig=rec.contig, start=rec.pos-1, stop=rec.stop, qual=rec.qual, filter=rec.filter, info=rec.info, alleles=[rec.ref, alt], id=f'{rec.id}_{i}' if rec.id else None)
+            records.append(new_rec)
+        return records
