@@ -71,9 +71,9 @@ def _parse_shorthand_sv(rec):
         variant_type = VariantType.DEL
     elif alt_type == 'INS':
         if not 'SVLEN' in rec.info:
-            warnings.warn(f'SVLEN not found in INFO field for INS shorthand record. Skipping:\n{rec}')
-            return None
-        if isinstance(rec.info['SVLEN'], tuple):
+            warnings.warn(f'SVLEN not found in INFO field for <INS> shorthand record. Defaults to 0.')
+            length = 0
+        elif isinstance(rec.info['SVLEN'], tuple):
             length = rec.info['SVLEN'][0]
         else:
             length = rec.info['SVLEN']
@@ -86,8 +86,7 @@ def _parse_shorthand_sv(rec):
     elif alt_type == 'CNV':
         variant_type = VariantType.CNV
     else:
-         warnings.warn(f'Unknown variant type: {alt_type}. Skipping:\n{rec}')
-         return None
+         raise ValueError(f'Unknown variant type: {alt_type}. Skipping:\n{rec}')
 
     # Create new record
     vcf_record = VariantRecord(rec.contig, rec.pos, rec.stop, length, rec.id, rec.ref, rec.alts[0],

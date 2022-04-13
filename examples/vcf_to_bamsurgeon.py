@@ -42,7 +42,6 @@ if __name__ == '__main__':
     output_file_indel = open(f'{args.output_file_schema}_indel.in', 'w')
 
     def variant_callback(variant_record):
-        # TODO: What with records with different REF/ALT sizes
         if variant_record.variant_type == VariantType.SNV:
             output_file_snv.write(
                 f'{variant_record.contig} {variant_record.pos} {variant_record.pos} {VAF} {variant_record.alt}\n')
