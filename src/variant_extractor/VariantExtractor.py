@@ -57,8 +57,6 @@ class VariantExtractor:
         self.__handle_imprecise_sv()
         # Only single-paired records or not ensuring pairs
         if not self.ensure_pairs or self.__pairs_found == 0:
-            if self.__pairs_found == 0:
-                warnings.warn('WARNING: No SV breakend pairs found, assuming all records are single-paired')
             for alt_dicts in self.__pending_sv_pairs.values():
                 for vcf_record in alt_dicts.values():
                     self.__handle_bracket_individual_sv(vcf_record)
