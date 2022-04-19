@@ -76,11 +76,9 @@ class VariantExtractor:
     def __parse_record(self, rec):
         if self.only_pass and 'PASS' not in rec.filter:
             return
+        # Handle multiallelic records
         if len(rec.alts) != 1:
-            recs = self.__divide_multiallelic_record(rec)
-            for rec in recs:
-                self.__parse_record(rec)
-            return
+            return self.__handle_multiallelic_record(rec)
         vcf_record = _parse_bracket_sv(rec)
         # Check if bracket SV record
         if vcf_record:
@@ -219,11 +217,8 @@ class VariantExtractor:
             if len(self.__pending_sv_pairs[alt_name]) == 0:
                 self.__pending_sv_pairs.pop(alt_name)
 
-    def __divide_multiallelic_record(self, rec):
-        # Create new records
-        records = []
-        for i, alt in enumerate(rec.alts):
-            new_rec = self.__variant_file.header.new_record(
-                contig=rec.contig, start=rec.pos-1, stop=rec.stop, qual=rec.qual, filter=rec.filter, info=rec.info, alleles=[rec.ref, alt], id=f'{rec.id}_{i}' if rec.id else None)
-            records.append(new_rec)
-        return records
+    def __handle_multiallelic_record(self, rec):
+        for alt in rec.alts:
+            # WARNING: This overrides the record
+            rec.alts = [alt]
+            self.__parse_record(rec)
