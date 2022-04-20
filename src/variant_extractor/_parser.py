@@ -13,7 +13,7 @@ SGL_SV_REGEX = re.compile(r'\.[.A-Za-z]+|[.A-Za-z]+\.')
 STANDARD_RECORD_REGEX = re.compile(r'([.A-Za-z]+)')
 
 
-def _parse_bracket_sv(rec):
+def parse_bracket_sv(rec):
     sv_match_bracket = BRACKET_SV_REGEX.fullmatch(rec.alts[0])
     if not sv_match_bracket:
         return None
@@ -56,7 +56,7 @@ def _parse_bracket_sv(rec):
     return vcf_record
 
 
-def _parse_shorthand_sv(rec):
+def parse_shorthand_sv(rec):
     sv_match_shorthand = SHORTHAND_SV_REGEX.fullmatch(rec.alts[0])
     if not sv_match_shorthand:
         return None
@@ -94,7 +94,7 @@ def _parse_shorthand_sv(rec):
     return vcf_record
 
 
-def _parse_sgl_sv(rec):
+def parse_sgl_sv(rec):
     sv_match_sgl = SGL_SV_REGEX.fullmatch(rec.alts[0])
     if not sv_match_sgl or 'SVTYPE' not in rec.info:
         return None
@@ -106,7 +106,7 @@ def _parse_sgl_sv(rec):
     return vcf_record
 
 
-def _parse_standard_record(rec):
+def parse_standard_record(rec):
     match = STANDARD_RECORD_REGEX.fullmatch(rec.alts[0])
     if not match:
         return None

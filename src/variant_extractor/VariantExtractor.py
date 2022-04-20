@@ -6,8 +6,8 @@ from argparse import ArgumentParser
 import warnings
 import pysam
 
-from ._common import _select_record, _permute_bracket_sv, _convert_inv_to_bracket
-from ._parser import _parse_bracket_sv, _parse_shorthand_sv, _parse_sgl_sv, _parse_standard_record
+from ._common import select_record, permute_bracket_sv, convert_inv_to_bracket
+from ._parser import parse_bracket_sv, parse_shorthand_sv, parse_sgl_sv, parse_standard_record
 from .variants import VariantType
 
 
@@ -79,20 +79,20 @@ class VariantExtractor:
         # Handle multiallelic records
         if len(rec.alts) != 1:
             return self.__handle_multiallelic_record(rec)
-        vcf_record = _parse_bracket_sv(rec)
+        vcf_record = parse_bracket_sv(rec)
         # Check if bracket SV record
         if vcf_record:
             return self.__handle_bracket_sv(vcf_record)
         # Check if shorthand SV record
-        vcf_record = _parse_shorthand_sv(rec)
+        vcf_record = parse_shorthand_sv(rec)
         if vcf_record:
             return self.__handle_shorthand_sv(vcf_record)
         # Check if single breakend SV record
-        vcf_record = _parse_sgl_sv(rec)
+        vcf_record = parse_sgl_sv(rec)
         if vcf_record:
             return self.__variants.append(vcf_record)
         # Check if standard record
-        vcf_record = _parse_standard_record(rec)
+        vcf_record = parse_standard_record(rec)
         if vcf_record:
             return self.__handle_standard_record(vcf_record)
         else:
@@ -139,7 +139,7 @@ class VariantExtractor:
             return
         # Mate SV found, parse it
         self.__pairs_found += 1
-        record = _select_record(previous_record, vcf_record)
+        record = select_record(previous_record, vcf_record)
         self.__handle_bracket_individual_sv(record)
 
     def __store_pending_sv_pair(self, vcf_record):
@@ -172,13 +172,13 @@ class VariantExtractor:
     def __handle_bracket_individual_sv(self, vcf_record):
         # Transform REF/ALT to equivalent notation so that REF contains the lowest position
         if vcf_record.alt_sv_bracket.contig == vcf_record.contig and vcf_record.alt_sv_bracket.pos < vcf_record.pos:
-            vcf_record = _permute_bracket_sv(vcf_record)
+            vcf_record = permute_bracket_sv(vcf_record)
         return self.__variants.append(vcf_record)
 
     def __handle_shorthand_sv(self, vcf_record):
         if vcf_record.variant_type == VariantType.INV:
             # Transform INV into bracket notation
-            vcf_record_1, vcf_record_2 = _convert_inv_to_bracket(vcf_record)
+            vcf_record_1, vcf_record_2 = convert_inv_to_bracket(vcf_record)
             self.__variants.append(vcf_record_1)
             self.__variants.append(vcf_record_2)
         else:
@@ -197,7 +197,7 @@ class VariantExtractor:
                     # Mark for deletion
                     paired_records.append((alt_name, sv_name))
                     paired_records.append((previous_alt, previous_sv))
-                    record = _select_record(vcf_record, previous_record)
+                    record = select_record(vcf_record, previous_record)
                     self.__handle_bracket_individual_sv(record)
                     continue
 

@@ -8,7 +8,7 @@ from .variants import BracketSVRecord
 NUMBER_CONTIG_REGEX = re.compile(r'[0-9]+')
 
 
-def _select_record(variant_record_1, variant_record_2):
+def select_record(variant_record_1, variant_record_2):
     # Same contig, select lowest position
     if variant_record_1.contig == variant_record_2.contig:
         return variant_record_1 if variant_record_1.pos < variant_record_2.pos else variant_record_2
@@ -25,7 +25,7 @@ def _select_record(variant_record_1, variant_record_2):
             return record
 
 
-def _permute_bracket_sv(variant_record):
+def permute_bracket_sv(variant_record):
     # Transform REF/ALT to equivalent notation so that REF contains the lowest position
     new_contig = variant_record.alt_sv_bracket.contig
     new_pos = variant_record.alt_sv_bracket.pos
@@ -42,7 +42,7 @@ def _permute_bracket_sv(variant_record):
     return variant_record
 
 
-def _convert_inv_to_bracket(variant_record):
+def convert_inv_to_bracket(variant_record):
     # Convert INV to equivalent bracket notation. Ex:
     # 2 321682 T <INV> END=421681
     # is equivalent to:
