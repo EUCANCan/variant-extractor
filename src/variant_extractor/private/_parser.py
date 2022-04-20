@@ -4,7 +4,7 @@
 import re
 import warnings
 
-from .variants import VariantRecord, BracketSVRecord, ShorthandSVRecord, VariantType
+from ..variants import VariantRecord, BracketSVRecord, ShorthandSVRecord, VariantType
 
 # Regex for SVs
 BRACKET_SV_REGEX = re.compile(r'([.A-Za-z]*)(\[|\])([^\]\[:]+:[0-9]+)(\[|\])([.A-Za-z]*)')

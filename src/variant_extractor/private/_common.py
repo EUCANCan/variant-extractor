@@ -3,7 +3,7 @@
 # BSC AS IS License
 import re
 
-from .variants import BracketSVRecord
+from ..variants import BracketSVRecord
 
 NUMBER_CONTIG_REGEX = re.compile(r'[0-9]+')
 

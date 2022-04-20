@@ -6,8 +6,8 @@ from argparse import ArgumentParser
 import warnings
 import pysam
 
-from ._common import select_record, permute_bracket_sv, convert_inv_to_bracket
-from ._parser import parse_bracket_sv, parse_shorthand_sv, parse_sgl_sv, parse_standard_record
+from .private._common import select_record, permute_bracket_sv, convert_inv_to_bracket
+from .private._parser import parse_bracket_sv, parse_shorthand_sv, parse_sgl_sv, parse_standard_record
 from .variants import VariantType
 
 
