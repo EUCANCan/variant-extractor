@@ -32,7 +32,7 @@
 ##INFO=<ID=CLUSTER,Number=.,Type=String,Description="IDs of other clustered breakpoints">
 ##INFO=<ID=EXTRA,Number=.,Type=String,Description="Extra info for testing">
 ##INFO=<ID=END,Number=1,Type=Integer,Description="End position of the variant described in this record">
-#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	DESC
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
 1	100	truthset_snv_1	G	A	.	PASS	EXTRA=DUMMY_SNV
 1	1000	truthset_multiallelic_1	G	C,T	.	PASS	EXTRA=SNV_MULTIALLELIC
 1	1500	truthset_mnp_1	GAA	ACA	.	PASS	EXTRA=DUMMY_MULTI_SNV

@@ -2,7 +2,7 @@
 # Author: Rodrigo Martín Posada
 # BSC AS IS License
 '''
-Generates a .CSV input from a VCF file
+Generates a CSV file from an input VCF file
 Expected usage:
     $ python vcf_to_csv.py <vcf_file> <output_file>
 Use --help for more information.

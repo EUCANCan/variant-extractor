@@ -13,6 +13,31 @@ SGL_SV_REGEX = re.compile(r'\.[.A-Za-z]+|[.A-Za-z]+\.')
 STANDARD_RECORD_REGEX = re.compile(r'([.A-Za-z]+)')
 
 
+def _build_filter(rec):
+    return [f for f in rec.filter]
+
+
+def _build_info(rec):
+    info = dict()
+    for key, value in rec.info.items():
+        info[key] = value
+    return info
+
+
+def _build_format(rec):
+    return [f for f in rec.format]
+
+
+def _build_samples(rec):
+    samples = dict()
+    for sample_name in rec.samples:
+        sample_dict = dict()
+        for key, value in rec.samples[sample_name].items():
+            sample_dict[key] = value
+        samples[sample_name] = sample_dict
+    return samples
+
+
 def parse_bracket_sv(rec):
     sv_match_bracket = BRACKET_SV_REGEX.fullmatch(rec.alts[0])
     if not sv_match_bracket:
@@ -52,7 +77,8 @@ def parse_bracket_sv(rec):
 
     # Create new record
     vcf_record = VariantRecord(rec.contig, rec.pos, end_pos, length, rec.id, rec.ref, rec.alts[0],
-                               rec.qual, rec.filter, rec.info, variant_type, alt_sv_bracket, None)
+                               rec.qual, _build_filter(rec), _build_info(rec), _build_format(rec),
+                               _build_samples(rec), variant_type, alt_sv_bracket, None)
     return vcf_record
 
 
@@ -86,11 +112,12 @@ def parse_shorthand_sv(rec):
     elif alt_type == 'CNV':
         variant_type = VariantType.CNV
     else:
-         raise ValueError(f'Unknown variant type: {alt_type}. Skipping:\n{rec}')
+        raise ValueError(f'Unknown variant type: {alt_type}. Skipping:\n{rec}')
 
     # Create new record
     vcf_record = VariantRecord(rec.contig, rec.pos, rec.stop, length, rec.id, rec.ref, rec.alts[0],
-                               rec.qual, rec.filter, rec.info, variant_type, None, alt_sv_shorthand)
+                               rec.qual, _build_filter(rec), _build_info(rec), _build_format(rec),
+                               _build_samples(rec), variant_type, None, alt_sv_shorthand)
     return vcf_record
 
 
@@ -102,7 +129,8 @@ def parse_sgl_sv(rec):
     length = 0
     # Create new record
     vcf_record = VariantRecord(rec.contig, rec.pos, rec.stop, length, rec.id, rec.ref, rec.alts[0],
-                               rec.qual, rec.filter, rec.info, variant_type, None, None)
+                               rec.qual, _build_filter(rec), _build_info(rec), _build_format(rec),
+                               _build_samples(rec), variant_type, None, None)
     return vcf_record
 
 
@@ -121,5 +149,6 @@ def parse_standard_record(rec):
         variant_type = VariantType.DEL
     # Create new record
     vcf_record = VariantRecord(rec.contig, rec.pos, rec.stop, length, rec.id, rec.ref, rec.alts[0],
-                               rec.qual, rec.filter, rec.info, variant_type, None, None)
+                               rec.qual, _build_filter(rec), _build_info(rec), _build_format(rec),
+                               _build_samples(rec), variant_type, None, None)
     return vcf_record

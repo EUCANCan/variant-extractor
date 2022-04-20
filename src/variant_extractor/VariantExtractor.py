@@ -138,9 +138,15 @@ class VariantExtractor:
             return
         # Mate breakend found, handle it
         self.__pairs_found += 1
-        if compare_contigs(previous_record.contig, vcf_record.contig) == -1:
+        contig_comparison = compare_contigs(previous_record.contig, vcf_record.contig)
+        if contig_comparison == 0:
+            if previous_record.pos < vcf_record.pos:
+                self.__handle_bracket_individual_sv(previous_record)
+            else:
+                self.__handle_bracket_individual_sv(vcf_record)
+        elif contig_comparison == -1:
             self.__handle_bracket_individual_sv(previous_record)
-        else:
+        elif contig_comparison == 1:
             self.__handle_bracket_individual_sv(vcf_record)
 
     def __handle_bracket_individual_sv(self, vcf_record):
@@ -191,7 +197,8 @@ class VariantExtractor:
             self.__pending_breakends.remove(vcf_record)
 
     def __handle_multiallelic_record(self, rec):
-        for alt in rec.alts:
+        alts = rec.alts
+        for alt in alts:
             # WARNING: This overrides the record
             rec.alts = [alt]
             self.__handle_record(rec)

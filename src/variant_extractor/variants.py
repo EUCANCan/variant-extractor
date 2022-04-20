@@ -1,9 +1,8 @@
 # Copyright 2022 - Barcelona Supercomputing Center
 # Author: Rodrigo Martín Posada
 # BSC AS IS License
-from typing import NamedTuple, Optional, List
+from typing import NamedTuple, Optional, List, Dict, Any
 from enum import Enum, auto
-import pysam
 
 
 class VariantType(Enum):
@@ -54,7 +53,7 @@ class VariantRecord(NamedTuple):
     """End position of the variant in the contig (same as `pos` for TRN and SNV)"""
     length: int
     """Length of the variant"""
-    id: str
+    id: Optional[str]
     """Record identifier"""
     ref: str
     """Reference sequence"""
@@ -62,10 +61,14 @@ class VariantRecord(NamedTuple):
     """Alternative sequence"""
     qual: Optional[float]
     """Quality score for the assertion made in ALT"""
-    filter: pysam.VariantRecordFilter
-    """Record filter"""
-    info: pysam.VariantRecordInfo
-    """Dictionary of information fields"""
+    filter: List[str]
+    """Filter status. PASS if this position has passed all filters. Otherwise, it contains the filters that failed"""
+    info: Dict[str, Any]
+    """Additional information"""
+    format: List[str]
+    """Specifies data types and order of the genotype information"""
+    samples: Dict[str, Dict[str, Any]]
+    """Genotype information for each sample"""
     variant_type: VariantType
     """Variant type"""
     alt_sv_bracket: Optional[BracketSVRecord]
