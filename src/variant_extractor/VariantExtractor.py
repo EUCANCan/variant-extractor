@@ -96,7 +96,7 @@ class VariantExtractor:
         if vcf_record:
             return self.__handle_standard_record(vcf_record)
         else:
-            warnings.warn(f'ERROR: Unrecognized record:\n{rec}')
+            warnings.warn(f'Skipping unrecognized record:\n{rec}')
 
     def __handle_standard_record(self, vcf_record):
         # Normalize complex indels

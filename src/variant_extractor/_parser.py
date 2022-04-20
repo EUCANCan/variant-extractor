@@ -14,7 +14,7 @@ STANDARD_RECORD_REGEX = re.compile(r'([.A-Za-z]+)')
 
 
 def _parse_bracket_sv(rec):
-    sv_match_bracket = BRACKET_SV_REGEX.search(rec.alts[0])
+    sv_match_bracket = BRACKET_SV_REGEX.fullmatch(rec.alts[0])
     if not sv_match_bracket:
         return None
     # Extract ALT data from regex
@@ -57,7 +57,7 @@ def _parse_bracket_sv(rec):
 
 
 def _parse_shorthand_sv(rec):
-    sv_match_shorthand = SHORTHAND_SV_REGEX.search(rec.alts[0])
+    sv_match_shorthand = SHORTHAND_SV_REGEX.fullmatch(rec.alts[0])
     if not sv_match_shorthand:
         return None
     # Extract ALT data from regex
@@ -95,7 +95,7 @@ def _parse_shorthand_sv(rec):
 
 
 def _parse_sgl_sv(rec):
-    sv_match_sgl = SGL_SV_REGEX.search(rec.alts[0])
+    sv_match_sgl = SGL_SV_REGEX.fullmatch(rec.alts[0])
     if not sv_match_sgl or 'SVTYPE' not in rec.info:
         return None
     variant_type = VariantType.SGL
@@ -107,7 +107,7 @@ def _parse_sgl_sv(rec):
 
 
 def _parse_standard_record(rec):
-    match = STANDARD_RECORD_REGEX.search(rec.alts[0])
+    match = STANDARD_RECORD_REGEX.fullmatch(rec.alts[0])
     if not match:
         return None
     if len(rec.alts[0]) == len(rec.ref):
