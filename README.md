@@ -35,7 +35,7 @@ for variant_record in variants:
     print(f'Found variant of type {variant_record.variant_type.name}: {variant_record.contig}:{variant_record.pos}')
 ```
 
-For a complete list of examples, see the [examples](./examples/) directory.
+For a more complete list of examples, check the [examples](./examples/) directory.
 
 ## VariantRecord
 The `VariantExtractor.read_vcf()` method returns a list of `VariantRecord`. The `VariantRecord` class is a container for the information contained in a VCF record.

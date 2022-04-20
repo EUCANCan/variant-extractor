@@ -1,0 +1,4 @@
+*.csv
+output_test_data
+private_data
+!.gitignore
