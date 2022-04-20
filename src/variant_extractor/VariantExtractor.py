@@ -170,8 +170,10 @@ class VariantExtractor:
                 # Mark as paired for deletion
                 paired_records.append(vcf_record)
                 paired_records.append(previous_record)
-                record = select_record(vcf_record, previous_record)
-                self.__handle_bracket_individual_sv(record)
+                if compare_contigs(previous_record.contig, vcf_record.contig) == -1:
+                    self.__handle_bracket_individual_sv(previous_record)
+                else:
+                    self.__handle_bracket_individual_sv(vcf_record)
                 continue
 
             # Check if it has MATEID or PARID
