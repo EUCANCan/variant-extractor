@@ -2,6 +2,23 @@
 
 <!--next-version-placeholder-->
 
+## v2.1.0 (2022-04-20)
+### Feature
+* Include all information in VariantRecord ([`894763e`](https://github.com/EUCANCan/variant-extractor/commit/894763e38b5ca34abe3d909fe1cc2e738133d4f0))
+* Infer TRN brackets from pair ([`6cd0ede`](https://github.com/EUCANCan/variant-extractor/commit/6cd0edef719d8c817b071331c9a3af598925a3e4))
+* Add support for multiallelic variants ([`c763b97`](https://github.com/EUCANCan/variant-extractor/commit/c763b97b613e9cb85a98401e09888f4d5322040e))
+* Divide compound indels ([`96f72e5`](https://github.com/EUCANCan/variant-extractor/commit/96f72e51dbea136b2f1c638b6d686a57a294e187))
+
+### Fix
+* Fix imprecise breakends handling ([`b2cab22`](https://github.com/EUCANCan/variant-extractor/commit/b2cab22f1dc476c9e703537f389a66b94f5a7a4c))
+* Switch regex to fullmatch ([`c554b52`](https://github.com/EUCANCan/variant-extractor/commit/c554b5247621d95a4a81470683ee668311bdfea3))
+* Fix multiallelic record handling ([`0e1620f`](https://github.com/EUCANCan/variant-extractor/commit/0e1620f4dd4d08bda18399418aa7e6dcc26feaee))
+* SVLEN not set now defaults to 0 ([`6afbb0d`](https://github.com/EUCANCan/variant-extractor/commit/6afbb0df1410859043e5645b80680763cf0f5310))
+* Fix mate_id referenced before assignment ([`5efdeca`](https://github.com/EUCANCan/variant-extractor/commit/5efdeca18f742a4c6453eb91916954ec600a78e6))
+
+### Documentation
+* Fix paragraph headers ([`7dc9e9d`](https://github.com/EUCANCan/variant-extractor/commit/7dc9e9d30bd8df648ea79be2f1aaf96ecf7e1d7e))
+
 ## v2.0.0 (2022-04-04)
 ### Feature
 * Add length field to VariantRecord ([`9a0e446`](https://github.com/EUCANCan/variant-extractor/commit/9a0e446a307c880221b39849b91c0c9db42b9c25))
