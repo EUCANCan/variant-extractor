@@ -7,9 +7,9 @@ While there is somewhat of an agreement on how to label the SNVs and indels vari
 ## Table of contents<!-- omit in toc -->
 - [Usage](#usage)
 - [VariantRecord](#variantrecord)
+  - [VariantType](#varianttype)
   - [BracketSVRecord](#bracketsvrecord)
   - [ShorthandSVRecord](#shorthandsvrecord)
-- [VariantType](#varianttype)
 - [Homogenization rules](#homogenization-rules)
   - [Multiallelic variants](#multiallelic-variants)
   - [SNVs](#snvs)
@@ -17,7 +17,7 @@ While there is somewhat of an agreement on how to label the SNVs and indels vari
   - [Structural variants](#structural-variants)
     - [Bracket vs shorthand notation](#bracket-vs-shorthand-notation)
     - [Paired breakends](#paired-breakends)
-    - [Inferred pairs](#inferred-pairs)
+    - [Inferred breakend pairs](#inferred-breakend-pairs)
     - [Imprecise paired breakends](#imprecise-paired-breakends)
     - [Single breakends](#single-breakends)
 
@@ -57,6 +57,20 @@ The `VariantExtractor.read_vcf()` method returns a list of `VariantRecord`. The 
 | `alt_sv_bracket`   | `Optional[BracketSVRecord]`   | Bracketed SV info, present only for SVs with bracket notation. For example, `G]17:198982]`   |
 | `alt_sv_shorthand` | `Optional[ShorthandSVRecord]` | Shorthand SV info, present only for SVs with shorthand notation. For example, `<DUP:TANDEM>` |
 
+### VariantType
+The `VariantType` enum is a container for the information about the type of the variant. For structural variants is inferred **only** from the bracket notation, it does not take into account any `INFO` (fields `SVTYPE` or `EVENTYPE`).
+
+| REF       | ALT                                      | Variant name | Description                                                   |
+| --------- | ---------------------------------------- | ------------ | ------------------------------------------------------------- |
+| A         | G                                        | SNV          | Single nucleotide variant                                     |
+| AGTG or A | A or A[1:20[ or \<DEL\>                  | DEL          | Deletion                                                      |
+| A         | ACCT or \<INS\>                          | INS          | Insertion                                                     |
+| A         | ]1:20]a or \<DUP\>                       | DUP          | Duplication                                                   |
+| A         | A]1:20] or [1:20[A                       | INV          | Inversion. **[\<INV\> is a special case](#inv-special-case)** |
+| A         | \<CNV\>                                  | CNV          | Copy number variation                                         |
+| A         | A]X:20] or A[X:20[ or ]X:20]A or [X:20[A | TRN          | Translocation                                                 |
+| A         | A. or .A                                 | SGL          | Single breakend                                               |
+
 ### BracketSVRecord
 The `BracketSVRecord` class is a container for the information contained in a VCF record for SVs with bracket notation.
 
@@ -75,20 +89,6 @@ The `ShorthandSVRecord` class is a container for the information contained in a 
 | -------- | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `type`   | `str`       | Type of the SV record with shorthand notation. One of the following, `'DEL'`, `'INS'`, `'DUP'`, `'INV'` or `'CNV'`. For example, for `<DUP:TANDEM>` the type will be `DUP` |
 | `extra`  | `List[str]` | Extra information of the SV. For example, for `<DUP:TANDEM:AA>` the extra will be `['TANDEM', 'AA']`                                                                       |
-
-## VariantType
-The `VariantType` enum is a container for the information about the type of the variant. For structural variants is inferred **only** from the bracket notation, it does not take into account any `INFO` (fields `SVTYPE` or `EVENTYPE`).
-
-| REF       | ALT                                      | Variant name | Description                                                   |
-| --------- | ---------------------------------------- | ------------ | ------------------------------------------------------------- |
-| A         | G                                        | SNV          | Single nucleotide variant                                     |
-| AGTG or A | A or A[1:20[ or \<DEL\>                  | DEL          | Deletion                                                      |
-| A         | ACCT or \<INS\>                          | INS          | Insertion                                                     |
-| A         | ]1:20]a or \<DUP\>                       | DUP          | Duplication                                                   |
-| A         | A]1:20] or [1:20[A                       | INV          | Inversion. **[\<INV\> is a special case](#inv-special-case)** |
-| A         | \<CNV\>                                  | CNV          | Copy number variation                                         |
-| A         | A]X:20] or A[X:20[ or ]X:20]A or [X:20[A | TRN          | Translocation                                                 |
-| A         | A. or .A                                 | SGL          | Single breakend                                               |
 
 ## Homogenization rules
 The `variant_extractor` package provides a unified interface to extract variants (included structural variants) from VCF files generated by different variant callers. The variants are homogenized and returned applying the following rules:
@@ -203,19 +203,19 @@ are returned as one entry per variant:
 | 1     | 3000 | event_2_o | A   | A[1:5000[ | PASS   | SVTYPE=BND | DEL                           |
 
 
-#### Inferred pairs
-If **all** the breakends are missing their pair, the breakend with the lowest chromosome and/or position is inferred and returned. For example:
+#### Inferred breakend pairs
+If **all** breakends are missing their pair, the breakends with the lowest chromosome and/or position are inferred and returned. For example:
 
 | CHROM | POS  | ID        | REF | ALT       | FILTER | INFO       |
 | ----- | ---- | --------- | --- | --------- | ------ | ---------- |
 | 3     | 5000 | event_1_h | G   | G[2:3000[ | PASS   | SVTYPE=BND |
 | 1     | 5000 | event_2_h | A   | ]1:3000]A | PASS   | SVTYPE=BND |
 
-are returned as their inferred pair with the lowest chromosome and/or position:
+are returned as their inferred breakend pair with the lowest chromosome and/or position:
 
 | CHROM | POS  | ID        | REF | ALT       | FILTER | INFO       | [`VariantType`](#varianttype) |
 | ----- | ---- | --------- | --- | --------- | ------ | ---------- | ----------------------------- |
-| 2     | 3000 | event_1_o | .   | ]3:5000]. | PASS   | SVTYPE=BND | TRN                           |
+| 2     | 3000 | event_1_h | .   | ]3:5000]. | PASS   | SVTYPE=BND | TRN                           |
 | 1     | 3000 | event_2_h | A   | A[1:5000[ | PASS   | SVTYPE=BND | DEL                           |
 
 The following equivalencies are applied:
