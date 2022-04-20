@@ -6,7 +6,7 @@ from argparse import ArgumentParser
 import warnings
 import pysam
 
-from .private._common import select_record, permute_bracket_sv, convert_inv_to_bracket
+from .private._utils import compare_contigs, permute_bracket_sv, convert_inv_to_bracket
 from .private._parser import parse_bracket_sv, parse_shorthand_sv, parse_sgl_sv, parse_standard_record
 from .private._PendingBreakends import PendingBreakends
 from .variants import VariantType
@@ -136,14 +136,17 @@ class VariantExtractor:
         if previous_record is None:
             self.__pending_breakends.push(vcf_record)
             return
-        # Mate SV found, parse it
+        # Mate breakend found, handle it
         self.__pairs_found += 1
-        record = select_record(previous_record, vcf_record)
-        self.__handle_bracket_individual_sv(record)
+        if compare_contigs(previous_record.contig, vcf_record.contig) == -1:
+            self.__handle_bracket_individual_sv(previous_record)
+        else:
+            self.__handle_bracket_individual_sv(vcf_record)
 
     def __handle_bracket_individual_sv(self, vcf_record):
-        # Transform REF/ALT to equivalent notation so that REF contains the lowest position
-        if vcf_record.alt_sv_bracket.contig == vcf_record.contig and vcf_record.alt_sv_bracket.pos < vcf_record.pos:
+        contig_comparison = compare_contigs(vcf_record.contig, vcf_record.alt_sv_bracket.contig)
+        # Transform REF/ALT to equivalent notation so that REF contains the lowest contig and position
+        if contig_comparison == 1 or (contig_comparison == 0 and vcf_record.pos > vcf_record.alt_sv_bracket.pos):
             vcf_record = permute_bracket_sv(vcf_record)
         return self.__variants.append(vcf_record)
 

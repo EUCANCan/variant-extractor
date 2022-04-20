@@ -17,6 +17,7 @@ While there is somewhat of an agreement on how to label the SNVs and indels vari
   - [Structural variants](#structural-variants)
     - [Bracket vs shorthand notation](#bracket-vs-shorthand-notation)
     - [Paired breakends](#paired-breakends)
+    - [Inferred pairs](#inferred-pairs)
     - [Imprecise paired breakends](#imprecise-paired-breakends)
     - [Single breakends](#single-breakends)
 
@@ -189,8 +190,8 @@ For **paired breakends**, breakends are paired using their coordinates (contig+p
 
 | CHROM | POS  | ID        | REF | ALT       | FILTER | INFO       |
 | ----- | ---- | --------- | --- | --------- | ------ | ---------- |
-| 2     | 3000 | event_1_o | T   | T[3:5000[ | PASS   | SVTYPE=BND |
-| 3     | 5000 | event_1_h | T   | ]2:3000]T | PASS   | SVTYPE=BND |
+| 2     | 3000 | event_1_o | T   | ]3:5000]T | PASS   | SVTYPE=BND |
+| 3     | 5000 | event_1_h | G   | G[2:3000[ | PASS   | SVTYPE=BND |
 | 1     | 3000 | event_2_o | A   | A[1:5000[ | PASS   | SVTYPE=BND |
 | 1     | 5000 | event_2_h | A   | ]1:3000]A | PASS   | SVTYPE=BND |
 
@@ -198,8 +199,34 @@ are returned as one entry per variant:
 
 | CHROM | POS  | ID        | REF | ALT       | FILTER | INFO       | [`VariantType`](#varianttype) |
 | ----- | ---- | --------- | --- | --------- | ------ | ---------- | ----------------------------- |
-| 2     | 3000 | event_1_o | T   | T[3:5000[ | PASS   | SVTYPE=BND | TRN                           |
+| 2     | 3000 | event_1_o | T   | ]3:5000]T | PASS   | SVTYPE=BND | TRN                           |
 | 1     | 3000 | event_2_o | A   | A[1:5000[ | PASS   | SVTYPE=BND | DEL                           |
+
+
+#### Inferred pairs
+If **all** the breakends are missing their pair, the breakend with the lowest chromosome and/or position is inferred and returned. For example:
+
+| CHROM | POS  | ID        | REF | ALT       | FILTER | INFO       |
+| ----- | ---- | --------- | --- | --------- | ------ | ---------- |
+| 3     | 5000 | event_1_h | G   | G[2:3000[ | PASS   | SVTYPE=BND |
+| 1     | 5000 | event_2_h | A   | ]1:3000]A | PASS   | SVTYPE=BND |
+
+are returned as their inferred pair with the lowest chromosome and/or position:
+
+| CHROM | POS  | ID        | REF | ALT       | FILTER | INFO       | [`VariantType`](#varianttype) |
+| ----- | ---- | --------- | --- | --------- | ------ | ---------- | ----------------------------- |
+| 2     | 3000 | event_1_o | .   | ]3:5000]. | PASS   | SVTYPE=BND | TRN                           |
+| 1     | 3000 | event_2_h | A   | A[1:5000[ | PASS   | SVTYPE=BND | DEL                           |
+
+The following equivalencies are applied:
+
+| CHROM1 | POS1 | REF1 | ALT1     | CHROM2 | POS2 | REF2 | ALT2     |
+| ------ | ---- | ---- | -------- | ------ | ---- | ---- | -------- |
+| 1      | 500  | N    | N[7:800[ | 7      | 800  | N    | ]1:500]N |
+| 1      | 500  | N    | ]7:800]N | 7      | 800  | N    | N[1:500[ |
+| 1      | 500  | N    | [7:800[N | 7      | 800  | N    | [1:500[N |
+| 1      | 500  | N    | N]7:800] | 7      | 800  | N    | N]1:500] |
+      
 
 #### Imprecise paired breakends
 Imprecise breakends with bracket notation are paired using the `INFO` fields `MATEID` or `PARID` instead of their coordinates (since they may not match). In order to keep the deterministic process, as with the rest of variants, only the breakend with the lowest chromosome and/or position is returned. However, it is important to notice that the uncertainty information (`CIPOS` field) is lost for the other breakend. For example:
