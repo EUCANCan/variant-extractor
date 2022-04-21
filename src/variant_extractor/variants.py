@@ -42,6 +42,28 @@ class ShorthandSVRecord(NamedTuple):
     """Extra information of the SV. For example, for :code:`<DUP:TANDEM:AA>` the extra will be :code:`['TANDEM', 'AA']`"""
 
 
+def _convert_info_key_value(key, value):
+    if value is None:
+        return key
+    elif isinstance(value, str):
+        return f'{key}={value}'
+    elif hasattr(value, '__len__'):
+        return key+'=' + ','.join([str(v) for v in value])
+    else:
+        return key+'='+str(value)
+
+
+def _convert_sample_value(key, value):
+    if key == 'GT':
+        return '/'.join([str(v) if v is not None else '.' for v in value])
+    elif isinstance(value, str):
+        return value
+    elif hasattr(value, '__len__'):
+        return ','.join([str(v) for v in value])
+    else:
+        return str(value)
+
+
 class VariantRecord(NamedTuple):
     """NamedTuple with the information of a variant record
     """
@@ -75,3 +97,18 @@ class VariantRecord(NamedTuple):
     """Bracketed SV info, present only for SVs with bracket notation. For example, :code:`G]17:198982]`"""
     alt_sv_shorthand: Optional[ShorthandSVRecord]
     """Shorthand SV info, present only for SVs with shorthand notation. For example, :code:`<DUP:TANDEM>`"""
+
+    def __str__(self):
+        contig = self.contig
+        pos = self.pos
+        id_ = self.id if self.id else '.'
+        ref = self.ref
+        alt = self.alt
+        qual = self.qual if self.qual else '.'
+        filter_ = ";".join(self.filter) if self.filter else '.'
+        info = ";".join([_convert_info_key_value(k, v) for k, v in self.info.items()])
+        format_ = ":".join(self.format)
+        samples_list = [":".join([_convert_sample_value(k, v) for k, v in self.samples[sample_name].items()])
+                        for sample_name in self.samples]
+        samples = "\t".join(samples_list)
+        return f'{contig}\t{pos}\t{id_}\t{ref}\t{alt}\t{qual}\t{filter_}\t{info}\t{format_}\t{samples}'

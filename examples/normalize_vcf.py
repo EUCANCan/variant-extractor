@@ -21,46 +21,6 @@ def _extract_header(vcf_file):
     return header
 
 
-def _convert_info_key_value(key, value):
-    if value is None:
-        return key
-    elif isinstance(value, str):
-        return f'{key}={value}'
-    elif hasattr(value, '__len__'):
-        return key+'=' + ','.join([str(v) for v in value])
-    else:
-        return key+'='+str(value)
-
-
-def _convert_sample_value(key, value):
-    if key == 'GT':
-        return '/'.join([str(v) if v is not None else '.' for v in value])
-    elif value is None:
-        return '.'
-    elif isinstance(value, str):
-        return value
-    elif hasattr(value, '__len__'):
-        return ','.join([str(v) for v in value])
-    else:
-        return str(value)
-
-
-def _convert_to_vcf(variant_record):
-    contig = variant_record.contig
-    pos = variant_record.pos
-    id_ = variant_record.id if variant_record.id else '.'
-    ref = variant_record.ref
-    alt = variant_record.alt
-    qual = variant_record.qual if variant_record.qual else '.'
-    filter_ = ";".join(variant_record.filter) if variant_record.filter else '.'
-    info = ";".join([_convert_info_key_value(k, v) for k, v in variant_record.info.items()])
-    format_ = ":".join(variant_record.format)
-    samples_list = [":".join([_convert_sample_value(k, v) for k, v in variant_record.samples[sample_name].items()])
-                    for sample_name in variant_record.samples]
-    samples = "\t".join(samples_list)
-    return f'{contig}\t{pos}\t{id_}\t{ref}\t{alt}\t{qual}\t{filter_}\t{info}\t{format_}\t{samples}\n'
-
-
 if __name__ == '__main__':
     import os
     import sys
@@ -85,4 +45,4 @@ if __name__ == '__main__':
         # Open input file, read with variant_extractor
         extractor = VariantExtractor()
         for variant_record in extractor.read_vcf(args.vcf_file):
-            output_vcf.write(_convert_to_vcf(variant_record))
+            output_vcf.write(str(variant_record))
