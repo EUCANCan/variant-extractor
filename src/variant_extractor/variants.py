@@ -106,7 +106,7 @@ class VariantRecord(NamedTuple):
         alt = self.alt
         qual = self.qual if self.qual else '.'
         filter_ = ";".join(self.filter) if self.filter else '.'
-        info = ";".join([_convert_info_key_value(k, v) for k, v in self.info.items()])
+        info = ";".join([_convert_info_key_value(k, v) for k, v in self.info.items()]) if self.info else '.'
         format_ = ":".join(self.format)
         samples_list = [":".join([_convert_sample_value(k, v) for k, v in self.samples[sample_name].items()])
                         for sample_name in self.samples]

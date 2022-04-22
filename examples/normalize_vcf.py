@@ -45,4 +45,4 @@ if __name__ == '__main__':
         # Open input file, read with variant_extractor
         extractor = VariantExtractor()
         for variant_record in extractor.read_vcf(args.vcf_file):
-            output_vcf.write(str(variant_record))
+            output_vcf.write(str(variant_record)+'\n')
