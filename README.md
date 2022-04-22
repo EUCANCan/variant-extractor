@@ -39,7 +39,7 @@ for variant_record in variants:
 For a more complete list of examples, check the [examples](./examples/) directory. This folder also includes an example of a [script for normalizing VCF files](examples/normalize_vcf.py) following the [homogenization rules](#homogenization-rules).
 
 ## VariantRecord
-The `VariantExtractor.read_vcf()` method returns a list of `VariantRecord`. The `VariantRecord` class is a container for the information contained in a VCF record.
+The `VariantExtractor.read_vcf()` method returns a generator of `VariantRecord`. The `VariantRecord` class is a container for the information contained in a VCF record plus some extra useful information.
 
 | Property           | Type                                                    | Description                                                                                                   |
 | ------------------ | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
