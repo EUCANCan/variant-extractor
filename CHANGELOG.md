@@ -2,6 +2,20 @@
 
 <!--next-version-placeholder-->
 
+## v3.0.0 (2022-04-25)
+### Feature
+* Switch to VariantExtractor iterations through __iter__ ([`b7d8e58`](https://github.com/EUCANCan/variant-extractor/commit/b7d8e5846979c696dd587ec2e747f782d0c8360c))
+* Read_vcf() returns a lazy generator ([`cd7decf`](https://github.com/EUCANCan/variant-extractor/commit/cd7decf68e18f0bf73568db7ac3e5b0b317ef65d))
+* Add __str__ method to VariantRecord ([`7f3aa7d`](https://github.com/EUCANCan/variant-extractor/commit/7f3aa7d312c99c3654ac22b071c2468cb7432c6b))
+
+### Fix
+* Add dot if info is not defined ([`70fa09b`](https://github.com/EUCANCan/variant-extractor/commit/70fa09b7d7b9eef63a826db0f1749fc850a04e8d))
+
+### Breaking
+* read_vcf() method no longer exists. Iterating through the VariantExtractor instance have the same effect.  ([`b7d8e58`](https://github.com/EUCANCan/variant-extractor/commit/b7d8e5846979c696dd587ec2e747f782d0c8360c))
+* VariantExtractor constructor parameter only_pass renamed to pass_only ([`cd7decf`](https://github.com/EUCANCan/variant-extractor/commit/cd7decf68e18f0bf73568db7ac3e5b0b317ef65d))
+* read_vcf() no longer returns a list, but a lazy generator  ([`cd7decf`](https://github.com/EUCANCan/variant-extractor/commit/cd7decf68e18f0bf73568db7ac3e5b0b317ef65d))
+
 ## v2.1.0 (2022-04-20)
 ### Feature
 * Include all information in VariantRecord ([`894763e`](https://github.com/EUCANCan/variant-extractor/commit/894763e38b5ca34abe3d909fe1cc2e738133d4f0))
