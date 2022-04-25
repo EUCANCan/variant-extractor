@@ -60,17 +60,17 @@ The `VariantExtractor.read_vcf()` method returns a generator of `VariantRecord` 
 ### VariantType
 The `VariantType` enum describes the type of the variant. For structural variants, it is inferred **only** from the bracket notation (or shorthand notation). It does not take into account any `INFO` field (`SVTYPE` nor `EVENTYPE`) that might be added by the variant caller afterwards.
 
-| REF  | ALT                                      | Variant name | Description                                                   |
-| ---- | ---------------------------------------- | ------------ | ------------------------------------------------------------- |
-| A    | G                                        | SNV          | Single nucleotide variant                                     |
-| AGTG | A                                        | DEL          | Deletion                                                      |
-| A    | A[1:20[ or \<DEL\>                       | DEL          | Deletion                                                      |
-| A    | ACCT or \<INS\>                          | INS          | Insertion                                                     |
-| A    | ]1:20]A or \<DUP\>                       | DUP          | Duplication                                                   |
-| A    | A]1:20] or [1:20[A                       | INV          | Inversion. **[\<INV\> is a special case](#inv-special-case)** |
-| A    | \<CNV\>                                  | CNV          | Copy number variation                                         |
-| A    | A]X:20] or A[X:20[ or ]X:20]A or [X:20[A | TRN          | Translocation                                                 |
-| A    | A. or .A                                 | SGL          | Single breakend                                               |
+| REF  | ALT                                      | Variant name | Description                                                          |
+| ---- | ---------------------------------------- | ------------ | -------------------------------------------------------------------- |
+| A    | G                                        | SNV          | Single nucleotide variant                                            |
+| AGTG | A                                        | DEL          | Deletion                                                             |
+| A    | A[1:20[ or \<DEL\>                       | DEL          | Deletion                                                             |
+| A    | ACCT or \<INS\>                          | INS          | Insertion                                                            |
+| A    | ]1:20]A or \<DUP\>                       | DUP          | Duplication                                                          |
+| A    | A]1:20] or [1:20[A                       | INV          | Inversion. **[\<INV\> is a special case](#the-special-case-of-inv)** |
+| A    | \<CNV\>                                  | CNV          | Copy number variation                                                |
+| A    | A]X:20] or A[X:20[ or ]X:20]A or [X:20[A | TRN          | Translocation                                                        |
+| A    | A. or .A                                 | SGL          | Single breakend                                                      |
 
 ### BracketSVRecord
 The `BracketSVRecord` class is a container for the information contained in a VCF record for SVs with bracket notation.
@@ -170,19 +170,19 @@ are returned as one entry (each one of them with their own `ALT` field), but wit
 | ----- | ---- | ------- | --- | --- | ------ | ---- | ----------------------------- | ------------------------------------- |
 | 1     | 3000 | event_1 | A   | ... | PASS   | ...  | DEL                           | 5000                                  |
 
-##### INV special case<!-- omit in toc -->
+##### The special case of INV<!-- omit in toc -->
 \<INV\> is a special case of shorthand notation because it represents two paired breakends. For example, the following shorthand notation:
 
-| CHROM | POS    | ID   | REF | ALT     | FILTER | INFO                  |
-| ----- | ------ | ---- | --- | ------- | ------ | --------------------- |
-| 2     | 321682 | INV0 | T   | \<INV\> | PASS   | SVTYPE=INV;END=421681 |
+| CHROM | POS    | ID      | REF | ALT     | FILTER | INFO                  |
+| ----- | ------ | ------- | --- | ------- | ------ | --------------------- |
+| 2     | 321682 | event_1 | T   | \<INV\> | PASS   | SVTYPE=INV;END=421681 |
 
 is equivalent to the following breakends:
 
-| CHROM | POS    | ID      | REF | ALT         | FILTER | INFO       |
-| ----- | ------ | ------- | --- | ----------- | ------ | ---------- |
-| 2     | 321681 | event_1 | .   | .]2:421681] | PASS   | SVTYPE=BND |
-| 2     | 321682 | event_1 | T   | [2:421682[T | PASS   | SVTYPE=BND |
+| CHROM | POS    | ID        | REF | ALT         | FILTER | INFO       | [`VariantType`](#varianttype) |
+| ----- | ------ | --------- | --- | ----------- | ------ | ---------- | ----------------------------- |
+| 2     | 321681 | event_1_0 | .   | .]2:421681] | PASS   | SVTYPE=INV | INV                           |
+| 2     | 321682 | event_1_1 | T   | [2:421682[T | PASS   | SVTYPE=INV | INV                           |
 
 In this case, `variant_extractor` converts internally \<INV\> to two entries with bracket notation (one for each breakend pair).
 
@@ -231,14 +231,14 @@ The following equivalencies are applied:
       
 
 #### Imprecise paired breakends
-Imprecise breakends with bracket notation are paired using the `INFO` fields `MATEID` or `PARID` instead of their coordinates (since they may not match). In order to keep the deterministic process, as with the rest of variants, only the breakend with the lowest chromosome and/or position is returned. However, it is important to notice that the uncertainty information (`CIPOS` field) is lost for the other breakend. For example:
+Imprecise breakends do not match exactly with their pair in coordinates. In this case, they are paired using the `INFO` fields `MATEID` or `PARID` instead of their coordinates. As with the rest of variants, for each breakend pair, only the breakend with the lowest chromosome and/or position is returned. However, it is important to notice that the `CIPOS` field is lost for the other breakend. For example:
 
 | CHROM | POS  | ID        | REF | ALT       | FILTER | INFO                             |
 | ----- | ---- | --------- | --- | --------- | ------ | -------------------------------- |
-| 2     | 3010 | event_1_o | T   | T[3:5000[ | PASS   | SVTYPE=BND;CIPOS=0,50;PARID=a_h  |
-| 3     | 5050 | event_1_h | T   | ]2:3050]T | PASS   | SVTYPE=BND;CIPOS=0,100;PARID=a_o |
+| 2     | 3010 | event_1_o | T   | T[3:5000[ | PASS   | SVTYPE=BND;CIPOS=0,50;PARID=event_1_h  |
+| 3     | 5050 | event_1_h | A   | ]2:3050]A | PASS   | SVTYPE=BND;CIPOS=0,100;PARID=event_1_o |
 
-are returned as one entry:
+are paired and the entry with the lowest chromosome and/or position is returned:
 
 | CHROM | POS  | ID        | REF | ALT       | FILTER | INFO                            | [`VariantType`](#varianttype) |
 | ----- | ---- | --------- | --- | --------- | ------ | ------------------------------- | ----------------------------- |
@@ -246,16 +246,16 @@ are returned as one entry:
 
 
 #### Single breakends
-Single breakends cannot be matched with other breakends because they lack a mate. That is why each one is kept as a different variant. For example:
+Single breakends cannot be matched with other breakends because they lack a mate. They may be able to be matched later in downstream analysis. That is why each one is kept as a different variant. For example:
 
-| CHROM | POS  | ID  | REF | ALT | FILTER | INFO       |
-| ----- | ---- | --- | --- | --- | ------ | ---------- |
-| 2     | 3000 | a_s | T   | T.  | PASS   | SVTYPE=BND |
-| 3     | 5000 | m_s | G   | .G  | PASS   | SVTYPE=BND |
+| CHROM | POS  | ID      | REF | ALT | FILTER | INFO       |
+| ----- | ---- | ------- | --- | --- | ------ | ---------- |
+| 2     | 3000 | event_s | T   | T.  | PASS   | SVTYPE=BND |
+| 3     | 5000 | event_m | G   | .G  | PASS   | SVTYPE=BND |
 
-are be returned as two entries:
+are returned as two entries:
 
-| CHROM | POS  | ID  | REF | ALT | FILTER | INFO       | [`VariantType`](#varianttype) |
-| ----- | ---- | --- | --- | --- | ------ | ---------- | ----------------------------- |
-| 2     | 3000 | a_s | T   | T.  | PASS   | SVTYPE=BND | SGL                           |
-| 3     | 5000 | m_s | G   | .G  | PASS   | SVTYPE=BND | SGL                           |
+| CHROM | POS  | ID      | REF | ALT | FILTER | INFO       | [`VariantType`](#varianttype) |
+| ----- | ---- | ------- | --- | --- | ------ | ---------- | ----------------------------- |
+| 2     | 3000 | event_s | T   | T.  | PASS   | SVTYPE=BND | SGL                           |
+| 3     | 5000 | event_m | G   | .G  | PASS   | SVTYPE=BND | SGL                           |
