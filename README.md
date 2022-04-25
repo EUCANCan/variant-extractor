@@ -28,18 +28,16 @@ While there is somewhat of an agreement on how to label the SNVs and indels vari
 from variant_extractor import VariantExtractor
 
 # Create a new instance of the class
-extractor = VariantExtractor()
-# Read the VCF file
-variants = extractor.read_vcf('/path/to/file.vcf')
+extractor = VariantExtractor('/path/to/file.vcf')
 # Iterate through the variants
-for variant_record in variants:
+for variant_record in extractor:
     print(f'Found variant of type {variant_record.variant_type.name}: {variant_record.contig}:{variant_record.pos}')
 ```
 
 For a more complete list of examples, check the [examples](./examples/) directory. This folder also includes an example of a [script for normalizing VCF files](examples/normalize_vcf.py) following the [homogenization rules](#homogenization-rules).
 
 ## VariantRecord
-The `VariantExtractor.read_vcf()` method returns a generator of `VariantRecord`. The `VariantRecord` class is a container for the information contained in a VCF record plus some extra useful information.
+The `VariantExtractor.read_vcf()` method returns a generator of `VariantRecord` instances. The `VariantRecord` class is a container for the information contained in a VCF record plus some extra useful information.
 
 | Property           | Type                                                    | Description                                                                                                   |
 | ------------------ | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
@@ -54,24 +52,25 @@ The `VariantExtractor.read_vcf()` method returns a generator of `VariantRecord`.
 | `filter`           | `List[str]`                                             | Filter status. `PASS` if this position has passed all filters. Otherwise, it contains the filters that failed |
 | `info`             | `Dict[str, Any]`                                        | Additional information                                                                                        |
 | `format`           | `List[str]`                                             | Specifies data types and order of the genotype information                                                    |
-| `samples`          | ` Dict[str, Dict[str, Any]]`                            | Genotype information for each sample                                                                          |
+| `samples`          | `Dict[str, Dict[str, Any]]`                             | Genotype information for each sample                                                                          |
 | `variant_type`     | [`VariantType`](#varianttype)                           | Variant type inferred                                                                                         |
 | `alt_sv_bracket`   | `Optional[`[`BracketSVRecord`](#bracketsvrecord)`]`     | Bracketed SV info, present only for SVs with bracket notation. For example, `G]17:198982]`                    |
 | `alt_sv_shorthand` | `Optional[`[`ShorthandSVRecord`](#shorthandsvrecord)`]` | Shorthand SV info, present only for SVs with shorthand notation. For example, `<DUP:TANDEM>`                  |
 
 ### VariantType
-The `VariantType` enum is a container for the information about the type of the variant. For structural variants is inferred **only** from the bracket notation, it does not take into account any `INFO` (fields `SVTYPE` or `EVENTYPE`).
+The `VariantType` enum describes the type of the variant. For structural variants, it is inferred **only** from the bracket notation (or shorthand notation). It does not take into account any `INFO` field (`SVTYPE` nor `EVENTYPE`) that might be added by the variant caller afterwards.
 
-| REF       | ALT                                      | Variant name | Description                                                   |
-| --------- | ---------------------------------------- | ------------ | ------------------------------------------------------------- |
-| A         | G                                        | SNV          | Single nucleotide variant                                     |
-| AGTG or A | A or A[1:20[ or \<DEL\>                  | DEL          | Deletion                                                      |
-| A         | ACCT or \<INS\>                          | INS          | Insertion                                                     |
-| A         | ]1:20]a or \<DUP\>                       | DUP          | Duplication                                                   |
-| A         | A]1:20] or [1:20[A                       | INV          | Inversion. **[\<INV\> is a special case](#inv-special-case)** |
-| A         | \<CNV\>                                  | CNV          | Copy number variation                                         |
-| A         | A]X:20] or A[X:20[ or ]X:20]A or [X:20[A | TRN          | Translocation                                                 |
-| A         | A. or .A                                 | SGL          | Single breakend                                               |
+| REF  | ALT                                      | Variant name | Description                                                   |
+| ---- | ---------------------------------------- | ------------ | ------------------------------------------------------------- |
+| A    | G                                        | SNV          | Single nucleotide variant                                     |
+| AGTG | A                                        | DEL          | Deletion                                                      |
+| A    | A[1:20[ or \<DEL\>                       | DEL          | Deletion                                                      |
+| A    | ACCT or \<INS\>                          | INS          | Insertion                                                     |
+| A    | ]1:20]A or \<DUP\>                       | DUP          | Duplication                                                   |
+| A    | A]1:20] or [1:20[A                       | INV          | Inversion. **[\<INV\> is a special case](#inv-special-case)** |
+| A    | \<CNV\>                                  | CNV          | Copy number variation                                         |
+| A    | A]X:20] or A[X:20[ or ]X:20]A or [X:20[A | TRN          | Translocation                                                 |
+| A    | A. or .A                                 | SGL          | Single breakend                                               |
 
 ### BracketSVRecord
 The `BracketSVRecord` class is a container for the information contained in a VCF record for SVs with bracket notation.
@@ -113,22 +112,22 @@ is returned as:
 ### SNVs
 Entries with `REF/ALT` of the same lenghts are treated like SNVs. If the `REF/ALT` sequences are more than one nucleotide (MNPs), they are divided into multiple atomic SNVs. For example:
 
-| CHROM | POS | ID      | REF | ALT | FILTER |
-| ----- | --- | ------- | --- | --- | ------ |
-| 2     | 1   | event_1 | C   | G   | PASS   |
-| 2     | 3   | event_2 | TAG | AGT | PASS   |
+| CHROM | POS | ID    | REF | ALT | FILTER |
+| ----- | --- | ----- | --- | --- | ------ |
+| 2     | 1   | snv_1 | C   | G   | PASS   |
+| 2     | 3   | mnp_1 | TAG | AGT | PASS   |
 
 are returned as:
 
-| CHROM | POS | ID        | REF | ALT | FILTER | [`VariantType`](#varianttype) |
-| ----- | --- | --------- | --- | --- | ------ | ----------------------------- |
-| 2     | 3   | event_1   | C   | G   | PASS   | SNV                           |
-| 2     | 3   | event_2_0 | T   | A   | PASS   | SNV                           |
-| 2     | 4   | event_2_1 | A   | G   | PASS   | SNV                           |
-| 2     | 5   | event_2_2 | G   | T   | PASS   | SNV                           |
+| CHROM | POS | ID      | REF | ALT | FILTER | [`VariantType`](#varianttype) |
+| ----- | --- | ------- | --- | --- | ------ | ----------------------------- |
+| 2     | 3   | snv_1   | C   | G   | PASS   | SNV                           |
+| 2     | 3   | mnp_1_0 | T   | A   | PASS   | SNV                           |
+| 2     | 4   | mnp_1_1 | A   | G   | PASS   | SNV                           |
+| 2     | 5   | mnp_1_2 | G   | T   | PASS   | SNV                           |
 
 ### Compound indels
-All entries with the `REF/ALT` of different lengths are treated as compound indels. They are left-trimmed and divided into multiple atomic SNVs and an insertion (INS) or a deletion (DEL). If the `REF` sequence is longer than the `ALT` sequence, it is considered a deletion. If the `REF` sequence is shorter than the `ALT` sequence, it is considered an insertion. For example:
+All entries with the `REF/ALT` of different lengths are treated as compound indels (or complex indels). They are left-trimmed and divided into multiple atomic SNVs and an insertion (INS) or a deletion (DEL). If the `REF` sequence is longer than the `ALT` sequence, it is considered a deletion. If the `REF` sequence is shorter than the `ALT` sequence, it is considered an insertion. For example:
 
 | CHROM | POS  | ID           | REF     | ALT       | FILTER |
 | ----- | ---- | ------------ | ------- | --------- | ------ |
@@ -152,23 +151,24 @@ are returned as:
 
 
 ### Structural variants
-`variant_extractor` returns one entry per structural variant (one entry per breakend pair). This helps to avoid the ambiguity of the notation and keeps the process deterministic. Also, for this reason, in case of paired breakends, the breakend with the lowest chromosome and/or position is returned.
+`variant_extractor` returns one entry per structural variant (one entry per breakend pair). This helps to avoid the ambiguity of the notation and keeps the process deterministic. For this reason, in case of paired breakends, the breakend with the lowest chromosome and/or position is returned. If a breakend is not the lowest chromosome and/or position and is missing its pair, its pair is [inferred and returned](#inferred-breakend-pairs).
 
 #### Bracket vs shorthand notation
-Entries with the same information, either described with shorthand or bracket notation, will be tagged the same way. Here is an example for a DEL entry:
+Entries with the same information, either described with shorthand or bracket notation, will be returned the same way. Here is an example for a DEL entry:
 
-| CHROM | POS  | ID        | REF | ALT       | FILTER | INFO                 |
-| ----- | ---- | --------- | --- | --------- | ------ | -------------------- |
-| 1     | 3000 | event_1_o | A   | A[1:5000[ | PASS   | SVTYPE=BND           |
-| 1     | 5000 | event_1_h | A   | ]1:3000]A | PASS   | SVTYPE=BND           |
-| 1     | 3000 | event_1   | A   | A[1:5000[ | PASS   | SVTYPE=DEL           |
-| 1     | 3000 | event_1   | A   | \<DEL\>   | PASS   | SVTYPE=DEL; END=5000 |
+| CHROM | POS  | ID        | REF         | ALT       | FILTER | INFO                 |
+| ----- | ---- | --------- | ----------- | --------- | ------ | -------------------- |
+| 1     | 3000 | event_1_o | A           | A[1:5000[ | PASS   | SVTYPE=BND           |
+| 1     | 5000 | event_1_h | A           | ]1:3000]A | PASS   | SVTYPE=BND           |
+| 1     | 3000 | event_1   | A           | A[1:5000[ | PASS   | SVTYPE=DEL           |
+| 1     | 3000 | event_1   | A           | \<DEL\>   | PASS   | SVTYPE=DEL; END=5000 |
+| 1     | 3000 | event_1   | AGTCACAA... | A         | PASS   |                      |
 
 are returned as one entry (each one of them with their own `ALT` field), but with the same `VariantRecord.end` and `VariantType`:
 
 | CHROM | POS  | ID      | REF | ALT | FILTER | INFO | [`VariantType`](#varianttype) | [`VariantRecord.end`](#variantrecord) |
 | ----- | ---- | ------- | --- | --- | ------ | ---- | ----------------------------- | ------------------------------------- |
-| 2     | 3000 | event_1 | A   | ... | PASS   | ...  | DEL                           | 5000                                  |
+| 1     | 3000 | event_1 | A   | ... | PASS   | ...  | DEL                           | 5000                                  |
 
 ##### INV special case<!-- omit in toc -->
 \<INV\> is a special case of shorthand notation because it represents two paired breakends. For example, the following shorthand notation:

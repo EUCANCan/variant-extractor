@@ -26,8 +26,8 @@ if __name__ == '__main__':
     variants = []
 
     print(f'Reading VCF file: {args.vcf_file}')
-    extractor = VariantExtractor()
-    for variant_record in extractor.read_vcf(args.vcf_file):
+    extractor = VariantExtractor(args.vcf_file)
+    for variant_record in extractor:
         start_chrom = variant_record.contig.replace('chr', '')
         start = variant_record.pos
         ref = variant_record.ref

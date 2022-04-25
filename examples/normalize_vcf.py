@@ -43,6 +43,6 @@ if __name__ == '__main__':
         output_vcf.write(_extract_header(args.vcf_file))
         print(f'Reading {args.vcf_file}...')
         # Open input file, read with variant_extractor
-        extractor = VariantExtractor()
-        for variant_record in extractor.read_vcf(args.vcf_file):
+        extractor = VariantExtractor(args.vcf_file)
+        for variant_record in extractor:
             output_vcf.write(str(variant_record)+'\n')

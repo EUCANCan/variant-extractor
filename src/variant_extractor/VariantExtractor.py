@@ -20,44 +20,40 @@ class VariantExtractor:
     used in a pipeline, where the variants are ingested from VCF files and then used in downstream analysis.
     """
 
-    def __init__(self, pass_only=False, ensure_pairs=True):
+    def __init__(self, vcf_file: str, pass_only=False, ensure_pairs=True):
         """
         Parameters
         ----------
+        vcf_file : str
+            A VCF formatted file. The file is automatically opened.
         pass_only : bool, optional
             If :code:`True`, only records with PASS filter will be considered.
         ensure_pairs : bool, optional
             If :code:`True`, throws an exception if a breakend is missing a pair when all other were paired successfully.
         """
-        self.ensure_pairs = ensure_pairs
-        self.pass_only = pass_only
-
-    def read_vcf(self, vcf_file: str) -> Generator[VariantRecord, None, None]:
-        """Reads VCF file and extracts all variants.
-
-        Parameters
-        ----------
-        vcf_file : str
-            A VCF formatted file. The file is automatically opened.
-
-        Returns
-        -------
-        Generator[VariantRecord, None, None]
-        """
+        self.__ensure_pairs = ensure_pairs
+        self.__pass_only = pass_only
         self.__pairs_found = 0
         self.__pending_breakends = PendingBreakends()
-        # Read the file
-        with open(file=vcf_file, mode='r') as vcf_handle:
-            save = pysam.set_verbosity(0)
-            with pysam.VariantFile(vcf_handle) as vcf:
-                self.__variant_file = vcf
-                pysam.set_verbosity(save)
-                for rec in vcf:
-                    yield from self.__handle_record(rec)
+        # Open the file
+        vcf_handle = open(file=vcf_file, mode='r')
+        save = pysam.set_verbosity(0)
+        self.__variant_file = pysam.VariantFile(vcf_handle)
+        pysam.set_verbosity(save)
+
+    def close(self):
+        """Closes the VCF file.
+        """
+        self.__variant_file.close()
+
+    def __iter__(self):
+        # Read the next record from the VCF file
+        for rec in self.__variant_file:
+            yield from self.__handle_record(rec)
         # Handle imprecise unpaired breakends
         yield from self.__handle_imprecise_sv()
         # Only single-paired records or not ensuring pairs
-        if not self.ensure_pairs or self.__pairs_found == 0:
+        if not self.__ensure_pairs or self.__pairs_found == 0:
             for vcf_record in self.__pending_breakends.values():
                 yield from self.__handle_bracket_individual_sv(vcf_record)
         # Found unpaired records
@@ -72,7 +68,7 @@ class VariantExtractor:
                  'Use ensure_pairs=False to ignore unpaired SV breakends.'))
 
     def __handle_record(self, rec: pysam.VariantRecord) -> List[VariantRecord]:
-        if self.pass_only and 'PASS' not in rec.filter:
+        if self.__pass_only and 'PASS' not in rec.filter:
             return []
         # Handle multiallelic records
         if len(rec.alts) != 1:
@@ -198,7 +194,7 @@ class VariantExtractor:
             self.__pending_breakends.remove(vcf_record)
 
     def __handle_multiallelic_record(self, rec: pysam.VariantRecord) -> List[VariantRecord]:
-        record_list = []	
+        record_list = []
         alts = rec.alts
         for alt in alts:
             # WARNING: This overrides the record

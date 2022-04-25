@@ -49,8 +49,10 @@ if __name__ == '__main__':
             # Add prefix or suffix as insertion. Ex: AAAGGTC[1:12121[
             insertion_prefix = ''
             if variant_record.alt_sv_bracket:
-                insertion_prefix = f'INS {variant_record.alt_sv_bracket.prefix[1:]};' if len(variant_record.alt_sv_bracket.prefix) > 1 else ''
-                insertion_prefix = f'INS {variant_record.alt_sv_bracket.suffix[:-1]};' if len(variant_record.alt_sv_bracket.suffix) > 1 else ''
+                insertion_prefix = f'INS {variant_record.alt_sv_bracket.prefix[1:]};' if variant_record.alt_sv_bracket.prefix is not None and len(
+                    variant_record.alt_sv_bracket.prefix) > 1 else ''
+                insertion_prefix = f'INS {variant_record.alt_sv_bracket.suffix[:-1]};' if variant_record.alt_sv_bracket.suffix is not None and len(
+                    variant_record.alt_sv_bracket.suffix) > 1 else ''
 
             if variant_record.variant_type == VariantType.TRN or variant_record.variant_type == VariantType.INV:
                 # Convert INV to TRN since most of them are not complete
@@ -67,10 +69,12 @@ if __name__ == '__main__':
                     strand_notation = '--'
 
                 op = f'TRN {alt_contig} {alt_pos} {alt_pos} {strand_notation} {VAF}'
-                output_file_sv.write(f'{variant_record.contig} {variant_record.pos} {variant_record.pos} {insertion_prefix}{op}\n')
+                output_file_sv.write(
+                    f'{variant_record.contig} {variant_record.pos} {variant_record.pos} {insertion_prefix}{op}\n')
             elif variant_record.variant_type == VariantType.DUP:
                 op = f'DUP 1 {VAF}'
-                output_file_sv.write(f'{variant_record.contig} {variant_record.pos} {variant_record.end} {insertion_prefix}{op}\n')
+                output_file_sv.write(
+                    f'{variant_record.contig} {variant_record.pos} {variant_record.end} {insertion_prefix}{op}\n')
             elif variant_record.variant_type == VariantType.DEL:
                 # Check if INDEL
                 if variant_record.end - variant_record.pos < INDEL_THRESHOLD:
@@ -78,13 +82,15 @@ if __name__ == '__main__':
                         f'{variant_record.contig} {variant_record.pos-1} {variant_record.end-1} {VAF} DEL\n')
                 else:
                     op = f'DEL {VAF}'
-                    output_file_sv.write(f'{variant_record.contig} {variant_record.pos} {variant_record.end} {insertion_prefix}{op}\n')
+                    output_file_sv.write(
+                        f'{variant_record.contig} {variant_record.pos} {variant_record.end} {insertion_prefix}{op}\n')
             elif variant_record.variant_type == VariantType.INS:
                 if variant_record.alt_sv_shorthand:
                     insert_length = variant_record.length
                     dna_sequence = generate_random_dna(insert_length)
                 else:
                     dna_sequence = variant_record.alt
+                    insert_length = len(dna_sequence)
                 # Check if INDEL
                 if insert_length < INDEL_THRESHOLD:
                     output_file_indel.write(
@@ -92,11 +98,12 @@ if __name__ == '__main__':
                 else:
                     # Cannot set VAF for insertions
                     op = f'INS {dna_sequence}'
-                    output_file_sv.write(f'{variant_record.contig} {variant_record.pos} {variant_record.pos} {insertion_prefix}{op}\n')
+                    output_file_sv.write(
+                        f'{variant_record.contig} {variant_record.pos} {variant_record.pos} {insertion_prefix}{op}\n')
 
     print(f'Reading VCF file: {args.vcf_file}')
-    extractor = VariantExtractor(only_pass=True)
-    for variant_record in extractor.read_vcf(args.vcf_file):
+    extractor = VariantExtractor(args.vcf_file, pass_only=True)
+    for variant_record in extractor:
         variant_callback(variant_record)
 
     output_file_sv.close()
