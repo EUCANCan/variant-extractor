@@ -7,18 +7,18 @@ Expected usage:
     $ python normalize.py <vcf_file> <output_vcf_file>
 Use --help for more information.
 '''
+import sys
 from argparse import ArgumentParser
 
+import pysam
 
-def _extract_header(vcf_file):
-    header = ''
-    with open(vcf_file, 'r') as f:
-        for line in f:
-            if line.startswith('#'):
-                header += line
-            else:
-                break
-    return header
+
+def _contig_to_int(contig):
+    contig = contig.lower().replace('chr', '')
+    if contig.isdigit():
+        return int(contig)
+    else:
+        return 22 + ord(contig[0])
 
 
 if __name__ == '__main__':
@@ -34,15 +34,21 @@ if __name__ == '__main__':
     parser.add_argument('output_vcf_file', help='Output VCF file')
     args = parser.parse_args()
 
-    if not args.vcf_file.endswith('.vcf'):
-        raise ValueError('Input file must be a VCF file')
+    # Extract header from original file
+    with open(args.vcf_file, 'r') as f:
+        with pysam.VariantFile(f) as input_file:
+            input_file.header.add_meta('cmdline', ' '.join(sys.argv))
+            header_str = str(input_file.header)
 
     # Open output file, write as stream
     with open(args.output_vcf_file, 'w') as output_vcf:
         # Write header
-        output_vcf.write(_extract_header(args.vcf_file))
+        output_vcf.write(header_str)
         print(f'Reading {args.vcf_file}...')
         # Open input file, read with variant_extractor
         extractor = VariantExtractor(args.vcf_file)
-        for variant_record in extractor:
+        records = list(extractor)
+        # Sort record by chromosome and position
+        records.sort(key=lambda x: (_contig_to_int(x.contig), x.pos))
+        for variant_record in records:
             output_vcf.write(str(variant_record)+'\n')
