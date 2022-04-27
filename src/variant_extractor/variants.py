@@ -56,6 +56,8 @@ def _convert_info_key_value(key, value):
 def _convert_sample_value(key, value):
     if key == 'GT':
         return '/'.join([str(v) if v is not None else '.' for v in value])
+    elif value is None:
+        return '.'
     elif isinstance(value, str):
         return value
     elif hasattr(value, '__len__'):
