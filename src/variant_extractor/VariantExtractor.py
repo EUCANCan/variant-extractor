@@ -95,36 +95,22 @@ class VariantExtractor:
 
     def __handle_standard_record(self, vcf_record: VariantRecord) -> List[VariantRecord]:
         record_list = []
-        # Normalize complex indels
-        i = 0
-        min_size = min(len(vcf_record.ref), len(vcf_record.alt)) - 1
-        while i < min_size:
-            # Atomize SNVs
-            if vcf_record.ref[i] != vcf_record.alt[i]:
-                new_vcf_record = vcf_record._replace(
-                    ref=vcf_record.ref[i], pos=i+vcf_record.pos, end=i+vcf_record.pos, length=0, alt=vcf_record.alt[i], id=f'{vcf_record.id}_{i}' if vcf_record.id else None, variant_type=VariantType.SNV)
-                record_list.append(new_vcf_record)
-            i += 1
-
-        if len(vcf_record.ref) > len(vcf_record.alt):
+        if len(vcf_record.ref) == len(vcf_record.alt):
+            for i in range(len(vcf_record.ref)):
+                # Atomize SNVs
+                if vcf_record.ref[i] != vcf_record.alt[i]:
+                    variant_id = f'{vcf_record.id}_{i}' if len(vcf_record.ref) > 1 and vcf_record.id is not None \
+                        else vcf_record.id
+                    new_vcf_record = vcf_record._replace(
+                        ref=vcf_record.ref[i], pos=i+vcf_record.pos, end=i+vcf_record.pos, length=0, alt=vcf_record.alt[i], id=variant_id, variant_type=VariantType.SNV)
+                    record_list.append(new_vcf_record)
+        elif len(vcf_record.ref) > len(vcf_record.alt):
             # Deletion
-            new_vcf_record = vcf_record._replace(
-                ref=vcf_record.ref[i:], pos=i+vcf_record.pos, end=i+vcf_record.pos, length=len(vcf_record.ref)-i-1, alt=vcf_record.ref[i], id=f'{vcf_record.id}_{i}' if vcf_record.id else None, variant_type=VariantType.DEL)
+            new_vcf_record = vcf_record._replace(variant_type=VariantType.DEL)
             record_list.append(new_vcf_record)
         elif len(vcf_record.ref) < len(vcf_record.alt):
             # Insertion
-            new_vcf_record = vcf_record._replace(
-                ref=vcf_record.ref[i:], pos=i+vcf_record.pos, end=i+vcf_record.pos, length=len(vcf_record.alt)-i-1, alt=vcf_record.ref[i]+vcf_record.alt[i+1:], id=f'{vcf_record.id}_{i}' if vcf_record.id else None, variant_type=VariantType.INS)
-            record_list.append(new_vcf_record)
-
-        if vcf_record.ref[i] != vcf_record.alt[i]:
-            # Setup record id
-            id_offset = 0 if len(vcf_record.ref) == len(vcf_record.alt) else 1
-            id_str = f'_{i+id_offset}' if i > 0 else ''
-            new_record_id = vcf_record.id+id_str if vcf_record.id else None
-            # Last SNV
-            new_vcf_record = vcf_record._replace(
-                ref=vcf_record.ref[i], pos=i+vcf_record.pos, end=i+vcf_record.pos, length=0, alt=vcf_record.alt[i], id=new_record_id, variant_type=VariantType.SNV)
+            new_vcf_record = vcf_record._replace(variant_type=VariantType.INS)
             record_list.append(new_vcf_record)
         return record_list
 
@@ -196,8 +182,11 @@ class VariantExtractor:
     def __handle_multiallelic_record(self, rec: pysam.VariantRecord) -> List[VariantRecord]:
         record_list = []
         alts = rec.alts
-        for alt in alts:
+        original_id = rec.id
+        for i, alt in enumerate(alts):
             # WARNING: This overrides the record
             rec.alts = [alt]
+            new_id = f'{original_id}_{i}'
+            rec.id = new_id
             record_list += self.__handle_record(rec)
         return record_list
