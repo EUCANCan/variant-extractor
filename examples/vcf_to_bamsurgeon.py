@@ -16,7 +16,7 @@ VAF = 0.5
 INDEL_THRESHOLD = 90
 
 
-def generate_random_dna(length):
+def _generate_random_dna(length):
     '''
     Generates a random DNA sequence of the given length
     '''
@@ -40,11 +40,16 @@ if __name__ == '__main__':
     output_file_sv = open(f'{args.output_file_schema}_sv.in', 'w')
     output_file_snv = open(f'{args.output_file_schema}_snv.in', 'w')
     output_file_indel = open(f'{args.output_file_schema}_indel.in', 'w')
+    
+    vaf = VAF
+    indel_threshold = INDEL_THRESHOLD
 
-    def variant_callback(variant_record):
+    print(f'Reading VCF file: {args.vcf_file}')
+    extractor = VariantExtractor(args.vcf_file, pass_only=True)
+    for variant_record in extractor:
         if variant_record.variant_type == VariantType.SNV:
             output_file_snv.write(
-                f'{variant_record.contig} {variant_record.pos} {variant_record.pos} {VAF} {variant_record.alt}\n')
+                f'{variant_record.contig} {variant_record.pos} {variant_record.pos} {vaf} {variant_record.alt}\n')
         else:
             # Add prefix or suffix as insertion. Ex: AAAGGTC[1:12121[
             insertion_prefix = ''
@@ -68,43 +73,38 @@ if __name__ == '__main__':
                 else:
                     strand_notation = '--'
 
-                op = f'TRN {alt_contig} {alt_pos} {alt_pos} {strand_notation} {VAF}'
+                op = f'TRN {alt_contig} {alt_pos} {alt_pos} {strand_notation} {vaf}'
                 output_file_sv.write(
                     f'{variant_record.contig} {variant_record.pos} {variant_record.pos} {insertion_prefix}{op}\n')
             elif variant_record.variant_type == VariantType.DUP:
-                op = f'DUP 1 {VAF}'
+                op = f'DUP 1 {vaf}'
                 output_file_sv.write(
                     f'{variant_record.contig} {variant_record.pos} {variant_record.end} {insertion_prefix}{op}\n')
             elif variant_record.variant_type == VariantType.DEL:
                 # Check if INDEL
-                if variant_record.end - variant_record.pos < INDEL_THRESHOLD:
+                if variant_record.end - variant_record.pos < indel_threshold:
                     output_file_indel.write(
-                        f'{variant_record.contig} {variant_record.pos-1} {variant_record.end-1} {VAF} DEL\n')
+                        f'{variant_record.contig} {variant_record.pos-1} {variant_record.end-1} {vaf} DEL\n')
                 else:
-                    op = f'DEL {VAF}'
+                    op = f'DEL {vaf}'
                     output_file_sv.write(
                         f'{variant_record.contig} {variant_record.pos} {variant_record.end} {insertion_prefix}{op}\n')
             elif variant_record.variant_type == VariantType.INS:
                 if variant_record.alt_sv_shorthand:
                     insert_length = variant_record.length
-                    dna_sequence = generate_random_dna(insert_length)
+                    dna_sequence = _generate_random_dna(insert_length)
                 else:
                     dna_sequence = variant_record.alt
                     insert_length = len(dna_sequence)
                 # Check if INDEL
-                if insert_length < INDEL_THRESHOLD:
+                if insert_length < indel_threshold:
                     output_file_indel.write(
-                        f'{variant_record.contig} {variant_record.pos-1} {variant_record.pos} {VAF} INS {dna_sequence}\n')
+                        f'{variant_record.contig} {variant_record.pos-1} {variant_record.pos} {vaf} INS {dna_sequence}\n')
                 else:
-                    # Cannot set VAF for insertions
+                    # Cannot set VAF for SV insertions
                     op = f'INS {dna_sequence}'
                     output_file_sv.write(
                         f'{variant_record.contig} {variant_record.pos} {variant_record.pos} {insertion_prefix}{op}\n')
-
-    print(f'Reading VCF file: {args.vcf_file}')
-    extractor = VariantExtractor(args.vcf_file, pass_only=True)
-    for variant_record in extractor:
-        variant_callback(variant_record)
 
     output_file_sv.close()
     output_file_snv.close()

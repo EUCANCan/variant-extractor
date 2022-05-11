@@ -20,7 +20,7 @@ class VariantExtractor:
     used in a pipeline, where the variants are ingested from VCF files and then used in downstream analysis.
     """
 
-    def __init__(self, vcf_file: str, pass_only=False, ensure_pairs=True):
+    def __init__(self, vcf_file: str, pass_only=False, ensure_pairs=True, fasta_ref:str=None):
         """
         Parameters
         ----------
@@ -30,12 +30,18 @@ class VariantExtractor:
             If :code:`True`, only records with PASS filter will be considered.
         ensure_pairs : bool, optional
             If :code:`True`, throws an exception if a breakend is missing a pair when all other were paired successfully.
+        fasta_ref : str, optional
+            A FASTA file with the reference genome. Must be indexed.
         """
         self.__ensure_pairs = ensure_pairs
         self.__pass_only = pass_only
         self.__pairs_found = 0
         self.__pending_breakends = PendingBreakends()
-        # Open the file
+        self.__fasta_ref = None
+        # Open FASTA file
+        if fasta_ref is not None:
+            self.__fasta_ref = pysam.FastaFile(fasta_ref)
+        # Open VCF file
         vcf_handle = open(file=vcf_file, mode='r')
         save = pysam.set_verbosity(0)
         self.__variant_file = pysam.VariantFile(vcf_handle)
@@ -137,13 +143,13 @@ class VariantExtractor:
         contig_comparison = compare_contigs(vcf_record.contig, vcf_record.alt_sv_bracket.contig)
         # Transform REF/ALT to equivalent notation so that REF contains the lowest contig and position
         if contig_comparison == 1 or (contig_comparison == 0 and vcf_record.pos > vcf_record.alt_sv_bracket.pos):
-            vcf_record = permute_bracket_sv(vcf_record)
+            vcf_record = permute_bracket_sv(vcf_record, self.__fasta_ref)
         return [vcf_record]
 
     def __handle_shorthand_sv(self, vcf_record: VariantRecord) -> List[VariantRecord]:
         if vcf_record.variant_type == VariantType.INV:
             # Transform INV into bracket notation
-            vcf_record_1, vcf_record_2 = convert_inv_to_bracket(vcf_record)
+            vcf_record_1, vcf_record_2 = convert_inv_to_bracket(vcf_record, self.__fasta_ref)
             return [vcf_record_1, vcf_record_2]
         else:
             return [vcf_record]

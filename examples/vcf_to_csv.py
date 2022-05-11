@@ -21,12 +21,13 @@ if __name__ == '__main__':
     parser = ArgumentParser(description='Generate CSV file from a VCF file')
     parser.add_argument('vcf_file', help='VCF file')
     parser.add_argument('output_file', help='Output file')
+    parser.add_argument('-f', '--fasta-ref', help='FASTA reference file')
     args = parser.parse_args()
 
     variants = []
 
     print(f'Reading VCF file: {args.vcf_file}')
-    extractor = VariantExtractor(args.vcf_file)
+    extractor = VariantExtractor(args.vcf_file, fasta_ref=args.fasta_ref)
     for variant_record in extractor:
         start_chrom = variant_record.contig.replace('chr', '')
         start = variant_record.pos

@@ -22,7 +22,7 @@ def compare_contigs(contig_1, contig_2):
         return -1 if int(match_1.group()) <= int(match_2.group()) else 1
 
 
-def permute_bracket_sv(variant_record):
+def permute_bracket_sv(variant_record, fasta_ref=None):
     # Transform REF/ALT to equivalent notation
     # Equivalencies:
     # 1 500 . N N[7:800[ 	7 800 . N ]1:500]N
@@ -36,11 +36,15 @@ def permute_bracket_sv(variant_record):
     alt_pos = variant_record.pos
     if variant_record.alt_sv_bracket.prefix and variant_record.alt_sv_bracket.bracket == '[':
         alt_prefix = None
-        alt_suffix = variant_record.alt_sv_bracket.prefix if new_contig == alt_contig else '.'
+        alt_suffix = variant_record.alt_sv_bracket.prefix if new_contig == alt_contig else 'N'
+        if alt_suffix == 'N' and fasta_ref is not None:
+            alt_suffix = fasta_ref.fetch(new_contig, new_pos-1, new_pos).upper()
         ref = alt_suffix
         alt_bracket = ']'
     elif variant_record.alt_sv_bracket.suffix and variant_record.alt_sv_bracket.bracket == ']':
-        alt_prefix = variant_record.alt_sv_bracket.suffix if new_contig == alt_contig else '.'
+        alt_prefix = variant_record.alt_sv_bracket.suffix if new_contig == alt_contig else 'N'
+        if alt_prefix == 'N' and fasta_ref is not None:
+            alt_prefix = fasta_ref.fetch(new_contig, new_pos-1, new_pos).upper()
         ref = alt_prefix
         alt_suffix = None
         alt_bracket = '['
@@ -56,17 +60,19 @@ def permute_bracket_sv(variant_record):
     return variant_record
 
 
-def convert_inv_to_bracket(variant_record):
+def convert_inv_to_bracket(variant_record, fasta_ref=None):
     # Convert INV to equivalent bracket notation. Ex:
     # 2 321682 T <INV> END=421681
     # is equivalent to:
     # 2 321681 . .]2:421681]
     # 2 321682 T [2:421682[T
-    alt_1 = f'.]{variant_record.contig}:{variant_record.end}]'
-    alt_sv_bracket_1 = BracketSVRecord('.', ']', variant_record.contig, variant_record.end, None)
+    ref_1 = 'N' if fasta_ref is None else \
+        fasta_ref.fetch(variant_record.contig, variant_record.pos-2, variant_record.pos - 1).upper()
+    alt_1 = f'{ref_1}]{variant_record.contig}:{variant_record.end}]'
+    alt_sv_bracket_1 = BracketSVRecord(ref_1, ']', variant_record.contig, variant_record.end, None)
     length_1 = abs(variant_record.end - (variant_record.pos - 1))
     variant_record_1 = variant_record._replace(
-        pos=variant_record.pos-1, length=length_1, id=variant_record.id+'_1' if variant_record.id else None, ref='.', alt=alt_1, alt_sv_bracket=alt_sv_bracket_1, alt_sv_shorthand=None)
+        pos=variant_record.pos-1, length=length_1, id=variant_record.id+'_1' if variant_record.id else None, ref=ref_1, alt=alt_1, alt_sv_bracket=alt_sv_bracket_1, alt_sv_shorthand=None)
 
     alt_2 = f'[{variant_record.contig}:{variant_record.end+1}[{variant_record.ref}'
     alt_sv_bracket_2 = BracketSVRecord(None, '[', variant_record.contig, variant_record.pos, variant_record.ref)
