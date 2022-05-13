@@ -32,8 +32,8 @@ def permute_bracket_sv(variant_record, fasta_ref=None):
     new_contig = variant_record.alt_sv_bracket.contig
     alt_contig = variant_record.contig
     new_pos = variant_record.alt_sv_bracket.pos
-    new_end = new_pos
     alt_pos = variant_record.pos
+    new_end = alt_pos if new_contig == alt_contig else new_pos
     if variant_record.alt_sv_bracket.prefix and variant_record.alt_sv_bracket.bracket == '[':
         alt_prefix = None
         alt_suffix = variant_record.alt_sv_bracket.prefix if new_contig == alt_contig else 'N'
