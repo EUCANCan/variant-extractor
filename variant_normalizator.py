@@ -10,7 +10,12 @@ class Variant(NamedTuple):
     length: int
     start_base: str
 
+
 def find_differences(chrom, pos, padding, old, new):
+    print(old)
+    print(new)
+    diff = difflib.ndiff(old.upper(), new.upper())
+    print('|'.join(diff))
     diff = difflib.ndiff(old.upper(), new.upper())
 
     variant_pos = pos - padding - 1
@@ -69,18 +74,18 @@ class VariantNormalizator:
         old = before + middle + after
         new = before + alt + after
         found_variants = find_differences(chrom, pos, padding, old, new)
-        print('old len =', len(old))
-        print('new len =', len(new))
-        variants_str = self.build_variants(chrom, pos, padding, found_variants)
+        variants_str = self.build_variants(chrom, pos, padding, old, new, found_variants)
         return variants_str
-        
-    def build_variants(self, chrom, pos, padding, found_variants):
+
+    def build_variants(self, chrom, pos, padding, old, new, found_variants):
         # Search for SNVs
         i = 0
         req_offset = 0
         alt_offset = 0
         str_offset = pos - padding
-        print(f'str offset {str_offset}')
+        # print(f'str offset {str_offset}')
+        # print('old len =', len(old))
+        # print('new len =', len(new))
         variants_str = []
         non_matched_variants = []
         while i < len(found_variants):
@@ -138,15 +143,16 @@ class VariantNormalizator:
                 i += 2
             else:
                 variants_str.append(self.handle_standard_variant(non_matched_variants[i]))
-                self.i += 1
+                i += 1
         return variants_str
-    
+
     def handle_standard_variant(self, variant):
         # Left trim
         while variant.start_base == variant.seq[-1]:
             new_pos = variant.start_pos-1
             new_start_base = self.fasta.fetch(variant.chrom, new_pos-1, new_pos).upper()
-            variant = variant._replace(start_pos=variant.start_pos-1, seq=variant.start_base+variant.seq[:-1], start_base=new_start_base)
+            variant = variant._replace(start_pos=variant.start_pos-1, seq=variant.start_base +
+                                       variant.seq[:-1], start_base=new_start_base)
 
         chrom = variant.chrom
         pos = variant.start_pos
@@ -173,8 +179,29 @@ class VariantNormalizator:
             pos += 1
         if abs(del_variant.length) > abs(ins_variant.length):
             # Deletion
-            variants_str.append(f'{del_variant.chrom}\t{del_variant.start_pos+pos}\t{del_variant.seq[pos-1:]}\t{del_variant.seq[pos-1]}')
+            variants_str.append(
+                f'{del_variant.chrom}\t{del_variant.start_pos+pos}\t{del_variant.seq[pos-1:]}\t{del_variant.seq[pos-1]}')
         else:
             # Insertion
-            variants_str.append(f'{ins_variant.chrom}\t{ins_variant.start_pos+pos}\t{del_variant.seq[pos-1]}\t{ins_variant.seq[pos-1:]}')
+            variants_str.append(
+                f'{ins_variant.chrom}\t{ins_variant.start_pos+pos}\t{del_variant.seq[pos-1]}\t{ins_variant.seq[pos-1:]}')
         return variants_str
+
+
+if __name__ == '__main__':
+    REF_FASTA = '../insilico-builder/test_data/ref_38/hg38.fa'
+    VCF_INPUT = 'tests/only_pass.vcf'
+    RESULT_VCF = 'tests/result.vcf'
+
+    normalizator = VariantNormalizator(REF_FASTA)
+
+    f_in = open(VCF_INPUT, 'r')
+    f_out = open(RESULT_VCF, 'w')
+
+    for line in f_in:
+        chrom, pos, _, ref, alt = line.strip().split('\t')[:5]
+        chrom = chrom.replace('chr', '')
+        pos = int(pos)
+        variants = normalizator.normalize(chrom, pos, ref, alt)
+        for variant in variants:
+            f_out.write(f'{variant}\n')
