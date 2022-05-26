@@ -10,10 +10,9 @@ class Variant(NamedTuple):
     length: int
     start_base: str
 
-
 def find_differences(chrom, pos, padding, old, new):
-    print(old)
-    print(new)
+    print(old.upper())
+    print(new.upper())
     diff = difflib.ndiff(old.upper(), new.upper())
     print('|'.join(diff))
     diff = difflib.ndiff(old.upper(), new.upper())
