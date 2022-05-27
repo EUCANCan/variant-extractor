@@ -1,6 +1,11 @@
 import numpy as np
 from typing import NamedTuple
+from enum import Enum
 
+class Inertia(Enum):
+    DIAGONAL = 1
+    LEFT = 2
+    UP = 3
 
 def print_distance_matrix(a, b, matrix):
     matrix_string = '\t\t'
@@ -56,12 +61,18 @@ def get_variants_from_matrix(ref, alt, matrix, chrom, pos):
     def prev_base(i):
         return ref[i-1] if i > 0 else 'N'
 
+    inertia = Inertia.DIAGONAL
     while i > 0 or j > 0:
         current_cell = matrix[i][j]
         diagonal_cell = matrix[i-1][j-1] if i > 0 and j > 0 else current_cell + 1
         up_cell = matrix[i-1][j] if i > 0 else current_cell + 1
         left_cell = matrix[i][j-1] if j > 0 else current_cell + 1
-        if diagonal_cell <= up_cell and diagonal_cell <= left_cell:
+
+        diagonal_is_walkable = diagonal_cell <= up_cell and diagonal_cell <= left_cell
+        up_is_walkable = up_cell <= diagonal_cell and up_cell <= left_cell
+        left_is_walkable = left_cell <= diagonal_cell and left_cell <= up_cell
+
+        if (inertia == Inertia.DIAGONAL and diagonal_is_walkable) or (not up_is_walkable and not left_is_walkable):
             if var_type == '+':
                 variants.append(handle_ins(chrom, pos+i-1, prev_base(i), alt[j:end_pos_alt]))
             elif var_type == '-':
@@ -71,7 +82,8 @@ def get_variants_from_matrix(ref, alt, matrix, chrom, pos):
             i -= 1
             j -= 1
             var_type = ''
-        elif left_cell <= up_cell and left_cell < current_cell:
+            inertia = Inertia.DIAGONAL
+        elif (inertia == Inertia.LEFT and left_is_walkable) or not up_is_walkable:
             # Insertion
             if var_type == '-':
                 variants.append(handle_del(chrom, pos+i-1, prev_base(i), ref[i:end_pos_ref]))
@@ -79,6 +91,7 @@ def get_variants_from_matrix(ref, alt, matrix, chrom, pos):
                 end_pos_alt = j
             var_type = '+'
             j -= 1
+            inertia = Inertia.LEFT
         else:
             # Deletion
             if var_type == '+':
@@ -87,6 +100,7 @@ def get_variants_from_matrix(ref, alt, matrix, chrom, pos):
                 end_pos_ref = i
             var_type = '-'
             i -= 1
+            inertia = Inertia.UP
     if var_type == '+':
         variants.append(handle_ins(chrom, pos+i-1, prev_base(i), alt[j:end_pos_alt]))
     elif var_type == '-':
@@ -104,12 +118,12 @@ def variant_str(var):
         return f'{var.chrom}\t{var.start_pos}\t{var.start_base}{var.seq}\t{var.start_base}'
 
 if __name__ == '__main__':
-    ref = 'GATGGAGACATG'
-    alt = 'GTGT'
+    ref = 'AGCAATAAAAGAGGACACTTA'
+    alt = 'ATG'
     ref = ref.upper()
     alt = alt.upper()
-    chrom = '15'
-    pos = 62309661
+    chrom = '10'
+    pos = 111967168
     distance_matrix = levenshtein_distance_matrix(ref, alt)
     variants = get_variants_from_matrix(ref, alt, distance_matrix, chrom, pos)
     for var in variants:
