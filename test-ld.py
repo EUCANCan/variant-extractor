@@ -23,7 +23,6 @@ def levenshtein_distance_matrix(a, b):
     matrix = np.zeros((len(a) + 1, len(b) + 1), dtype=int)
     matrix[:, 0] = np.arange(len(a) + 1)
     matrix[0] = np.arange(len(b) + 1)
-    print_distance_matrix(a, b, matrix)
 
     for i in range(1, len(a) + 1):
         for j in range(1, len(b) + 1):
@@ -31,7 +30,6 @@ def levenshtein_distance_matrix(a, b):
                 matrix[i][j] = matrix[i-1][j-1]
             else:
                 matrix[i][j] = min(matrix[i-1][j-1], matrix[i-1][j], matrix[i][j-1]) + 1
-    print_distance_matrix(a, b, matrix)
     return matrix
 
 class Variant(NamedTuple):
@@ -87,7 +85,7 @@ def get_variants_from_matrix(ref, alt, matrix, chrom, pos):
             # Insertion
             if var_type == '-':
                 variants.append(handle_del(chrom, pos+i-1, prev_base(i), ref[i:end_pos_ref]))
-            elif var_type != '+':
+            if var_type != '+':
                 end_pos_alt = j
             var_type = '+'
             j -= 1
@@ -96,7 +94,7 @@ def get_variants_from_matrix(ref, alt, matrix, chrom, pos):
             # Deletion
             if var_type == '+':
                 variants.append(handle_ins(chrom, pos+i-1, prev_base(i), alt[j:end_pos_alt]))
-            elif var_type != '-':
+            if var_type != '-':
                 end_pos_ref = i
             var_type = '-'
             i -= 1
@@ -118,13 +116,14 @@ def variant_str(var):
         return f'{var.chrom}\t{var.start_pos}\t{var.start_base}{var.seq}\t{var.start_base}'
 
 if __name__ == '__main__':
-    ref = 'AGCAATAAAAGAGGACACTTA'
-    alt = 'ATG'
+    ref = 'TTTAGAAGGT'
+    alt = 'TC'
     ref = ref.upper()
     alt = alt.upper()
     chrom = '10'
-    pos = 111967168
+    pos = 58352780
     distance_matrix = levenshtein_distance_matrix(ref, alt)
+    print_distance_matrix(ref, alt, distance_matrix)
     variants = get_variants_from_matrix(ref, alt, distance_matrix, chrom, pos)
     for var in variants:
         print(variant_str(var))
