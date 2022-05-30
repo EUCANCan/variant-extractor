@@ -45,6 +45,8 @@ class ShorthandSVRecord(NamedTuple):
 def _convert_info_key_value(key, value):
     if value is None:
         return key
+    elif isinstance(value, bool):
+        return key if value else None
     elif isinstance(value, str):
         return f'{key}={value}'
     elif hasattr(value, '__len__'):
@@ -108,7 +110,12 @@ class VariantRecord(NamedTuple):
         alt = self.alt
         qual = self.qual if self.qual else '.'
         filter_ = ";".join(self.filter) if self.filter else '.'
-        info_list = [_convert_info_key_value(k, v) for k, v in self.info.items()]
+        info_list = []
+        for key, value in self.info.items():
+            info_str = _convert_info_key_value(key, value)
+            if info_str is None:
+                continue
+            info_list.append(info_str)
         if self.alt_sv_shorthand:
             info = info_list.insert(0, 'END='+str(self.end))
         info = ";".join(info_list)
