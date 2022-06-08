@@ -63,7 +63,7 @@ def _convert_sample_value(key, value):
     elif isinstance(value, str):
         return value
     elif hasattr(value, '__len__'):
-        return ','.join([str(v) for v in value])
+        return ','.join([str(v) if v is not None else '.' for v in value])
     else:
         return str(value)
 
