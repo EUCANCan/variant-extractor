@@ -2,6 +2,18 @@
 
 <!--next-version-placeholder-->
 
+## v3.1.0 (2022-06-14)
+### Feature
+* Replace N with correct nucleotide if possible ([`8a260e1`](https://github.com/EUCANCan/variant-extractor/commit/8a260e10bc0f01f268a27dba3e4ed85adbc0f042))
+
+### Fix
+* Remove 'None' from sample field ([`23bc5f3`](https://github.com/EUCANCan/variant-extractor/commit/23bc5f3caca4fc5114299480362f23bc6284ecb5))
+* Correctly display flag INFO values ([`bd83771`](https://github.com/EUCANCan/variant-extractor/commit/bd8377159d70eb6c75b181b0c35a04bd4508d102))
+* Fix permutation of SV variant ([`d1cad92`](https://github.com/EUCANCan/variant-extractor/commit/d1cad92800dc6e603a90800943449180700b2d09))
+* Add missing END to info str ([`3606000`](https://github.com/EUCANCan/variant-extractor/commit/36060003088c8240c4d02c733a124785822a922b))
+* Remove complex indel normalization ([`65c5007`](https://github.com/EUCANCan/variant-extractor/commit/65c5007f4c5314abeb3baadd899ac0fd334f2740))
+* Set dot for None values in sample field ([`43e4c83`](https://github.com/EUCANCan/variant-extractor/commit/43e4c831f5eaddb5ed2233b3d544070941be805d))
+
 ## v3.0.0 (2022-04-25)
 ### Feature
 * Switch to VariantExtractor iterations through __iter__ ([`b7d8e58`](https://github.com/EUCANCan/variant-extractor/commit/b7d8e5846979c696dd587ec2e747f782d0c8360c))
