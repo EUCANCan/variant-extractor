@@ -108,7 +108,7 @@ class VariantExtractor:
                     variant_id = f'{vcf_record.id}_{i}' if len(vcf_record.ref) > 1 and vcf_record.id is not None \
                         else vcf_record.id
                     new_vcf_record = vcf_record._replace(
-                        ref=vcf_record.ref[i], pos=i+vcf_record.pos, end=i+vcf_record.pos, length=0, alt=vcf_record.alt[i], id=variant_id, variant_type=VariantType.SNV)
+                        ref=vcf_record.ref[i], pos=i+vcf_record.pos, end=i+vcf_record.pos, length=1, alt=vcf_record.alt[i], id=variant_id, variant_type=VariantType.SNV)
                     record_list.append(new_vcf_record)
         elif len(vcf_record.ref) > len(vcf_record.alt):
             # Deletion
