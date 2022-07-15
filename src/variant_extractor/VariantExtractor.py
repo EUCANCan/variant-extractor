@@ -20,7 +20,7 @@ class VariantExtractor:
     used in a pipeline, where the variants are ingested from VCF files and then used in downstream analysis.
     """
 
-    def __init__(self, vcf_file: str, pass_only=False, ensure_pairs=True, fasta_ref:str=None):
+    def __init__(self, vcf_file: str, pass_only=False, ensure_pairs=True, fasta_ref: str = None):
         """
         Parameters
         ----------
@@ -74,8 +74,6 @@ class VariantExtractor:
                  'Use ensure_pairs=False to ignore unpaired SV breakends.'))
 
     def __handle_record(self, rec: pysam.VariantRecord) -> List[VariantRecord]:
-        if self.__pass_only and 'PASS' not in rec.filter:
-            return []
         # Handle multiallelic records
         if len(rec.alts) != 1:
             return self.__handle_multiallelic_record(rec)
@@ -83,6 +81,9 @@ class VariantExtractor:
         vcf_record = parse_bracket_sv(rec)
         if vcf_record:
             return self.__handle_bracket_sv(vcf_record)
+        # Check PASS filter
+        if self.__pass_only and 'PASS' not in rec.filter:
+            return []
         # Check if shorthand SV record
         vcf_record = parse_shorthand_sv(rec)
         if vcf_record:
@@ -128,6 +129,15 @@ class VariantExtractor:
             return []
         # Mate breakend found, handle it
         self.__pairs_found += 1
+        # Check PASS filter
+        if self.__pass_only and ('PASS' not in previous_record.filter or 'PASS' not in vcf_record.filter):
+            return []
+        # Unify filters
+        filters = set(previous_record.filter) | set(vcf_record.filter)
+        filters.discard('PASS')
+        if len(filters) > 0:
+            previous_record = previous_record._replace(filter=list(filters))
+            vcf_record = vcf_record._replace(filter=list(filters))
         contig_comparison = compare_contigs(previous_record.contig, vcf_record.contig)
         if contig_comparison == 0:
             if previous_record.pos < vcf_record.pos:
