@@ -187,7 +187,7 @@ In this case, VariantExtractor converts internally \<INV\> to two entries with b
 
 
 #### Paired breakends
-For **paired breakends**, breakends are paired using their coordinates (contig+position). The breakend with the lowest chromosome and/or position is returned. For example:
+For **paired breakends**, breakends are paired using the `INFO` fields `MATEID` or `PARID`. If these fields are not available, they are paired using their coordinates (contig+position). The breakend with the lowest chromosome and/or position is returned. For example:
 
 | CHROM | POS  | ID        | REF | ALT       | FILTER | INFO       |
 | ----- | ---- | --------- | --- | --------- | ------ | ---------- |
@@ -230,7 +230,7 @@ Note that the `N` will be replaced with the correct nucleotide if `fasta_ref` is
       
 
 #### Imprecise paired breakends
-Imprecise breakends do not match exactly with their pair in coordinates. In this case, they are paired using the `INFO` fields `MATEID` or `PARID` instead of their coordinates. As with the rest of variants, for each breakend pair, only the breakend with the lowest chromosome and/or position is returned. However, it is important to notice that the `CIPOS` field is lost for the other breakend. For example:
+Imprecise breakends do not match exactly with their pair in coordinates. In this case, they are paired using the `INFO` fields `MATEID` or `PARID`. As with the rest of variants, for each breakend pair, only the breakend with the lowest chromosome and/or position is returned. However, it is important to notice that the `CIPOS` field is lost for the other breakend. For example:
 
 | CHROM | POS  | ID        | REF | ALT       | FILTER | INFO                             |
 | ----- | ---- | --------- | --- | --------- | ------ | -------------------------------- |

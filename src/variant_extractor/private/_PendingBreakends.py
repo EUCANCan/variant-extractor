@@ -2,13 +2,29 @@
 # Author: Rodrigo Martín Posada
 # BSC AS IS License
 
+def _get_mate_id(variant_record):
+    # Check if it has MATEID or PARID
+    mate_id = variant_record.info.get('MATEID',
+                                      variant_record.info.get('PARID',
+                                                              f'{variant_record.alt_sv_bracket.contig}{variant_record.alt_sv_bracket.pos}'))
+    mate_id = mate_id[0] if type(mate_id) != str else mate_id
+    return mate_id
+
+
+def _get_id(variant_record):
+    if 'MATEID' in variant_record.info or 'PARID' in variant_record.info:
+        return variant_record.id
+    else:
+        return f'{variant_record.contig}{variant_record.pos}'
+
+
 class PendingBreakends:
     def __init__(self):
         self.__pending_breakends = {}
 
     def push(self, variant_record):
-        alt_breakend_id = f'{variant_record.alt_sv_bracket.contig}{variant_record.alt_sv_bracket.pos}'
-        breakend_id = f'{variant_record.contig}{variant_record.pos}'
+        alt_breakend_id = _get_mate_id(variant_record)
+        breakend_id = _get_id(variant_record)
         # Check if alt is already in the dictionary
         previous_records = self.__pending_breakends.get(alt_breakend_id)
         if previous_records is None:
@@ -20,11 +36,11 @@ class PendingBreakends:
             previous_records[breakend_id] = variant_record
 
     def pop(self, alt_variant_record):
-        breakend_id = f'{alt_variant_record.contig}{alt_variant_record.pos}'
+        breakend_id = _get_id(alt_variant_record)
         previous_records = self.__pending_breakends.get(breakend_id)
         if previous_records is None:
             return None
-        previous_record_alt_breakend_id = f'{alt_variant_record.alt_sv_bracket.contig}{alt_variant_record.alt_sv_bracket.pos}'
+        previous_record_alt_breakend_id = _get_mate_id(alt_variant_record)
         previous_record_alt = previous_records.get(previous_record_alt_breakend_id)
         if previous_record_alt is None:
             return None
@@ -34,8 +50,8 @@ class PendingBreakends:
         return previous_record_alt
 
     def remove(self, variant_record):
-        alt_breakend_id = f'{variant_record.alt_sv_bracket.contig}{variant_record.alt_sv_bracket.pos}'
-        breakend_id = f'{variant_record.contig}{variant_record.pos}'
+        alt_breakend_id = _get_mate_id(variant_record)
+        breakend_id = _get_id(variant_record)
         previous_records = self.__pending_breakends.get(alt_breakend_id)
         if previous_records is None:
             return

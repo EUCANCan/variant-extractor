@@ -56,8 +56,12 @@ class VariantExtractor:
         # Read the next record from the VCF file
         for rec in self.__variant_file:
             yield from self.__handle_record(rec)
-        # Handle imprecise unpaired breakends
-        yield from self.__handle_imprecise_sv()
+        # Remove non-PASS records from the pending breakends if pass_only is True
+        if self.__pass_only:
+            vcf_records = list(self.__pending_breakends.values())
+            for vcf_record in vcf_records:
+                if 'PASS' not in vcf_record.filter:
+                    self.__pending_breakends.remove(vcf_record)       
         # Only single-paired records or not ensuring pairs
         if not self.__ensure_pairs or self.__pairs_found == 0:
             for vcf_record in self.__pending_breakends.values():
@@ -68,10 +72,9 @@ class VariantExtractor:
             for vcf_record in self.__pending_breakends.values():
                 exception_text += str(vcf_record)+'\n'
             raise Exception(
-                (f'Unpaired SV breakends:\n{exception_text}'
-                 f'Exception: There are {len(self.__pending_breakends)} unpaired SV breakends. '
-                 'Please, check the entires show above in VCF file. '
-                 'Use ensure_pairs=False to ignore unpaired SV breakends.'))
+                (f'There are {len(self.__pending_breakends)} unpaired SV breakends. '
+                 'Please, check the entires shown below in VCF file. '
+                 f'Use ensure_pairs=False to ignore unpaired SV breakends.\n{exception_text}'))
 
     def __handle_record(self, rec: pysam.VariantRecord) -> List[VariantRecord]:
         # Handle multiallelic records
@@ -129,25 +132,28 @@ class VariantExtractor:
             return []
         # Mate breakend found, handle it
         self.__pairs_found += 1
+        return self.__handle_braked_paired_sv(previous_record, vcf_record)
+
+    def __handle_braked_paired_sv(self, vcf_record_1: VariantRecord, vcf_record_2: VariantRecord) -> List[VariantRecord]:
         # Check PASS filter
-        if self.__pass_only and ('PASS' not in previous_record.filter or 'PASS' not in vcf_record.filter):
+        if self.__pass_only and ('PASS' not in vcf_record_1.filter or 'PASS' not in vcf_record_2.filter):
             return []
         # Unify filters
-        filters = set(previous_record.filter) | set(vcf_record.filter)
+        filters = set(vcf_record_1.filter) | set(vcf_record_2.filter)
         filters.discard('PASS')
         if len(filters) > 0:
-            previous_record = previous_record._replace(filter=list(filters))
-            vcf_record = vcf_record._replace(filter=list(filters))
-        contig_comparison = compare_contigs(previous_record.contig, vcf_record.contig)
+            vcf_record_1 = vcf_record_1._replace(filter=list(filters))
+            vcf_record_2 = vcf_record_2._replace(filter=list(filters))
+        contig_comparison = compare_contigs(vcf_record_1.contig, vcf_record_2.contig)
         if contig_comparison == 0:
-            if previous_record.pos < vcf_record.pos:
-                return self.__handle_bracket_individual_sv(previous_record)
+            if vcf_record_1.pos < vcf_record_2.pos:
+                return self.__handle_bracket_individual_sv(vcf_record_1)
             else:
-                return self.__handle_bracket_individual_sv(vcf_record)
+                return self.__handle_bracket_individual_sv(vcf_record_2)
         elif contig_comparison == -1:
-            return self.__handle_bracket_individual_sv(previous_record)
+            return self.__handle_bracket_individual_sv(vcf_record_1)
         elif contig_comparison == 1:
-            return self.__handle_bracket_individual_sv(vcf_record)
+            return self.__handle_bracket_individual_sv(vcf_record_2)
 
     def __handle_bracket_individual_sv(self, vcf_record: VariantRecord) -> List[VariantRecord]:
         contig_comparison = compare_contigs(vcf_record.contig, vcf_record.alt_sv_bracket.contig)
@@ -163,37 +169,6 @@ class VariantExtractor:
             return [vcf_record_1, vcf_record_2]
         else:
             return [vcf_record]
-
-    def __handle_imprecise_sv(self) -> Generator[VariantRecord, None, None]:
-        pairs = {}
-        paired_records = []
-        for vcf_record in self.__pending_breakends.values():
-            # Check if is already in the dictionary
-            previous_record = pairs.get(vcf_record.id)
-            if previous_record:
-                del pairs[vcf_record.id]
-                # Mark as paired for deletion
-                paired_records.append(vcf_record)
-                paired_records.append(previous_record)
-                if compare_contigs(previous_record.contig, vcf_record.contig) == -1:
-                    yield from self.__handle_bracket_individual_sv(previous_record)
-                else:
-                    yield from self.__handle_bracket_individual_sv(vcf_record)
-                continue
-
-            # Check if it has MATEID or PARID
-            if 'MATEID' in vcf_record.info:
-                mate_id = vcf_record.info['MATEID']
-            elif 'PARID' in vcf_record.info:
-                mate_id = vcf_record.info['PARID']
-            else:
-                continue
-            # Store record based on mate id
-            mate_id = mate_id[0] if type(mate_id) != str else mate_id
-            pairs[mate_id] = vcf_record
-        # Remove paired records from pending
-        for vcf_record in paired_records:
-            self.__pending_breakends.remove(vcf_record)
 
     def __handle_multiallelic_record(self, rec: pysam.VariantRecord) -> List[VariantRecord]:
         record_list = []
