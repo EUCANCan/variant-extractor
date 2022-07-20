@@ -123,4 +123,4 @@ class VariantRecord(NamedTuple):
         samples_list = [":".join([_convert_sample_value(k, v) for k, v in self.samples[sample_name].items()])
                         for sample_name in self.samples]
         samples = "\t".join(samples_list)
-        return f'{contig}\t{pos}\t{id_}\t{ref}\t{alt}\t{qual}\t{filter_}\t{info}\t{format_}\t{samples}'
+        return f'{contig}\t{pos}\t{id_}\t{ref}\t{alt}\t{qual}\t{filter_}\t{info}\t{format_}\t{samples}'.strip()
