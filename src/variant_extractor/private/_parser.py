@@ -139,7 +139,7 @@ def parse_standard_record(rec):
     if not match:
         return None
     if len(rec.alts[0]) == len(rec.ref):
-        length = 0
+        length = len(rec.ref)
         variant_type = VariantType.SNV
     elif len(rec.alts[0]) > len(rec.ref):
         length = len(rec.alts[0]) - 1

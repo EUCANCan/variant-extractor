@@ -3,7 +3,7 @@
 # BSC AS IS License
 import re
 
-from ..variants import BracketSVRecord
+from ..variants import BracketSVRecord, VariantRecord, VariantType
 
 NUMBER_CONTIG_REGEX = re.compile(r'[0-9]+')
 
@@ -22,7 +22,7 @@ def compare_contigs(contig_1, contig_2):
         return -1 if int(match_1.group()) <= int(match_2.group()) else 1
 
 
-def permute_bracket_sv(variant_record, fasta_ref=None):
+def permute_bracket_sv(variant_record: VariantRecord, fasta_ref=None):
     # Transform REF/ALT to equivalent notation
     # Equivalencies:
     # 1 500 . N N[7:800[ 	7 800 . N ]1:500]N
@@ -60,7 +60,24 @@ def permute_bracket_sv(variant_record, fasta_ref=None):
     return variant_record
 
 
-def convert_inv_to_bracket(variant_record, fasta_ref=None):
+def convert_del_to_ins(variant_record: VariantRecord, fasta_ref=None):
+    # Convert DEL to INS
+    # 1 100 T TATATATATACACAC[1:101[
+    # 1 101 A ]1:100]ATATATATACACACA
+    # 1 100 T TATATATATACACAC
+    if variant_record.alt_sv_bracket.bracket == '[':
+        pos = variant_record.pos
+        ref = variant_record.ref
+        alt = variant_record.alt_sv_bracket.prefix
+    else:
+        pos = variant_record.alt_sv_bracket.pos
+        ref = 'N' if fasta_ref is None else fasta_ref.fetch(variant_record.contig, pos-1, pos).upper()
+        alt = ref + variant_record.alt_sv_bracket.suffix
+    length = len(alt) - 1
+    return variant_record._replace(pos=pos, end=pos, ref=ref, alt=alt, length=length, alt_sv_bracket=None, variant_type=VariantType.INS)
+
+
+def convert_inv_to_bracket(variant_record: VariantRecord, fasta_ref=None):
     # Convert INV to equivalent bracket notation. Ex:
     # 2 321682 T <INV> END=421681
     # is equivalent to:

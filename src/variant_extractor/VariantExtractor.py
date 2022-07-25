@@ -1,13 +1,11 @@
 # Copyright 2022 - Barcelona Supercomputing Center
 # Author: Rodrigo Martín Posada
 # BSC AS IS License
-from typing import Generator, List
-from os import path
-from argparse import ArgumentParser
+from typing import List
 import warnings
 import pysam
 
-from .private._utils import compare_contigs, permute_bracket_sv, convert_inv_to_bracket
+from .private._utils import compare_contigs, permute_bracket_sv, convert_inv_to_bracket, convert_del_to_ins
 from .private._parser import parse_bracket_sv, parse_shorthand_sv, parse_sgl_sv, parse_standard_record
 from .private._PendingBreakends import PendingBreakends
 from .variants import VariantType
@@ -61,7 +59,7 @@ class VariantExtractor:
             vcf_records = list(self.__pending_breakends.values())
             for vcf_record in vcf_records:
                 if 'PASS' not in vcf_record.filter:
-                    self.__pending_breakends.remove(vcf_record)       
+                    self.__pending_breakends.remove(vcf_record)
         # Only single-paired records or not ensuring pairs
         if not self.__ensure_pairs or self.__pairs_found == 0:
             for vcf_record in self.__pending_breakends.values():
@@ -152,7 +150,7 @@ class VariantExtractor:
                 return self.__handle_bracket_individual_sv(vcf_record_2)
         elif contig_comparison == -1:
             return self.__handle_bracket_individual_sv(vcf_record_1)
-        elif contig_comparison == 1:
+        else:
             return self.__handle_bracket_individual_sv(vcf_record_2)
 
     def __handle_bracket_individual_sv(self, vcf_record: VariantRecord) -> List[VariantRecord]:
@@ -160,6 +158,11 @@ class VariantExtractor:
         # Transform REF/ALT to equivalent notation so that REF contains the lowest contig and position
         if contig_comparison == 1 or (contig_comparison == 0 and vcf_record.pos > vcf_record.alt_sv_bracket.pos):
             vcf_record = permute_bracket_sv(vcf_record, self.__fasta_ref)
+        # Handle DEL notated variant as INS
+        if vcf_record.length == 1 and vcf_record.variant_type == VariantType.DEL and vcf_record.alt_sv_bracket is not None:
+            vcf_record = convert_del_to_ins(vcf_record)
+            if vcf_record.length == 0:
+                return []
         return [vcf_record]
 
     def __handle_shorthand_sv(self, vcf_record: VariantRecord) -> List[VariantRecord]:
