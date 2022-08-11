@@ -180,7 +180,8 @@ class VariantExtractor:
         for i, alt in enumerate(alts):
             # WARNING: This overrides the record
             rec.alts = [alt]
-            new_id = f'{original_id}_{i}'
-            rec.id = new_id
+            if original_id:
+                new_id = f'{original_id}_{i}'
+                rec.id = new_id
             record_list += self.__handle_record(rec)
         return record_list

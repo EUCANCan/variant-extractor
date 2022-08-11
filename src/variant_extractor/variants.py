@@ -41,31 +41,32 @@ class ShorthandSVRecord(NamedTuple):
     extra: List[str]
     """Extra information of the SV. For example, for :code:`<DUP:TANDEM:AA>` the extra will be :code:`['TANDEM', 'AA']`"""
 
+def _str_value(value):
+    if isinstance(value, str):
+        return value
+    elif isinstance(value, float):
+        return f'{value:.2f}'
+    elif hasattr(value, '__iter__'):
+        return ','.join([_str_value(v) for v in value])
+    elif value is None:
+        return '.'
+    else:
+        return str(value)
 
 def _convert_info_key_value(key, value):
     if value is None:
         return key
     elif isinstance(value, bool):
         return key if value else None
-    elif isinstance(value, str):
-        return f'{key}={value}'
-    elif hasattr(value, '__len__'):
-        return key+'=' + ','.join([str(v) for v in value])
     else:
-        return key+'='+str(value)
+        return key+'='+_str_value(value)
 
 
 def _convert_sample_value(key, value):
     if key == 'GT':
-        return '/'.join([str(v) if v is not None else '.' for v in value])
-    elif value is None:
-        return '.'
-    elif isinstance(value, str):
-        return value
-    elif hasattr(value, '__len__'):
-        return ','.join([str(v) if v is not None else '.' for v in value])
+        return '/'.join([_str_value(v) for v in value])
     else:
-        return str(value)
+        return _str_value(value)
 
 
 class VariantRecord(NamedTuple):
@@ -108,7 +109,7 @@ class VariantRecord(NamedTuple):
         id_ = self.id if self.id else '.'
         ref = self.ref
         alt = self.alt
-        qual = self.qual if self.qual else '.'
+        qual = _str_value(self.qual)
         filter_ = ";".join(self.filter) if self.filter else '.'
         info_list = []
         for key, value in self.info.items():
