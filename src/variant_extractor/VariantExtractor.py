@@ -1,6 +1,7 @@
 # Copyright 2022 - Barcelona Supercomputing Center
 # Author: Rodrigo Martín Posada
 # BSC AS IS License
+from types import SimpleNamespace
 from typing import List
 import warnings
 import pysam
@@ -175,13 +176,52 @@ class VariantExtractor:
 
     def __handle_multiallelic_record(self, rec: pysam.VariantRecord) -> List[VariantRecord]:
         record_list = []
-        alts = rec.alts
-        original_id = rec.id
+        fake_rec = SimpleNamespace()
+        fake_rec.contig = rec.contig
+        fake_rec.pos = rec.pos
+        fake_rec.stop = rec.stop
+        fake_rec.start = rec.start
+        fake_rec.alleles = rec.alleles
+        fake_rec.chrom = rec.chrom
+        fake_rec.rid = rec.rid
+        fake_rec.rlen = rec.rlen
+        fake_rec.id = rec.id
+        fake_rec.ref = rec.ref
+        fake_rec.alts = rec.alts
+        fake_rec.qual = rec.qual
+        fake_rec.filter = rec.filter
+        fake_rec.info = rec.info
+        fake_rec.format = rec.format
+        alts = fake_rec.alts
+        samples = dict()
+        for sample_name in rec.samples:
+            sample_dict = dict()
+            for key, value in rec.samples[sample_name].items():
+                sample_dict[key] = value
+            samples[sample_name] = sample_dict
+        
+        original_id = fake_rec.id
         for i, alt in enumerate(alts):
             # WARNING: This overrides the record
-            rec.alts = [alt]
+            fake_rec.alts = [alt]
             if original_id:
                 new_id = f'{original_id}_{i}'
-                rec.id = new_id
-            record_list += self.__handle_record(rec)
+                fake_rec.id = new_id
+            new_samples = dict()
+            for sample_name in samples:
+                new_samples[sample_name] = dict()
+                for key, value in samples[sample_name].items():
+                    if not hasattr(value, '__iter__') or len(value) == self.__variant_file.header.formats[key].number:
+                        new_samples[sample_name][key] = value
+                    else:
+                        if key == 'GT':
+                            new_samples[sample_name][key] = (0, samples[sample_name][key][1])
+                        elif len(value) == len(alts) + 1:
+                                new_samples[sample_name][key] = (value[0], value[i + 1])
+                        elif hasattr(value, '__iter__') and len(value) % len(alts) == 0:
+                            new_samples[sample_name][key] = value[i::len(alts)]
+                        else:
+                            new_samples[sample_name][key] = value
+                fake_rec.samples = new_samples
+            record_list += self.__handle_record(fake_rec)
         return record_list
