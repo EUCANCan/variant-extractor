@@ -41,6 +41,7 @@ class ShorthandSVRecord(NamedTuple):
     extra: List[str]
     """Extra information of the SV. For example, for :code:`<DUP:TANDEM:AA>` the extra will be :code:`['TANDEM', 'AA']`"""
 
+
 def _str_value(value):
     if isinstance(value, str):
         return value
@@ -52,6 +53,7 @@ def _str_value(value):
         return '.'
     else:
         return str(value)
+
 
 def _convert_info_key_value(key, value):
     if value is None:
@@ -121,7 +123,7 @@ class VariantRecord(NamedTuple):
             info = info_list.insert(0, 'END='+str(self.end))
         info = ";".join(info_list)
         format_ = ":".join(self.format)
-        samples_list = [":".join([_convert_sample_value(k, v) for k, v in self.samples[sample_name].items()])
-                        for sample_name in self.samples]
+        samples_list = [":".join([_convert_sample_value(k, self.samples[sample_name][k])
+                                 for k in self.format]) for sample_name in self.samples]
         samples = "\t".join(samples_list)
         return f'{contig}\t{pos}\t{id_}\t{ref}\t{alt}\t{qual}\t{filter_}\t{info}\t{format_}\t{samples}'.strip()
