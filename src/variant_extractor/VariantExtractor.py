@@ -199,7 +199,7 @@ class VariantExtractor:
             for key, value in rec.samples[sample_name].items():
                 sample_dict[key] = value
             samples[sample_name] = sample_dict
-        
+
         original_id = fake_rec.id
         for i, alt in enumerate(alts):
             # WARNING: This overrides the record
@@ -217,7 +217,7 @@ class VariantExtractor:
                         if key == 'GT':
                             new_samples[sample_name][key] = (0, samples[sample_name][key][1])
                         elif len(value) == len(alts) + 1:
-                                new_samples[sample_name][key] = (value[0], value[i + 1])
+                            new_samples[sample_name][key] = (value[0], value[i + 1])
                         elif hasattr(value, '__iter__') and len(value) % len(alts) == 0:
                             new_samples[sample_name][key] = value[i::len(alts)]
                         else:
@@ -225,3 +225,43 @@ class VariantExtractor:
                 fake_rec.samples = new_samples
             record_list += self.__handle_record(fake_rec)
         return record_list
+
+    def to_dataframe(self):
+        import pandas as pd
+        variants = []
+
+        for variant_record in self:
+            start_chrom = variant_record.contig.replace('chr', '')
+            start = variant_record.pos
+            ref = variant_record.ref
+            alt = variant_record.alt
+            length = variant_record.length
+            end = variant_record.end
+            if variant_record.alt_sv_bracket:
+                end_chrom = variant_record.alt_sv_bracket.contig.replace('chr', '')
+                if start_chrom != end_chrom:
+                    end = variant_record.alt_sv_bracket.pos
+            else:
+                end_chrom = start_chrom
+
+            # Inferred type
+            type_inferred = variant_record.variant_type.name
+            # Brackets
+            brackets = ''
+            if type_inferred == VariantType.DEL.name:
+                brackets = 'N['
+            elif type_inferred == VariantType.DUP.name:
+                brackets = ']N'
+            elif type_inferred == VariantType.INV.name:
+                prefix = 'N' if variant_record.alt_sv_bracket.prefix else ''
+                suffix = 'N' if variant_record.alt_sv_bracket.suffix else ''
+                brackets = prefix + variant_record.alt_sv_bracket.bracket + suffix
+            elif type_inferred == VariantType.TRN.name:
+                prefix = 'N' if variant_record.alt_sv_bracket.prefix else ''
+                suffix = 'N' if variant_record.alt_sv_bracket.suffix else ''
+                brackets = prefix + variant_record.alt_sv_bracket.bracket + variant_record.alt_sv_bracket.bracket + suffix
+
+            variants.append([start_chrom, start, end_chrom, end, ref, alt,
+                            length, brackets, type_inferred, variant_record])
+
+        return pd.DataFrame(variants, columns=['start_chrom', 'start', 'end_chrom', 'end', 'ref', 'alt', 'length', 'brackets', 'type_inferred', 'variant_record_obj'])

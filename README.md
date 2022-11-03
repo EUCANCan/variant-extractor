@@ -33,6 +33,17 @@ for variant_record in extractor:
     print(f'Found variant of type {variant_record.variant_type.name}: {variant_record.contig}:{variant_record.pos}')
 ```
 
+```python
+# Import the package
+from variant_extractor import VariantExtractor
+
+# Create a new instance of the class
+extractor = VariantExtractor('/path/to/file.vcf')
+
+# Save variants to a CSV file
+extractor.to_dataframe().drop(['variant_record_obj'], axis=1).to_csv('/path/to/output.csv', index=False)
+```
+
 For a more complete list of examples, check the [examples](./examples/) directory. This folder also includes an example of a [script for normalizing VCF files](examples/normalize_vcf.py) following the [homogenization rules](#homogenization-rules).
 
 ## VariantRecord
