@@ -1,6 +1,6 @@
 # Copyright 2022 - Barcelona Supercomputing Center
-# Author: Rodrigo Martín Posada
-# BSC AS IS License
+# Author: Rodrigo Martin
+# BSC Dual License
 
 def _get_mate_id(variant_record):
     # Check if it has MATEID or PARID

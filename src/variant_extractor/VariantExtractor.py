@@ -1,6 +1,6 @@
 # Copyright 2022 - Barcelona Supercomputing Center
-# Author: Rodrigo Martín Posada
-# BSC AS IS License
+# Author: Rodrigo Martin
+# BSC Dual License
 from types import SimpleNamespace
 from typing import List
 import warnings
