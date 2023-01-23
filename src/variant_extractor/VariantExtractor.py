@@ -12,12 +12,20 @@ from .private._PendingBreakends import PendingBreakends
 from .variants import VariantType
 from .variants import VariantRecord
 
+DATAFRAME_COLUMNS = ['start_chrom', 'start', 'end_chrom', 'end', 'ref', 'alt', 'length', 'brackets', 'type_inferred', 'variant_record_obj']
 
 class VariantExtractor:
     """
     Reads and extracts variants from VCF files. This class is designed to be
     used in a pipeline, where the variants are ingested from VCF files and then used in downstream analysis.
     """
+
+    @staticmethod
+    def empty_dataframe():
+        """Returns an empty pandas DataFrame with the columns used by this class.
+        """
+        import pandas as pd
+        return pd.DataFrame(columns=DATAFRAME_COLUMNS)
 
     def __init__(self, vcf_file: str, pass_only=False, ensure_pairs=True, fasta_ref: str = None):
         """
@@ -264,4 +272,4 @@ class VariantExtractor:
             variants.append([start_chrom, start, end_chrom, end, ref, alt,
                             length, brackets, type_inferred, variant_record])
 
-        return pd.DataFrame(variants, columns=['start_chrom', 'start', 'end_chrom', 'end', 'ref', 'alt', 'length', 'brackets', 'type_inferred', 'variant_record_obj'])
+        return pd.DataFrame(variants, columns=DATAFRAME_COLUMNS)
