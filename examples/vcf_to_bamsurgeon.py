@@ -7,9 +7,7 @@ Expected usage:
     $ python vcf_to_bamsurgeon.py <vcf_file> <output_file_schema>
 Use --help for more information.
 '''
-from os import path
 from argparse import ArgumentParser
-import re
 import random
 
 VAF = 0.5
@@ -53,22 +51,23 @@ if __name__ == '__main__':
         else:
             # Add prefix or suffix as insertion. Ex: AAAGGTC[1:12121[
             insertion_prefix = ''
-            if variant_record.alt_sv_bracket:
-                insertion_prefix = f'INS {variant_record.alt_sv_bracket.prefix[1:]};' if variant_record.alt_sv_bracket.prefix is not None and len(
-                    variant_record.alt_sv_bracket.prefix) > 1 else ''
-                insertion_prefix = f'INS {variant_record.alt_sv_bracket.suffix[:-1]};' if variant_record.alt_sv_bracket.suffix is not None and len(
-                    variant_record.alt_sv_bracket.suffix) > 1 else ''
+            if variant_record.alt_sv_breakend:
+                insertion_prefix = f'INS {variant_record.alt_sv_breakend.prefix[1:]};' if variant_record.alt_sv_breakend.prefix is not None and len(
+                    variant_record.alt_sv_breakend.prefix) > 1 else ''
+                insertion_prefix = f'INS {variant_record.alt_sv_breakend.suffix[:-1]};' if variant_record.alt_sv_breakend.suffix is not None and len(
+                    variant_record.alt_sv_breakend.suffix) > 1 else ''
 
             if variant_record.variant_type == VariantType.TRN or variant_record.variant_type == VariantType.INV:
+                assert variant_record.alt_sv_breakend is not None
                 # Convert INV to TRN since most of them are not complete
-                alt_contig = variant_record.alt_sv_bracket.contig
-                alt_pos = variant_record.alt_sv_bracket.pos
+                alt_contig = variant_record.alt_sv_breakend.contig
+                alt_pos = variant_record.alt_sv_breakend.pos
                 # Calculate strand notation
-                if variant_record.alt_sv_bracket.bracket == '[' and variant_record.alt_sv_bracket.prefix:
+                if variant_record.alt_sv_breakend.bracket == '[' and variant_record.alt_sv_breakend.prefix:
                     strand_notation = '++'
-                elif variant_record.alt_sv_bracket.bracket == ']' and variant_record.alt_sv_bracket.prefix:
+                elif variant_record.alt_sv_breakend.bracket == ']' and variant_record.alt_sv_breakend.prefix:
                     strand_notation = '+-'
-                elif variant_record.alt_sv_bracket.bracket == '[' and not variant_record.alt_sv_bracket.prefix:
+                elif variant_record.alt_sv_breakend.bracket == '[' and not variant_record.alt_sv_breakend.prefix:
                     strand_notation = '-+'
                 else:
                     strand_notation = '--'

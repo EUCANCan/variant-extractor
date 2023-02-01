@@ -6,13 +6,15 @@ from typing import List
 import warnings
 import pysam
 
-from .private._utils import compare_contigs, permute_bracket_sv, convert_inv_to_bracket, convert_del_to_ins
-from .private._parser import parse_bracket_sv, parse_shorthand_sv, parse_sgl_sv, parse_standard_record
+from .private._utils import compare_contigs, permute_breakend_sv, convert_inv_to_breakend, convert_del_to_ins
+from .private._parser import parse_breakend_sv, parse_shorthand_sv, parse_sgl_sv, parse_standard_record
 from .private._PendingBreakends import PendingBreakends
 from .variants import VariantType
 from .variants import VariantRecord
 
-DATAFRAME_COLUMNS = ['start_chrom', 'start', 'end_chrom', 'end', 'ref', 'alt', 'length', 'brackets', 'type_inferred', 'variant_record_obj']
+DATAFRAME_COLUMNS = ['start_chrom', 'start', 'end_chrom', 'end', 'ref',
+                     'alt', 'length', 'brackets', 'type_inferred', 'variant_record_obj']
+
 
 class VariantExtractor:
     """
@@ -27,7 +29,7 @@ class VariantExtractor:
         import pandas as pd
         return pd.DataFrame(columns=DATAFRAME_COLUMNS)
 
-    def __init__(self, vcf_file: str, pass_only=False, ensure_pairs=True, fasta_ref: str = None):
+    def __init__(self, vcf_file: str, pass_only=False, ensure_pairs=True, fasta_ref: str | None = None):
         """
         Parameters
         ----------
@@ -72,7 +74,7 @@ class VariantExtractor:
         # Only single-paired records or not ensuring pairs
         if not self.__ensure_pairs or self.__pairs_found == 0:
             for vcf_record in self.__pending_breakends.values():
-                yield from self.__handle_bracket_individual_sv(vcf_record)
+                yield from self.__handle_breakend_individual_sv(vcf_record)
         # Found unpaired records
         elif len(self.__pending_breakends) > 0:
             exception_text = ''
@@ -84,13 +86,15 @@ class VariantExtractor:
                  f'Use ensure_pairs=False to ignore unpaired SV breakends.\n{exception_text}'))
 
     def __handle_record(self, rec: pysam.VariantRecord) -> List[VariantRecord]:
+        if not rec.alts:
+            return []
         # Handle multiallelic records
         if len(rec.alts) != 1:
             return self.__handle_multiallelic_record(rec)
-        # Check if bracket SV record
-        vcf_record = parse_bracket_sv(rec)
+        # Check if breakend SV record
+        vcf_record = parse_breakend_sv(rec)
         if vcf_record:
-            return self.__handle_bracket_sv(vcf_record)
+            return self.__handle_breakend_sv(vcf_record)
         # Check PASS filter
         if self.__pass_only and 'PASS' not in rec.filter:
             return []
@@ -131,7 +135,7 @@ class VariantExtractor:
             record_list.append(new_vcf_record)
         return record_list
 
-    def __handle_bracket_sv(self, vcf_record: VariantRecord) -> List[VariantRecord]:
+    def __handle_breakend_sv(self, vcf_record: VariantRecord) -> List[VariantRecord]:
         # Check for pending breakends
         previous_record = self.__pending_breakends.pop(vcf_record)
         if previous_record is None:
@@ -154,21 +158,22 @@ class VariantExtractor:
         contig_comparison = compare_contigs(vcf_record_1.contig, vcf_record_2.contig)
         if contig_comparison == 0:
             if vcf_record_1.pos < vcf_record_2.pos:
-                return self.__handle_bracket_individual_sv(vcf_record_1)
+                return self.__handle_breakend_individual_sv(vcf_record_1)
             else:
-                return self.__handle_bracket_individual_sv(vcf_record_2)
+                return self.__handle_breakend_individual_sv(vcf_record_2)
         elif contig_comparison == -1:
-            return self.__handle_bracket_individual_sv(vcf_record_1)
+            return self.__handle_breakend_individual_sv(vcf_record_1)
         else:
-            return self.__handle_bracket_individual_sv(vcf_record_2)
+            return self.__handle_breakend_individual_sv(vcf_record_2)
 
-    def __handle_bracket_individual_sv(self, vcf_record: VariantRecord) -> List[VariantRecord]:
-        contig_comparison = compare_contigs(vcf_record.contig, vcf_record.alt_sv_bracket.contig)
+    def __handle_breakend_individual_sv(self, vcf_record: VariantRecord) -> List[VariantRecord]:
+        assert vcf_record.alt_sv_breakend is not None
+        contig_comparison = compare_contigs(vcf_record.contig, vcf_record.alt_sv_breakend.contig)
         # Transform REF/ALT to equivalent notation so that REF contains the lowest contig and position
-        if contig_comparison == 1 or (contig_comparison == 0 and vcf_record.pos > vcf_record.alt_sv_bracket.pos):
-            vcf_record = permute_bracket_sv(vcf_record, self.__fasta_ref)
+        if contig_comparison == 1 or (contig_comparison == 0 and vcf_record.pos > vcf_record.alt_sv_breakend.pos):
+            vcf_record = permute_breakend_sv(vcf_record, self.__fasta_ref)
         # Handle DEL notated variant as INS
-        if vcf_record.length == 1 and vcf_record.variant_type == VariantType.DEL and vcf_record.alt_sv_bracket is not None:
+        if vcf_record.length == 1 and vcf_record.variant_type == VariantType.DEL and vcf_record.alt_sv_breakend is not None:
             vcf_record = convert_del_to_ins(vcf_record)
             if vcf_record.length == 0:
                 return []
@@ -176,13 +181,15 @@ class VariantExtractor:
 
     def __handle_shorthand_sv(self, vcf_record: VariantRecord) -> List[VariantRecord]:
         if vcf_record.variant_type == VariantType.INV:
-            # Transform INV into bracket notation
-            vcf_record_1, vcf_record_2 = convert_inv_to_bracket(vcf_record, self.__fasta_ref)
+            # Transform INV into breakend notation
+            vcf_record_1, vcf_record_2 = convert_inv_to_breakend(vcf_record, self.__fasta_ref)
             return [vcf_record_1, vcf_record_2]
         else:
             return [vcf_record]
 
     def __handle_multiallelic_record(self, rec: pysam.VariantRecord) -> List[VariantRecord]:
+        if rec.alts is None:
+            return []
         record_list = []
         fake_rec = SimpleNamespace()
         fake_rec.contig = rec.contig
@@ -231,7 +238,7 @@ class VariantExtractor:
                         else:
                             new_samples[sample_name][key] = value
                 fake_rec.samples = new_samples
-            record_list += self.__handle_record(fake_rec)
+            record_list += self.__handle_record(fake_rec) # type: ignore
         return record_list
 
     def to_dataframe(self):
@@ -245,31 +252,33 @@ class VariantExtractor:
             alt = variant_record.alt
             length = variant_record.length
             end = variant_record.end
-            if variant_record.alt_sv_bracket:
-                end_chrom = variant_record.alt_sv_bracket.contig.replace('chr', '')
+            if variant_record.alt_sv_breakend:
+                end_chrom = variant_record.alt_sv_breakend.contig.replace('chr', '')
                 if start_chrom != end_chrom:
-                    end = variant_record.alt_sv_bracket.pos
+                    end = variant_record.alt_sv_breakend.pos
             else:
                 end_chrom = start_chrom
 
             # Inferred type
             type_inferred = variant_record.variant_type.name
-            # Brackets
-            brackets = ''
+            # breakends
+            breakends = ''
             if type_inferred == VariantType.DEL.name:
-                brackets = 'N['
+                breakends = 'N['
             elif type_inferred == VariantType.DUP.name:
-                brackets = ']N'
+                breakends = ']N'
             elif type_inferred == VariantType.INV.name:
-                prefix = 'N' if variant_record.alt_sv_bracket.prefix else ''
-                suffix = 'N' if variant_record.alt_sv_bracket.suffix else ''
-                brackets = prefix + variant_record.alt_sv_bracket.bracket + suffix
+                assert variant_record.alt_sv_breakend is not None
+                prefix = 'N' if variant_record.alt_sv_breakend.prefix else ''
+                suffix = 'N' if variant_record.alt_sv_breakend.suffix else ''
+                breakends = prefix + variant_record.alt_sv_breakend.bracket + suffix
             elif type_inferred == VariantType.TRN.name:
-                prefix = 'N' if variant_record.alt_sv_bracket.prefix else ''
-                suffix = 'N' if variant_record.alt_sv_bracket.suffix else ''
-                brackets = prefix + variant_record.alt_sv_bracket.bracket + variant_record.alt_sv_bracket.bracket + suffix
+                assert variant_record.alt_sv_breakend is not None
+                prefix = 'N' if variant_record.alt_sv_breakend.prefix else ''
+                suffix = 'N' if variant_record.alt_sv_breakend.suffix else ''
+                breakends = prefix + variant_record.alt_sv_breakend.bracket + variant_record.alt_sv_breakend.bracket + suffix
 
             variants.append([start_chrom, start, end_chrom, end, ref, alt,
-                            length, brackets, type_inferred, variant_record])
+                            length, breakends, type_inferred, variant_record])
 
         return pd.DataFrame(variants, columns=DATAFRAME_COLUMNS)

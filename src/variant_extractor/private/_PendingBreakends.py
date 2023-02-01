@@ -2,16 +2,20 @@
 # Author: Rodrigo Martin
 # BSC Dual License
 
-def _get_mate_id(variant_record):
+from ..variants import VariantRecord
+
+def _get_mate_id(variant_record: VariantRecord):
+    if variant_record.alt_sv_breakend is None:
+        raise ValueError('Variant record is not described in breakend notation')
     # Check if it has MATEID or PARID
     mate_id = variant_record.info.get('MATEID',
                                       variant_record.info.get('PARID',
-                                                              f'{variant_record.alt_sv_bracket.contig}{variant_record.alt_sv_bracket.pos}'))
+                                                              f'{variant_record.alt_sv_breakend.contig}{variant_record.alt_sv_breakend.pos}'))
     mate_id = mate_id[0] if type(mate_id) != str else mate_id
     return mate_id
 
 
-def _get_id(variant_record):
+def _get_id(variant_record: VariantRecord):
     if 'MATEID' in variant_record.info or 'PARID' in variant_record.info:
         return variant_record.id
     else:
@@ -22,7 +26,7 @@ class PendingBreakends:
     def __init__(self):
         self.__pending_breakends = {}
 
-    def push(self, variant_record):
+    def push(self, variant_record: VariantRecord):
         alt_breakend_id = _get_mate_id(variant_record)
         breakend_id = _get_id(variant_record)
         # Check if alt is already in the dictionary
@@ -35,7 +39,7 @@ class PendingBreakends:
             # Already exists alt entry, add new entry to alt
             previous_records[breakend_id] = variant_record
 
-    def pop(self, alt_variant_record):
+    def pop(self, alt_variant_record: VariantRecord):
         breakend_id = _get_id(alt_variant_record)
         previous_records = self.__pending_breakends.get(breakend_id)
         if previous_records is None:
@@ -49,7 +53,7 @@ class PendingBreakends:
             self.__pending_breakends.pop(breakend_id)
         return previous_record_alt
 
-    def remove(self, variant_record):
+    def remove(self, variant_record: VariantRecord):
         alt_breakend_id = _get_mate_id(variant_record)
         breakend_id = _get_id(variant_record)
         previous_records = self.__pending_breakends.get(alt_breakend_id)

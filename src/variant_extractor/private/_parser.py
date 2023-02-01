@@ -4,10 +4,10 @@
 import re
 import warnings
 
-from ..variants import VariantRecord, BracketSVRecord, ShorthandSVRecord, VariantType
+from ..variants import VariantRecord, BreakendSVRecord, ShorthandSVRecord, VariantType
 
 # Regex for SVs
-BRACKET_SV_REGEX = re.compile(r'([.A-Za-z]*)(\[|\])([^\]\[:]+:[0-9]+)(\[|\])([.A-Za-z]*)')
+BREAKEND_SV_REGEX = re.compile(r'([.A-Za-z]*)(\[|\])([^\]\[:]+:[0-9]+)(\[|\])([.A-Za-z]*)')
 SHORTHAND_SV_REGEX = re.compile(r'<(DEL|INS|DUP|INV|CNV])(:[A-Za-z]+)*>')
 SGL_SV_REGEX = re.compile(r'\.[.A-Za-z]+|[.A-Za-z]+\.')
 STANDARD_RECORD_REGEX = re.compile(r'([.A-Za-z]+)')
@@ -38,16 +38,16 @@ def _build_samples(rec):
     return samples
 
 
-def parse_bracket_sv(rec):
-    sv_match_bracket = BRACKET_SV_REGEX.fullmatch(rec.alts[0])
-    if not sv_match_bracket:
+def parse_breakend_sv(rec):
+    sv_match_breakend = BREAKEND_SV_REGEX.fullmatch(rec.alts[0])
+    if not sv_match_breakend:
         return None
     # Extract ALT data from regex
-    alt_prefix = sv_match_bracket.group(1)
-    alt_bracket = sv_match_bracket.group(2)
-    alt_contig, alt_pos = sv_match_bracket.group(3).split(':')
-    alt_suffix = sv_match_bracket.group(5)
-    alt_sv_bracket = BracketSVRecord(alt_prefix, alt_bracket, alt_contig, int(alt_pos), alt_suffix)
+    alt_prefix = sv_match_breakend.group(1)
+    alt_bracket = sv_match_breakend.group(2)
+    alt_contig, alt_pos = sv_match_breakend.group(3).split(':')
+    alt_suffix = sv_match_breakend.group(5)
+    alt_sv_breakend = BreakendSVRecord(alt_prefix, alt_bracket, alt_contig, int(alt_pos), alt_suffix)
     # End position
     end_pos = int(alt_pos) if alt_contig == rec.contig else rec.stop
 
@@ -78,7 +78,7 @@ def parse_bracket_sv(rec):
     # Create new record
     vcf_record = VariantRecord(rec.contig, rec.pos, end_pos, length, rec.id, rec.ref, rec.alts[0],
                                rec.qual, _build_filter(rec), _build_info(rec), _build_format(rec),
-                               _build_samples(rec), variant_type, alt_sv_bracket, None)
+                               _build_samples(rec), variant_type, alt_sv_breakend, None)
     return vcf_record
 
 

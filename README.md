@@ -8,13 +8,13 @@ While there is somewhat of an agreement on how to label the SNVs and indels vari
 - [Usage](#usage)
 - [VariantRecord](#variantrecord)
   - [VariantType](#varianttype)
-  - [BracketSVRecord](#bracketsvrecord)
+  - [BreakendSVRecord](#breakendsvrecord)
   - [ShorthandSVRecord](#shorthandsvrecord)
 - [Homogenization rules](#homogenization-rules)
   - [Multiallelic variants](#multiallelic-variants)
   - [SNVs](#snvs)
   - [Structural variants](#structural-variants)
-    - [Bracket vs shorthand notation](#bracket-vs-shorthand-notation)
+    - [Breakend vs shorthand notation](#breakend-vs-shorthand-notation)
     - [Paired breakends](#paired-breakends)
     - [Inferred breakend pairs](#inferred-breakend-pairs)
     - [Imprecise paired breakends](#imprecise-paired-breakends)
@@ -64,11 +64,11 @@ The `VariantExtractor` constructor returns a generator of `VariantRecord` instan
 | `format`           | `List[str]`                                             | Specifies data types and order of the genotype information                                                    |
 | `samples`          | `Dict[str, Dict[str, Any]]`                             | Genotype information for each sample                                                                          |
 | `variant_type`     | [`VariantType`](#varianttype)                           | Variant type inferred                                                                                         |
-| `alt_sv_bracket`   | `Optional[`[`BracketSVRecord`](#bracketsvrecord)`]`     | Bracketed SV info, present only for SVs with bracket notation. For example, `G]17:198982]`                    |
+| `alt_sv_breakend`  | `Optional[`[`BreakendSVRecord`](#brekendsvrecord)`]`    | Breakend SV info, present only for SVs with breakend notation. For example, `G]17:198982]`                     |
 | `alt_sv_shorthand` | `Optional[`[`ShorthandSVRecord`](#shorthandsvrecord)`]` | Shorthand SV info, present only for SVs with shorthand notation. For example, `<DUP:TANDEM>`                  |
 
 ### VariantType
-The `VariantType` enum describes the type of the variant. For structural variants, it is inferred **only** from the bracket notation (or shorthand notation). It does not take into account any `INFO` field (`SVTYPE` nor `EVENTYPE`) that might be added by the variant caller afterwards.
+The `VariantType` enum describes the type of the variant. For structural variants, it is inferred **only** from the breakend notation (or shorthand notation). It does not take into account any `INFO` field (`SVTYPE` nor `EVENTYPE`) that might be added by the variant caller afterwards.
 
 | REF  | ALT                                      | Variant name | Description                                                          |
 | ---- | ---------------------------------------- | ------------ | -------------------------------------------------------------------- |
@@ -82,16 +82,16 @@ The `VariantType` enum describes the type of the variant. For structural variant
 | A    | A]X:20] or A[X:20[ or ]X:20]A or [X:20[A | TRN          | Translocation                                                        |
 | A    | A. or .A                                 | SGL          | Single breakend                                                      |
 
-### BracketSVRecord
-The `BracketSVRecord` class is a container for the information contained in a VCF record for SVs with bracket notation.
+### BreakendSVRecord
+The `BreakendSVRecord` class is a container for the information contained in a VCF record for SVs with breakend notation.
 
 | Property  | Type            | Description                                                                                                    |
 | --------- | --------------- | -------------------------------------------------------------------------------------------------------------- |
-| `prefix`  | `Optional[str]` | Prefix of the SV record with bracket notation. For example, for `G]17:198982]` the prefix will be `G`          |
-| `bracket` | `str`           | Bracket of the SV record with bracket notation. For example, for `G]17:198982]` the bracket will be `]`        |
-| `contig`  | `str`           | Contig of the SV record with bracket notation. For example, for `G]17:198982]` the contig will be `17`         |
-| `pos`     | `int`           | Position of the SV record with bracket notation. For example, for `G]17:198982]` the position will be `198982` |
-| `suffix`  | `Optional[str]` | Suffix of the SV record with bracket notation. For example, for `G]17:198982]` the suffix will be `None`       |
+| `prefix`  | `Optional[str]` | Prefix of the SV record with breakend notation. For example, for `G]17:198982]` the prefix will be `G`          |
+| `bracket` | `str`           | Bracket of the SV record with breakend notation. For example, for `G]17:198982]` the bracket will be `]`        |
+| `contig`  | `str`           | Contig of the SV record with breakend notation. For example, for `G]17:198982]` the contig will be `17`         |
+| `pos`     | `int`           | Position of the SV record with breakend notation. For example, for `G]17:198982]` the position will be `198982` |
+| `suffix`  | `Optional[str]` | Suffix of the SV record with breakend notation. For example, for `G]17:198982]` the suffix will be `None`       |
 
 ### ShorthandSVRecord
 The `ShorthandSVRecord` class is a container for the information contained in a VCF record for SVs with shorthand notation.
@@ -157,14 +157,14 @@ are returned as:
 | 1     | 2202 | compund_del_2 | T     | A        | PASS   | SNV                           |
 | 1     | 2300 | compund_ins_0 | G     | C        | PASS   | SNV                           |
 | 1     | 2301 | compund_ins_1 | T     | TATATATA | PASS   | DEL                           |
-| 1     | 2301 | compund_ins_2 | T     | A        | PASS   | SNV                           | -->
+| 1     | 2301 | compund_ins_2 | T     | A        | PASS   | SNV                           | --> |
 
 
 ### Structural variants
 VariantExtractor returns one entry per structural variant (one entry per breakend pair). This helps to avoid the ambiguity of the notation and keeps the process deterministic. For this reason, in case of paired breakends, the breakend with the lowest chromosome and/or position is returned. If a breakend is not the lowest chromosome and/or position and is missing its pair, its pair is [inferred and returned](#inferred-breakend-pairs).
 
-#### Bracket vs shorthand notation
-Entries with the same information, either described with shorthand or bracket notation, will be returned the same way. Here is an example for a DEL entry:
+#### Breakend vs shorthand notation
+Entries with the same information, either described with shorthand or breakend notation, will be returned the same way. Here is an example for a DEL entry:
 
 | CHROM | POS  | ID        | REF         | ALT       | FILTER | INFO                 |
 | ----- | ---- | --------- | ----------- | --------- | ------ | -------------------- |
@@ -194,7 +194,7 @@ is equivalent to the following breakends:
 | 2     | 321681 | event_1_0 | N   | N]2:421681] | PASS   | SVTYPE=INV | INV                           |
 | 2     | 321682 | event_1_1 | T   | [2:421682[T | PASS   | SVTYPE=INV | INV                           |
 
-In this case, VariantExtractor converts internally \<INV\> to two entries with bracket notation (one for each breakend pair). Note that the `N` will be replaced with the correct nucleotide if `fasta_ref` is provided to VariantExtractor.
+In this case, VariantExtractor converts internally \<INV\> to two entries with breakend notation (one for each breakend pair). Note that the `N` will be replaced with the correct nucleotide if `fasta_ref` is provided to VariantExtractor.
 
 
 #### Paired breakends
@@ -243,8 +243,8 @@ Note that the `N` will be replaced with the correct nucleotide if `fasta_ref` is
 #### Imprecise paired breakends
 Imprecise breakends do not match exactly with their pair in coordinates. In this case, they are paired using the `INFO` fields `MATEID` or `PARID`. As with the rest of variants, for each breakend pair, only the breakend with the lowest chromosome and/or position is returned. However, it is important to notice that the `CIPOS` field is lost for the other breakend. For example:
 
-| CHROM | POS  | ID        | REF | ALT       | FILTER | INFO                             |
-| ----- | ---- | --------- | --- | --------- | ------ | -------------------------------- |
+| CHROM | POS  | ID        | REF | ALT       | FILTER | INFO                                   |
+| ----- | ---- | --------- | --- | --------- | ------ | -------------------------------------- |
 | 2     | 3010 | event_1_o | T   | T[3:5000[ | PASS   | SVTYPE=BND;CIPOS=0,50;PARID=event_1_h  |
 | 3     | 5050 | event_1_h | A   | ]2:3050]A | PASS   | SVTYPE=BND;CIPOS=0,100;PARID=event_1_o |
 
