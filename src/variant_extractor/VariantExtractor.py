@@ -2,7 +2,7 @@
 # Author: Rodrigo Martin
 # BSC Dual License
 from types import SimpleNamespace
-from typing import List
+from typing import List, Optional
 import warnings
 import pysam
 
@@ -29,7 +29,7 @@ class VariantExtractor:
         import pandas as pd
         return pd.DataFrame(columns=DATAFRAME_COLUMNS)
 
-    def __init__(self, vcf_file: str, pass_only=False, ensure_pairs=True, fasta_ref: str | None = None):
+    def __init__(self, vcf_file: str, pass_only=False, ensure_pairs=True, fasta_ref: Optional[str] = None):
         """
         Parameters
         ----------
