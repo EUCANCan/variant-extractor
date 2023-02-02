@@ -38,7 +38,7 @@ class ShorthandSVRecord(NamedTuple):
     """
     type: str
     """One of the following, :code:`'DEL'`, :code:`'INS'`, :code:`'DUP'`, :code:`'INV'` or :code:`'CNV'`"""
-    extra: List[str] | None
+    extra: Optional[List[str]]
     """Extra information of the SV. For example, for :code:`<DUP:TANDEM:AA>` the extra will be :code:`['TANDEM', 'AA']`"""
 
 
