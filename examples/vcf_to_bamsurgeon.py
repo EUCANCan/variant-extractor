@@ -57,7 +57,7 @@ if __name__ == '__main__':
                 insertion_prefix = f'INS {variant_record.alt_sv_breakend.suffix[:-1]};' if variant_record.alt_sv_breakend.suffix is not None and len(
                     variant_record.alt_sv_breakend.suffix) > 1 else ''
 
-            if variant_record.variant_type == VariantType.TRN or variant_record.variant_type == VariantType.INV:
+            if variant_record.variant_type == VariantType.TRA or variant_record.variant_type == VariantType.INV:
                 assert variant_record.alt_sv_breakend is not None
                 # Convert INV to TRN since most of them are not complete
                 alt_contig = variant_record.alt_sv_breakend.contig

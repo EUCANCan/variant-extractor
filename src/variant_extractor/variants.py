@@ -14,7 +14,7 @@ class VariantType(Enum):
     DUP = auto()
     INV = auto()
     CNV = auto()
-    TRN = auto()
+    TRA = auto()
     SGL = auto()
 
 
@@ -79,7 +79,7 @@ class VariantRecord(NamedTuple):
     pos: int
     """Position of the variant in the contig"""
     end: int
-    """End position of the variant in the contig (same as `pos` for TRN and SNV)"""
+    """End position of the variant in the contig (same as `pos` for TRA and SNV)"""
     length: int
     """Length of the variant"""
     id: Optional[str]

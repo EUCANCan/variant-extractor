@@ -7,7 +7,6 @@ Expected usage:
     $ python vcf_to_csv.py <vcf_file> <output_file>
 Use --help for more information.
 '''
-import pandas as pd
 from argparse import ArgumentParser
 
 if __name__ == '__main__':
@@ -15,7 +14,6 @@ if __name__ == '__main__':
     import sys
     sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)) + '/../src/')
     from variant_extractor import VariantExtractor
-    from variant_extractor.variants import VariantType
 
     # Parse arguments
     parser = ArgumentParser(description='Generate CSV file from a VCF file')
@@ -28,4 +26,9 @@ if __name__ == '__main__':
 
     print(f'Reading VCF file: {args.vcf_file}')
     extractor = VariantExtractor(args.vcf_file, fasta_ref=args.fasta_ref)
-    extractor.to_dataframe().drop(['variant_record_obj'], axis=1).to_csv(f'{args.output_file}', index=False)
+    df = extractor.to_dataframe()
+    # Insert id column in the first position
+    df.insert(0, 'id', '')
+    df['id'] = df['variant_record_obj'].apply(lambda x: x.id)
+    df.drop(['variant_record_obj'], axis=1, inplace=True)
+    df.to_csv(f'{args.output_file}', index=False)

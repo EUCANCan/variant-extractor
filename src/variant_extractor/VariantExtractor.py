@@ -272,7 +272,7 @@ class VariantExtractor:
                 prefix = 'N' if variant_record.alt_sv_breakend.prefix else ''
                 suffix = 'N' if variant_record.alt_sv_breakend.suffix else ''
                 breakends = prefix + variant_record.alt_sv_breakend.bracket + suffix
-            elif type_inferred == VariantType.TRN.name:
+            elif type_inferred == VariantType.TRA.name:
                 assert variant_record.alt_sv_breakend is not None
                 prefix = 'N' if variant_record.alt_sv_breakend.prefix else ''
                 suffix = 'N' if variant_record.alt_sv_breakend.suffix else ''

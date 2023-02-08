@@ -53,8 +53,8 @@ def parse_breakend_sv(rec):
 
     # Extract type
     if rec.contig != alt_contig:
-        # BND & INS with different contig ~ TRN
-        variant_type = VariantType.TRN
+        # BND & INS with different contig ~ TRA
+        variant_type = VariantType.TRA
         length = 0
     else:
         # INV -> 1 10 N]1:20] or 1 20 N]1:10]
