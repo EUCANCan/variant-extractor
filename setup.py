@@ -23,12 +23,12 @@ if __name__ == '__main__':
         author=author,
         author_email='contact@rodrigomartin.dev',
         description='Deterministic and standard extractor of indels, SNVs and structural variants (SVs) from VCF files',
-        keywords='vcf genetics bioinformatics variant-annotation indel snv sv',
+        keywords='vcf genetics bioinformatics variant indel snv sv',
         long_description=long_description,
         long_description_content_type='text/markdown',
-        url='https://github.com/Rapsssito/variant-extractor',
+        url='https://github.com/EUCANCan/variant-extractor',
         project_urls={
-            'Bug Tracker': 'https://github.com/Rapsssito/variant-extractor/issues',
+            'Bug Tracker': 'https://github.com/EUCANCan/variant-extractor/issues',
         },
         classifiers=[
             'Programming Language :: Python :: 3 :: Only',
