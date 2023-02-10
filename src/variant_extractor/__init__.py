@@ -1,6 +1,6 @@
 # Copyright 2022 - Barcelona Supercomputing Center
 # Author: Rodrigo Martin
-# BSC Dual License
+# MIT License
 from .VariantExtractor import VariantExtractor
 
 __version__ = '3.1.0'

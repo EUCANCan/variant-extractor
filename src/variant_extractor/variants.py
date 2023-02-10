@@ -1,6 +1,6 @@
 # Copyright 2022 - Barcelona Supercomputing Center
 # Author: Rodrigo Martin
-# BSC Dual License
+# MIT License
 from typing import NamedTuple, Optional, List, Dict, Any
 from enum import Enum, auto
 
