@@ -2,6 +2,28 @@
 
 <!--next-version-placeholder-->
 
+## v4.0.0 (2023-02-10)
+### Feature
+* Add empty_dataframe method ([`ebaf357`](https://github.com/EUCANCan/variant-extractor/commit/ebaf357f40f3dd1ac2e5bbd6c74615385e668e12))
+* Add to_dataframe() method ([`4e666aa`](https://github.com/EUCANCan/variant-extractor/commit/4e666aa6821f58b887feb8f013afc76060d1aaff))
+* Convert 1-length DELs to INS ([`ae6cd8c`](https://github.com/EUCANCan/variant-extractor/commit/ae6cd8ca66205a40e5e39bef06ede0949a20a0aa))
+
+### Fix
+* Match TRA to VCF specification ([`1f7dd1e`](https://github.com/EUCANCan/variant-extractor/commit/1f7dd1eb99f425e787a6d0cfb75c1641316c5b8c))
+* Fix typing Python3.6 ([`1d72f80`](https://github.com/EUCANCan/variant-extractor/commit/1d72f80f54ffb3e6db4769f4e2f3388ba96f825b))
+* Fix typing for Python3.6 ([`1648bb7`](https://github.com/EUCANCan/variant-extractor/commit/1648bb744ed911b72d421ad9340570493d8baec8))
+* Rename to breakend notation ([`2d86782`](https://github.com/EUCANCan/variant-extractor/commit/2d86782a4870376d6ab2985ff477ce72eed6dd96))
+* Print format values in the correct order ([`ee3d399`](https://github.com/EUCANCan/variant-extractor/commit/ee3d399a68601d37da9391e91261feb2d0cffc8d))
+* Fix wrong SAMPLEs in multiallelic variants ([`7fc170f`](https://github.com/EUCANCan/variant-extractor/commit/7fc170fd535b2483f8d344428a5e567148e8b4c6))
+* Fix float .2f VCF representation ([`ed34a40`](https://github.com/EUCANCan/variant-extractor/commit/ed34a40bafce79c49be4b46fe9c032478106233b))
+* Trim extra \t ([`ef55c36`](https://github.com/EUCANCan/variant-extractor/commit/ef55c36f05e3c8c3793a5d8b6989c5d304a640f2))
+* Prioritize MATEID over coords for matching breakends ([`c6d21bf`](https://github.com/EUCANCan/variant-extractor/commit/c6d21bf51246315adca68ed4763c831742d844a2))
+* Unify different filters for paired breakends ([`2407216`](https://github.com/EUCANCan/variant-extractor/commit/24072160ac4f05d8d89928df00c4fa00125bf766))
+* Change SNV length to 1 ([`dfe6463`](https://github.com/EUCANCan/variant-extractor/commit/dfe6463e018a1d0368668e091be26a27f4dcdda7))
+
+### Breaking
+* Translocations are no longer named TRN, but TRA instead ([`1f7dd1e`](https://github.com/EUCANCan/variant-extractor/commit/1f7dd1eb99f425e787a6d0cfb75c1641316c5b8c))
+
 ## v3.1.0 (2022-06-14)
 ### Feature
 * Replace N with correct nucleotide if possible ([`8a260e1`](https://github.com/EUCANCan/variant-extractor/commit/8a260e10bc0f01f268a27dba3e4ed85adbc0f042))
