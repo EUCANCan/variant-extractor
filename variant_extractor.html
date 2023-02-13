@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>variant_extractor API &mdash; variant-extractor 1.1.0 documentation</title>
+  <title>variant_extractor API &mdash; variant-extractor 4.0.0 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -14,12 +14,14 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Changelog" href="changelog.html" />
-    <link rel="prev" title="VCF variant extractor" href="index.html" /> 
+    <link rel="prev" title="VariantExtractor" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -27,14 +29,18 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="index.html" class="icon icon-home"> variant-extractor
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            variant-extractor
           </a>
               <div class="version">
-                1.1.0
+                4.0.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -42,7 +48,58 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">variant_extractor API</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">variant_extractor API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#variant_extractor.VariantExtractor"><code class="docutils literal notranslate"><span class="pre">VariantExtractor</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#variant_extractor.VariantExtractor.__init__"><code class="docutils literal notranslate"><span class="pre">VariantExtractor.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#variant_extractor.VariantExtractor.close"><code class="docutils literal notranslate"><span class="pre">VariantExtractor.close()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#variant_extractor.VariantExtractor.empty_dataframe"><code class="docutils literal notranslate"><span class="pre">VariantExtractor.empty_dataframe()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#variant_extractor.VariantExtractor.to_dataframe"><code class="docutils literal notranslate"><span class="pre">VariantExtractor.to_dataframe()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#variant_extractor.variants.BreakendSVRecord"><code class="docutils literal notranslate"><span class="pre">BreakendSVRecord</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#variant_extractor.variants.BreakendSVRecord.bracket"><code class="docutils literal notranslate"><span class="pre">BreakendSVRecord.bracket</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#variant_extractor.variants.BreakendSVRecord.contig"><code class="docutils literal notranslate"><span class="pre">BreakendSVRecord.contig</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#variant_extractor.variants.BreakendSVRecord.pos"><code class="docutils literal notranslate"><span class="pre">BreakendSVRecord.pos</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#variant_extractor.variants.BreakendSVRecord.prefix"><code class="docutils literal notranslate"><span class="pre">BreakendSVRecord.prefix</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#variant_extractor.variants.BreakendSVRecord.suffix"><code class="docutils literal notranslate"><span class="pre">BreakendSVRecord.suffix</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#variant_extractor.variants.ShorthandSVRecord"><code class="docutils literal notranslate"><span class="pre">ShorthandSVRecord</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#variant_extractor.variants.ShorthandSVRecord.extra"><code class="docutils literal notranslate"><span class="pre">ShorthandSVRecord.extra</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#variant_extractor.variants.ShorthandSVRecord.type"><code class="docutils literal notranslate"><span class="pre">ShorthandSVRecord.type</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#variant_extractor.variants.VariantRecord"><code class="docutils literal notranslate"><span class="pre">VariantRecord</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#variant_extractor.variants.VariantRecord.alt"><code class="docutils literal notranslate"><span class="pre">VariantRecord.alt</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#variant_extractor.variants.VariantRecord.alt_sv_breakend"><code class="docutils literal notranslate"><span class="pre">VariantRecord.alt_sv_breakend</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#variant_extractor.variants.VariantRecord.alt_sv_shorthand"><code class="docutils literal notranslate"><span class="pre">VariantRecord.alt_sv_shorthand</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#variant_extractor.variants.VariantRecord.contig"><code class="docutils literal notranslate"><span class="pre">VariantRecord.contig</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#variant_extractor.variants.VariantRecord.end"><code class="docutils literal notranslate"><span class="pre">VariantRecord.end</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#variant_extractor.variants.VariantRecord.filter"><code class="docutils literal notranslate"><span class="pre">VariantRecord.filter</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#variant_extractor.variants.VariantRecord.format"><code class="docutils literal notranslate"><span class="pre">VariantRecord.format</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#variant_extractor.variants.VariantRecord.id"><code class="docutils literal notranslate"><span class="pre">VariantRecord.id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#variant_extractor.variants.VariantRecord.info"><code class="docutils literal notranslate"><span class="pre">VariantRecord.info</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#variant_extractor.variants.VariantRecord.length"><code class="docutils literal notranslate"><span class="pre">VariantRecord.length</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#variant_extractor.variants.VariantRecord.pos"><code class="docutils literal notranslate"><span class="pre">VariantRecord.pos</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#variant_extractor.variants.VariantRecord.qual"><code class="docutils literal notranslate"><span class="pre">VariantRecord.qual</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#variant_extractor.variants.VariantRecord.ref"><code class="docutils literal notranslate"><span class="pre">VariantRecord.ref</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#variant_extractor.variants.VariantRecord.samples"><code class="docutils literal notranslate"><span class="pre">VariantRecord.samples</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#variant_extractor.variants.VariantRecord.variant_type"><code class="docutils literal notranslate"><span class="pre">VariantRecord.variant_type</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#variant_extractor.variants.VariantType"><code class="docutils literal notranslate"><span class="pre">VariantType</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#variant_extractor.variants.VariantType.CNV"><code class="docutils literal notranslate"><span class="pre">VariantType.CNV</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#variant_extractor.variants.VariantType.DEL"><code class="docutils literal notranslate"><span class="pre">VariantType.DEL</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#variant_extractor.variants.VariantType.DUP"><code class="docutils literal notranslate"><span class="pre">VariantType.DUP</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#variant_extractor.variants.VariantType.INS"><code class="docutils literal notranslate"><span class="pre">VariantType.INS</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#variant_extractor.variants.VariantType.INV"><code class="docutils literal notranslate"><span class="pre">VariantType.INV</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#variant_extractor.variants.VariantType.SGL"><code class="docutils literal notranslate"><span class="pre">VariantType.SGL</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#variant_extractor.variants.VariantType.SNV"><code class="docutils literal notranslate"><span class="pre">VariantType.SNV</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#variant_extractor.variants.VariantType.TRA"><code class="docutils literal notranslate"><span class="pre">VariantType.TRA</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
 </ul>
 
@@ -59,8 +116,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>variant_extractor API</li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">variant_extractor API</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/variant_extractor.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -71,93 +128,98 @@
            <div itemprop="articleBody">
              
   <section id="module-variant_extractor">
-<span id="variant-extractor-api"></span><h1>variant_extractor API<a class="headerlink" href="#module-variant_extractor" title="Permalink to this headline"></a></h1>
+<span id="variant-extractor-api"></span><h1>variant_extractor API<a class="headerlink" href="#module-variant_extractor" title="Permalink to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="variant_extractor.VariantExtractor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">variant_extractor.</span></span><span class="sig-name descname"><span class="pre">VariantExtractor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">only_pass</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ensure_pairs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/variant_extractor/VariantExtractor.html#VariantExtractor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#variant_extractor.VariantExtractor" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">variant_extractor.</span></span><span class="sig-name descname"><span class="pre">VariantExtractor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vcf_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pass_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ensure_pairs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fasta_ref</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/variant_extractor/VariantExtractor.html#VariantExtractor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#variant_extractor.VariantExtractor" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Reads and extracts variants from VCF files. This class is designed to be
 used in a pipeline, where the variants are ingested from VCF files and then used in downstream analysis.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="variant_extractor.VariantExtractor.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">only_pass</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ensure_pairs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/variant_extractor/VariantExtractor.html#VariantExtractor.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#variant_extractor.VariantExtractor.__init__" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vcf_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pass_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ensure_pairs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fasta_ref</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/variant_extractor/VariantExtractor.html#VariantExtractor.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#variant_extractor.VariantExtractor.__init__" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>only_pass</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – If <code class="code docutils literal notranslate"><span class="pre">True</span></code>, only records with PASS filter will be considered.</p></li>
-<li><p><strong>ensure_pairs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – If <code class="code docutils literal notranslate"><span class="pre">True</span></code>, throws an exception if a breakend is missing a pair when all other were paired successfully.</p></li>
+<li><p><strong>vcf_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – A VCF formatted file. The file is automatically opened.</p></li>
+<li><p><strong>pass_only</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – If <code class="code docutils literal notranslate"><span class="pre">True</span></code>, only records with PASS filter will be considered.</p></li>
+<li><p><strong>ensure_pairs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – If <code class="code docutils literal notranslate"><span class="pre">True</span></code>, throws an exception if a breakend is missing a pair when all other were paired successfully.</p></li>
+<li><p><strong>fasta_ref</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – A FASTA file with the reference genome. Must be indexed.</p></li>
 </ul>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="variant_extractor.VariantExtractor.read_vcf">
-<span class="sig-name descname"><span class="pre">read_vcf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vcf_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/variant_extractor/VariantExtractor.html#VariantExtractor.read_vcf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#variant_extractor.VariantExtractor.read_vcf" title="Permalink to this definition"></a></dt>
-<dd><p>Reads VCF file and extracts all variants.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>vcf_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – A VCF formatted file. The file is automatically opened.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.10)">tuple</a>[<a class="reference internal" href="#variant_extractor.variants.VariantType" title="variant_extractor.variants.VariantType">VariantType</a>, <a class="reference internal" href="#variant_extractor.variants.VariantRecord" title="variant_extractor.variants.VariantRecord">VariantRecord</a>]</p>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="variant_extractor.VariantExtractor.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/variant_extractor/VariantExtractor.html#VariantExtractor.close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#variant_extractor.VariantExtractor.close" title="Permalink to this definition"></a></dt>
+<dd><p>Closes the VCF file.</p>
 </dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="variant_extractor.VariantExtractor.empty_dataframe">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">empty_dataframe</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/variant_extractor/VariantExtractor.html#VariantExtractor.empty_dataframe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#variant_extractor.VariantExtractor.empty_dataframe" title="Permalink to this definition"></a></dt>
+<dd><p>Returns an empty pandas DataFrame with the columns used by this class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="variant_extractor.VariantExtractor.to_dataframe">
+<span class="sig-name descname"><span class="pre">to_dataframe</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/variant_extractor/VariantExtractor.html#VariantExtractor.to_dataframe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#variant_extractor.VariantExtractor.to_dataframe" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
 <span class="target" id="module-variant_extractor.variants"></span><dl class="py class">
-<dt class="sig sig-object py" id="variant_extractor.variants.BracketSVRecord">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">variant_extractor.variants.</span></span><span class="sig-name descname"><span class="pre">BracketSVRecord</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bracket</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">contig</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">suffix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/variant_extractor/variants.html#BracketSVRecord"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#variant_extractor.variants.BracketSVRecord" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.NamedTuple" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">NamedTuple</span></code></a></p>
-<p>NamedTuple with the information of a bracketed SV record</p>
+<dt class="sig sig-object py" id="variant_extractor.variants.BreakendSVRecord">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">variant_extractor.variants.</span></span><span class="sig-name descname"><span class="pre">BreakendSVRecord</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bracket</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">contig</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">suffix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/variant_extractor/variants.html#BreakendSVRecord"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#variant_extractor.variants.BreakendSVRecord" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.NamedTuple" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">NamedTuple</span></code></a></p>
+<p>NamedTuple with the information of a breakend notated SV record</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="variant_extractor.variants.BracketSVRecord.bracket">
-<span class="sig-name descname"><span class="pre">bracket</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></em><a class="headerlink" href="#variant_extractor.variants.BracketSVRecord.bracket" title="Permalink to this definition"></a></dt>
-<dd><p>Bracket of the SV record with bracket notation. For example, for <code class="code docutils literal notranslate"><span class="pre">G]17:198982]</span></code> the bracket will be <code class="code docutils literal notranslate"><span class="pre">]</span></code></p>
+<dt class="sig sig-object py" id="variant_extractor.variants.BreakendSVRecord.bracket">
+<span class="sig-name descname"><span class="pre">bracket</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></em><a class="headerlink" href="#variant_extractor.variants.BreakendSVRecord.bracket" title="Permalink to this definition"></a></dt>
+<dd><p>Bracket of the SV record with breakend notation. For example, for <code class="code docutils literal notranslate"><span class="pre">G]17:198982]</span></code> the bracket will be <code class="code docutils literal notranslate"><span class="pre">]</span></code></p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="variant_extractor.variants.BracketSVRecord.contig">
-<span class="sig-name descname"><span class="pre">contig</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></em><a class="headerlink" href="#variant_extractor.variants.BracketSVRecord.contig" title="Permalink to this definition"></a></dt>
-<dd><p>Contig of the SV record with bracket notation. For example, for <code class="code docutils literal notranslate"><span class="pre">G]17:198982]</span></code> the contig will be <code class="code docutils literal notranslate"><span class="pre">17</span></code></p>
+<dt class="sig sig-object py" id="variant_extractor.variants.BreakendSVRecord.contig">
+<span class="sig-name descname"><span class="pre">contig</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></em><a class="headerlink" href="#variant_extractor.variants.BreakendSVRecord.contig" title="Permalink to this definition"></a></dt>
+<dd><p>Contig of the SV record with breakend notation. For example, for <code class="code docutils literal notranslate"><span class="pre">G]17:198982]</span></code> the contig will be <code class="code docutils literal notranslate"><span class="pre">17</span></code></p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="variant_extractor.variants.BracketSVRecord.pos">
-<span class="sig-name descname"><span class="pre">pos</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></em><a class="headerlink" href="#variant_extractor.variants.BracketSVRecord.pos" title="Permalink to this definition"></a></dt>
-<dd><p>Position of the SV record with bracket notation. For example, for <code class="code docutils literal notranslate"><span class="pre">G]17:198982]</span></code> the position will be <code class="code docutils literal notranslate"><span class="pre">198982</span></code></p>
+<dt class="sig sig-object py" id="variant_extractor.variants.BreakendSVRecord.pos">
+<span class="sig-name descname"><span class="pre">pos</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></em><a class="headerlink" href="#variant_extractor.variants.BreakendSVRecord.pos" title="Permalink to this definition"></a></dt>
+<dd><p>Position of the SV record with breakend notation. For example, for <code class="code docutils literal notranslate"><span class="pre">G]17:198982]</span></code> the position will be <code class="code docutils literal notranslate"><span class="pre">198982</span></code></p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="variant_extractor.variants.BracketSVRecord.prefix">
-<span class="sig-name descname"><span class="pre">prefix</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#variant_extractor.variants.BracketSVRecord.prefix" title="Permalink to this definition"></a></dt>
-<dd><p>Prefix of the SV record with bracket notation. For example, for <code class="code docutils literal notranslate"><span class="pre">G]17:198982]</span></code> the prefix will be <code class="code docutils literal notranslate"><span class="pre">G</span></code></p>
+<dt class="sig sig-object py" id="variant_extractor.variants.BreakendSVRecord.prefix">
+<span class="sig-name descname"><span class="pre">prefix</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#variant_extractor.variants.BreakendSVRecord.prefix" title="Permalink to this definition"></a></dt>
+<dd><p>Prefix of the SV record with breakend notation. For example, for <code class="code docutils literal notranslate"><span class="pre">G]17:198982]</span></code> the prefix will be <code class="code docutils literal notranslate"><span class="pre">G</span></code></p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="variant_extractor.variants.BracketSVRecord.suffix">
-<span class="sig-name descname"><span class="pre">suffix</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#variant_extractor.variants.BracketSVRecord.suffix" title="Permalink to this definition"></a></dt>
-<dd><p>Suffix of the SV record with bracket notation. For example, for <code class="code docutils literal notranslate"><span class="pre">G]17:198982]</span></code> the suffix will be <code class="code docutils literal notranslate"><span class="pre">None</span></code></p>
+<dt class="sig sig-object py" id="variant_extractor.variants.BreakendSVRecord.suffix">
+<span class="sig-name descname"><span class="pre">suffix</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#variant_extractor.variants.BreakendSVRecord.suffix" title="Permalink to this definition"></a></dt>
+<dd><p>Suffix of the SV record with breakend notation. For example, for <code class="code docutils literal notranslate"><span class="pre">G]17:198982]</span></code> the suffix will be <code class="code docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="variant_extractor.variants.ShorthandSVRecord">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">variant_extractor.variants.</span></span><span class="sig-name descname"><span class="pre">ShorthandSVRecord</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.10)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/variant_extractor/variants.html#ShorthandSVRecord"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#variant_extractor.variants.ShorthandSVRecord" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.NamedTuple" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">NamedTuple</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">variant_extractor.variants.</span></span><span class="sig-name descname"><span class="pre">ShorthandSVRecord</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/variant_extractor/variants.html#ShorthandSVRecord"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#variant_extractor.variants.ShorthandSVRecord" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.NamedTuple" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">NamedTuple</span></code></a></p>
 <p>NamedTuple with the information of a shorthand SV record</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="variant_extractor.variants.ShorthandSVRecord.extra">
-<span class="sig-name descname"><span class="pre">extra</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#variant_extractor.variants.ShorthandSVRecord.extra" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">extra</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#variant_extractor.variants.ShorthandSVRecord.extra" title="Permalink to this definition"></a></dt>
 <dd><p>Extra information of the SV. For example, for <code class="code docutils literal notranslate"><span class="pre">&lt;DUP:TANDEM:AA&gt;</span></code> the extra will be <code class="code docutils literal notranslate"><span class="pre">['TANDEM',</span> <span class="pre">'AA']</span></code></p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="variant_extractor.variants.ShorthandSVRecord.type">
-<span class="sig-name descname"><span class="pre">type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></em><a class="headerlink" href="#variant_extractor.variants.ShorthandSVRecord.type" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></em><a class="headerlink" href="#variant_extractor.variants.ShorthandSVRecord.type" title="Permalink to this definition"></a></dt>
 <dd><p>One of the following, <code class="code docutils literal notranslate"><span class="pre">'DEL'</span></code>, <code class="code docutils literal notranslate"><span class="pre">'INS'</span></code>, <code class="code docutils literal notranslate"><span class="pre">'DUP'</span></code>, <code class="code docutils literal notranslate"><span class="pre">'INV'</span></code> or <code class="code docutils literal notranslate"><span class="pre">'CNV'</span></code></p>
 </dd></dl>
 
@@ -165,114 +227,134 @@ used in a pipeline, where the variants are ingested from VCF files and then used
 
 <dl class="py class">
 <dt class="sig sig-object py" id="variant_extractor.variants.VariantRecord">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">variant_extractor.variants.</span></span><span class="sig-name descname"><span class="pre">VariantRecord</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">contig</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">alts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.10)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pysam.libcbcf.VariantRecordFilter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pysam.libcbcf.VariantRecordInfo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alt_sv_bracket</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#variant_extractor.variants.BracketSVRecord" title="variant_extractor.variants.BracketSVRecord"><span class="pre">variant_extractor.variants.BracketSVRecord</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alt_sv_shorthand</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#variant_extractor.variants.ShorthandSVRecord" title="variant_extractor.variants.ShorthandSVRecord"><span class="pre">variant_extractor.variants.ShorthandSVRecord</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/variant_extractor/variants.html#VariantRecord"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#variant_extractor.variants.VariantRecord" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.NamedTuple" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">NamedTuple</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">variant_extractor.variants.</span></span><span class="sig-name descname"><span class="pre">VariantRecord</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">contig</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">alt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">qual</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.11)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">samples</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.11)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variant_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#variant_extractor.variants.VariantType" title="variant_extractor.variants.VariantType"><span class="pre">VariantType</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">alt_sv_breakend</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#variant_extractor.variants.BreakendSVRecord" title="variant_extractor.variants.BreakendSVRecord"><span class="pre">BreakendSVRecord</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alt_sv_shorthand</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#variant_extractor.variants.ShorthandSVRecord" title="variant_extractor.variants.ShorthandSVRecord"><span class="pre">ShorthandSVRecord</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/variant_extractor/variants.html#VariantRecord"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#variant_extractor.variants.VariantRecord" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.NamedTuple" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">NamedTuple</span></code></a></p>
 <p>NamedTuple with the information of a variant record</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="variant_extractor.variants.VariantRecord.alt_sv_bracket">
-<span class="sig-name descname"><span class="pre">alt_sv_bracket</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#variant_extractor.variants.BracketSVRecord" title="variant_extractor.variants.BracketSVRecord"><span class="pre">variant_extractor.variants.BracketSVRecord</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#variant_extractor.variants.VariantRecord.alt_sv_bracket" title="Permalink to this definition"></a></dt>
-<dd><p>Bracketed SV info, present only for SVs with bracket notation. For example, <code class="code docutils literal notranslate"><span class="pre">G]17:198982]</span></code></p>
+<dt class="sig sig-object py" id="variant_extractor.variants.VariantRecord.alt">
+<span class="sig-name descname"><span class="pre">alt</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></em><a class="headerlink" href="#variant_extractor.variants.VariantRecord.alt" title="Permalink to this definition"></a></dt>
+<dd><p>Alternative sequence</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="variant_extractor.variants.VariantRecord.alt_sv_breakend">
+<span class="sig-name descname"><span class="pre">alt_sv_breakend</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#variant_extractor.variants.BreakendSVRecord" title="variant_extractor.variants.BreakendSVRecord"><span class="pre">BreakendSVRecord</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#variant_extractor.variants.VariantRecord.alt_sv_breakend" title="Permalink to this definition"></a></dt>
+<dd><p>Breakend SV info, present only for SVs with breakend notation. For example, <code class="code docutils literal notranslate"><span class="pre">G]17:198982]</span></code></p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="variant_extractor.variants.VariantRecord.alt_sv_shorthand">
-<span class="sig-name descname"><span class="pre">alt_sv_shorthand</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#variant_extractor.variants.ShorthandSVRecord" title="variant_extractor.variants.ShorthandSVRecord"><span class="pre">variant_extractor.variants.ShorthandSVRecord</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#variant_extractor.variants.VariantRecord.alt_sv_shorthand" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">alt_sv_shorthand</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#variant_extractor.variants.ShorthandSVRecord" title="variant_extractor.variants.ShorthandSVRecord"><span class="pre">ShorthandSVRecord</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#variant_extractor.variants.VariantRecord.alt_sv_shorthand" title="Permalink to this definition"></a></dt>
 <dd><p>Shorthand SV info, present only for SVs with shorthand notation. For example, <code class="code docutils literal notranslate"><span class="pre">&lt;DUP:TANDEM&gt;</span></code></p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="variant_extractor.variants.VariantRecord.alts">
-<span class="sig-name descname"><span class="pre">alts</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#variant_extractor.variants.VariantRecord.alts" title="Permalink to this definition"></a></dt>
-<dd><p>List of alternative sequences</p>
-</dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="variant_extractor.variants.VariantRecord.contig">
-<span class="sig-name descname"><span class="pre">contig</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></em><a class="headerlink" href="#variant_extractor.variants.VariantRecord.contig" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">contig</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></em><a class="headerlink" href="#variant_extractor.variants.VariantRecord.contig" title="Permalink to this definition"></a></dt>
 <dd><p>Contig name</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="variant_extractor.variants.VariantRecord.end">
-<span class="sig-name descname"><span class="pre">end</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></em><a class="headerlink" href="#variant_extractor.variants.VariantRecord.end" title="Permalink to this definition"></a></dt>
-<dd><p>End position of the variant in the contig (same as <cite>pos</cite> for TRN and SNV)</p>
+<span class="sig-name descname"><span class="pre">end</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></em><a class="headerlink" href="#variant_extractor.variants.VariantRecord.end" title="Permalink to this definition"></a></dt>
+<dd><p>End position of the variant in the contig (same as <cite>pos</cite> for TRA and SNV)</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="variant_extractor.variants.VariantRecord.filter">
-<span class="sig-name descname"><span class="pre">filter</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">pysam.libcbcf.VariantRecordFilter</span></em><a class="headerlink" href="#variant_extractor.variants.VariantRecord.filter" title="Permalink to this definition"></a></dt>
-<dd><p>Record filter</p>
+<span class="sig-name descname"><span class="pre">filter</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#variant_extractor.variants.VariantRecord.filter" title="Permalink to this definition"></a></dt>
+<dd><p>Filter status. PASS if this position has passed all filters. Otherwise, it contains the filters that failed</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="variant_extractor.variants.VariantRecord.format">
+<span class="sig-name descname"><span class="pre">format</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#variant_extractor.variants.VariantRecord.format" title="Permalink to this definition"></a></dt>
+<dd><p>Specifies data types and order of the genotype information</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="variant_extractor.variants.VariantRecord.id">
-<span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></em><a class="headerlink" href="#variant_extractor.variants.VariantRecord.id" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#variant_extractor.variants.VariantRecord.id" title="Permalink to this definition"></a></dt>
 <dd><p>Record identifier</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="variant_extractor.variants.VariantRecord.info">
-<span class="sig-name descname"><span class="pre">info</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">pysam.libcbcf.VariantRecordInfo</span></em><a class="headerlink" href="#variant_extractor.variants.VariantRecord.info" title="Permalink to this definition"></a></dt>
-<dd><p>Dictionary of information fields</p>
+<span class="sig-name descname"><span class="pre">info</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.11)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#variant_extractor.variants.VariantRecord.info" title="Permalink to this definition"></a></dt>
+<dd><p>Additional information</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="variant_extractor.variants.VariantRecord.length">
+<span class="sig-name descname"><span class="pre">length</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></em><a class="headerlink" href="#variant_extractor.variants.VariantRecord.length" title="Permalink to this definition"></a></dt>
+<dd><p>Length of the variant</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="variant_extractor.variants.VariantRecord.pos">
-<span class="sig-name descname"><span class="pre">pos</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></em><a class="headerlink" href="#variant_extractor.variants.VariantRecord.pos" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pos</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></em><a class="headerlink" href="#variant_extractor.variants.VariantRecord.pos" title="Permalink to this definition"></a></dt>
 <dd><p>Position of the variant in the contig</p>
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="variant_extractor.variants.VariantRecord.qual">
+<span class="sig-name descname"><span class="pre">qual</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#variant_extractor.variants.VariantRecord.qual" title="Permalink to this definition"></a></dt>
+<dd><p>Quality score for the assertion made in ALT</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="variant_extractor.variants.VariantRecord.ref">
-<span class="sig-name descname"><span class="pre">ref</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></em><a class="headerlink" href="#variant_extractor.variants.VariantRecord.ref" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">ref</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></em><a class="headerlink" href="#variant_extractor.variants.VariantRecord.ref" title="Permalink to this definition"></a></dt>
 <dd><p>Reference sequence</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="variant_extractor.variants.VariantRecord.samples">
+<span class="sig-name descname"><span class="pre">samples</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.11)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#variant_extractor.variants.VariantRecord.samples" title="Permalink to this definition"></a></dt>
+<dd><p>Genotype information for each sample</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="variant_extractor.variants.VariantRecord.variant_type">
+<span class="sig-name descname"><span class="pre">variant_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#variant_extractor.variants.VariantType" title="variant_extractor.variants.VariantType"><span class="pre">VariantType</span></a></em><a class="headerlink" href="#variant_extractor.variants.VariantRecord.variant_type" title="Permalink to this definition"></a></dt>
+<dd><p>Variant type</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="variant_extractor.variants.VariantType">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">variant_extractor.variants.</span></span><span class="sig-name descname"><span class="pre">VariantType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/variant_extractor/variants.html#VariantType"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#variant_extractor.variants.VariantType" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">variant_extractor.variants.</span></span><span class="sig-name descname"><span class="pre">VariantType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/variant_extractor/variants.html#VariantType"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#variant_extractor.variants.VariantType" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a></p>
 <p>Enumeration with the different types of variations</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="variant_extractor.variants.VariantType.CNV">
-<span class="sig-name descname"><span class="pre">CNV</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">8</span></em><a class="headerlink" href="#variant_extractor.variants.VariantType.CNV" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">CNV</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">6</span></em><a class="headerlink" href="#variant_extractor.variants.VariantType.CNV" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="variant_extractor.variants.VariantType.DEL">
-<span class="sig-name descname"><span class="pre">DEL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#variant_extractor.variants.VariantType.DEL" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#variant_extractor.variants.VariantType.DEL" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="variant_extractor.variants.VariantType.DUP">
-<span class="sig-name descname"><span class="pre">DUP</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">6</span></em><a class="headerlink" href="#variant_extractor.variants.VariantType.DUP" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="variant_extractor.variants.VariantType.INDEL_DEL">
-<span class="sig-name descname"><span class="pre">INDEL_DEL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#variant_extractor.variants.VariantType.INDEL_DEL" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="variant_extractor.variants.VariantType.INDEL_INS">
-<span class="sig-name descname"><span class="pre">INDEL_INS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#variant_extractor.variants.VariantType.INDEL_INS" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DUP</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#variant_extractor.variants.VariantType.DUP" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="variant_extractor.variants.VariantType.INS">
-<span class="sig-name descname"><span class="pre">INS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">5</span></em><a class="headerlink" href="#variant_extractor.variants.VariantType.INS" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">INS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#variant_extractor.variants.VariantType.INS" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="variant_extractor.variants.VariantType.INV">
-<span class="sig-name descname"><span class="pre">INV</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">7</span></em><a class="headerlink" href="#variant_extractor.variants.VariantType.INV" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">INV</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">5</span></em><a class="headerlink" href="#variant_extractor.variants.VariantType.INV" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="variant_extractor.variants.VariantType.SGL">
-<span class="sig-name descname"><span class="pre">SGL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">10</span></em><a class="headerlink" href="#variant_extractor.variants.VariantType.SGL" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">SGL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">8</span></em><a class="headerlink" href="#variant_extractor.variants.VariantType.SGL" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -281,8 +363,8 @@ used in a pipeline, where the variants are ingested from VCF files and then used
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="variant_extractor.variants.VariantType.TRN">
-<span class="sig-name descname"><span class="pre">TRN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">9</span></em><a class="headerlink" href="#variant_extractor.variants.VariantType.TRN" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="variant_extractor.variants.VariantType.TRA">
+<span class="sig-name descname"><span class="pre">TRA</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">7</span></em><a class="headerlink" href="#variant_extractor.variants.VariantType.TRA" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -293,7 +375,7 @@ used in a pipeline, where the variants are ingested from VCF files and then used
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="index.html" class="btn btn-neutral float-left" title="VCF variant extractor" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral float-left" title="VariantExtractor" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="changelog.html" class="btn btn-neutral float-right" title="Changelog" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
