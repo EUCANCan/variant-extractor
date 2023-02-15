@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v4.0.1 (2023-02-15)
+### Fix
+* Add PyPI docs ([`fd3b89c`](https://github.com/EUCANCan/variant-extractor/commit/fd3b89c995810834c13389f1ee16d0b9333f43ba))
+
 ## v4.0.0 (2023-02-10)
 ### Feature
 * Add empty_dataframe method ([`ebaf357`](https://github.com/EUCANCan/variant-extractor/commit/ebaf357f40f3dd1ac2e5bbd6c74615385e668e12))
