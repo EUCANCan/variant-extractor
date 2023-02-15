@@ -5,6 +5,8 @@ While there is somewhat of an agreement on how to label the SNVs and indels vari
 
 
 ## Table of contents<!-- omit in toc -->
+- [Getting started](#getting-started)
+  - [Installation](#installation)
 - [Usage](#usage)
 - [VariantRecord](#variantrecord)
   - [VariantType](#varianttype)
@@ -19,7 +21,15 @@ While there is somewhat of an agreement on how to label the SNVs and indels vari
     - [Inferred breakend pairs](#inferred-breakend-pairs)
     - [Imprecise paired breakends](#imprecise-paired-breakends)
     - [Single breakends](#single-breakends)
+- [Dependencies](#dependencies)
 
+
+## Getting started
+### Installation
+VariantExtractor is available on PyPI and can be installed using `pip`:
+```bash
+pip install variant-extractor
+```
 
 ## Usage
 ```python
@@ -64,7 +74,7 @@ The `VariantExtractor` constructor returns a generator of `VariantRecord` instan
 | `format`           | `List[str]`                                             | Specifies data types and order of the genotype information                                                    |
 | `samples`          | `Dict[str, Dict[str, Any]]`                             | Genotype information for each sample                                                                          |
 | `variant_type`     | [`VariantType`](#varianttype)                           | Variant type inferred                                                                                         |
-| `alt_sv_breakend`  | `Optional[`[`BreakendSVRecord`](#brekendsvrecord)`]`    | Breakend SV info, present only for SVs with breakend notation. For example, `G]17:198982]`                     |
+| `alt_sv_breakend`  | `Optional[`[`BreakendSVRecord`](#brekendsvrecord)`]`    | Breakend SV info, present only for SVs with breakend notation. For example, `G]17:198982]`                    |
 | `alt_sv_shorthand` | `Optional[`[`ShorthandSVRecord`](#shorthandsvrecord)`]` | Shorthand SV info, present only for SVs with shorthand notation. For example, `<DUP:TANDEM>`                  |
 
 ### VariantType
@@ -85,8 +95,8 @@ The `VariantType` enum describes the type of the variant. For structural variant
 ### BreakendSVRecord
 The `BreakendSVRecord` class is a container for the information contained in a VCF record for SVs with breakend notation.
 
-| Property  | Type            | Description                                                                                                    |
-| --------- | --------------- | -------------------------------------------------------------------------------------------------------------- |
+| Property  | Type            | Description                                                                                                     |
+| --------- | --------------- | --------------------------------------------------------------------------------------------------------------- |
 | `prefix`  | `Optional[str]` | Prefix of the SV record with breakend notation. For example, for `G]17:198982]` the prefix will be `G`          |
 | `bracket` | `str`           | Bracket of the SV record with breakend notation. For example, for `G]17:198982]` the bracket will be `]`        |
 | `contig`  | `str`           | Contig of the SV record with breakend notation. For example, for `G]17:198982]` the contig will be `17`         |
@@ -269,3 +279,10 @@ are returned as two entries:
 | ----- | ---- | ------- | --- | --- | ------ | ---------- | ----------------------------- |
 | 2     | 3000 | event_s | T   | T.  | PASS   | SVTYPE=BND | SGL                           |
 | 3     | 5000 | event_m | G   | .G  | PASS   | SVTYPE=BND | SGL                           |
+
+
+## Dependencies
+
+The dependencies are covered by their own respective licenses as follows:
+
+* [Python/Pysam package](https://github.com/pysam-developers/pysam) (MIT license)
