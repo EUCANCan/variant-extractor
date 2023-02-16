@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v4.0.2 (2023-02-16)
+### Fix
+* Add __init__ file to private module ([`549b7c5`](https://github.com/EUCANCan/variant-extractor/commit/549b7c53fcd6c8ede96c177c4f65e414b260c7f5))
+
 ## v4.0.1 (2023-02-15)
 ### Fix
 * Add PyPI docs ([`fd3b89c`](https://github.com/EUCANCan/variant-extractor/commit/fd3b89c995810834c13389f1ee16d0b9333f43ba))
