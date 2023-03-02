@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v4.0.4 (2023-03-02)
+### Performance
+* Improve __str__ performance ([`ec14074`](https://github.com/EUCANCan/variant-extractor/commit/ec140748b5abd31284580c5eacfd7bb2e44cacde))
+
 ## v4.0.3 (2023-03-02)
 ### Performance
 * Improve I/O speed by lazy loading fields ([`93782fc`](https://github.com/EUCANCan/variant-extractor/commit/93782fc05585981a3d3ef20a6705e18160486a47))
