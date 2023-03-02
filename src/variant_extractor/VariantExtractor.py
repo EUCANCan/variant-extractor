@@ -1,7 +1,6 @@
 # Copyright 2022 - Barcelona Supercomputing Center
 # Author: Rodrigo Martin
 # MIT License
-from types import SimpleNamespace
 from typing import List, Optional
 import warnings
 import pysam
@@ -190,25 +189,9 @@ class VariantExtractor:
             return [vcf_record]
 
     def __handle_multiallelic_record(self, rec: pysam.VariantRecord) -> List[VariantRecord]:
-        if rec.alts is None:
-            return []
         record_list = []
-        fake_rec = SimpleNamespace()
-        fake_rec.contig = rec.contig
-        fake_rec.pos = rec.pos
-        fake_rec.stop = rec.stop
-        fake_rec.start = rec.start
-        fake_rec.alleles = rec.alleles
-        fake_rec.chrom = rec.chrom
-        fake_rec.rid = rec.rid
-        fake_rec.rlen = rec.rlen
-        fake_rec.id = rec.id
-        fake_rec.ref = rec.ref
-        fake_rec.alts = rec.alts
-        fake_rec.qual = rec.qual
-        fake_rec.filter = rec.filter
-        fake_rec.info = rec.info
-        fake_rec.format = rec.format
+        fake_rec = rec.copy()
+        assert fake_rec.alts is not None and len(fake_rec.alts) > 1
         alts = fake_rec.alts
         samples = dict()
         for sample_name in rec.samples:
@@ -220,10 +203,11 @@ class VariantExtractor:
         original_id = fake_rec.id
         for i, alt in enumerate(alts):
             # WARNING: This overrides the record
-            fake_rec.alts = [alt]
+            fake_rec.alts = (alt,)
             if original_id:
                 new_id = f'{original_id}_{i}'
                 fake_rec.id = new_id
+            new_records = self.__handle_record(fake_rec)
             new_samples = dict()
             for sample_name in samples:
                 new_samples[sample_name] = dict()
@@ -239,8 +223,9 @@ class VariantExtractor:
                             new_samples[sample_name][key] = value[i::len(alts)]
                         else:
                             new_samples[sample_name][key] = value
-                fake_rec.samples = new_samples
-            record_list += self.__handle_record(fake_rec) # type: ignore
+            for new_record in new_records:
+                new_record.samples = new_samples
+            record_list.extend(new_records)
         return record_list
 
     def to_dataframe(self):

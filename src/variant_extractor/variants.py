@@ -1,10 +1,8 @@
 # Copyright 2022 - Barcelona Supercomputing Center
 # Author: Rodrigo Martin
 # MIT License
-from functools import cached_property
 from typing import NamedTuple, Optional, List, Dict, Any
 from enum import Enum, auto
-import copy
 
 import pysam
 
@@ -147,35 +145,56 @@ class VariantRecord():
         self.alt_sv_breakend = alt_sv_breakend
         self.alt_sv_shorthand = alt_sv_shorthand
 
-    @cached_property
+        self._info = None
+        self._format = None
+        self._samples = None
+
+    @property
     def info(self):
         """Additional information"""
-        return _build_info(self._rec)
+        if self._info is None:
+            self._info = _build_info(self._rec)
+        return self._info
 
-    @cached_property
+    @info.setter
+    def info(self, value):
+        self._info = value
+
+    @property
     def format(self):
         """Specifies data types and order of the genotype information"""
-        return _build_format(self._rec)
+        if self._format is None:
+            self._format = _build_format(self._rec)
+        return self._format
 
-    @cached_property
+    @format.setter
+    def format(self, value):
+        self._format = value
+
+    @property
     def samples(self):
         """Genotype information for each sample"""
-        return _build_samples(self._rec)
+        if self._samples is None:
+            self._samples = _build_samples(self._rec)
+        return self._samples
+
+    @samples.setter
+    def samples(self, value):
+        self._samples = value
 
     def _replace(self, **kwargs):
-        self_copy = copy.copy(self)
+        new_record = VariantRecord(self._rec, self.contig, self.pos, self.end,
+                                   self.length, self.id, self.ref, self.alt,
+                                   self.variant_type, self.alt_sv_breakend,
+                                   self.alt_sv_shorthand)
         for key, value in kwargs.items():
-            setattr(self_copy, key, value)
-        return self_copy
+            setattr(new_record, key, value)
+        return new_record
 
-    def __str__(self):
-        contig = self.contig
-        pos = self.pos
-        id_ = self.id if self.id else '.'
-        ref = self.ref
-        alt = self.alt
-        qual = _str_value(self.qual)
-        filter_ = ";".join(map(str, self.filter)) if self.filter else '.'
+    def _info_str(self, rec_str: List[str]) -> str:
+        # If info has not been loaded, return the original info string
+        if self._info is None:
+            return rec_str[7]
         info_list = []
         for key, value in self.info.items():
             info_str = _convert_info_key_value(key, value)
@@ -183,10 +202,35 @@ class VariantRecord():
                 continue
             info_list.append(info_str)
         if self.alt_sv_shorthand:
-            info = info_list.insert(0, 'END='+str(self.end))
+            info_list.insert(0, 'END='+str(self.end))
         info = ";".join(info_list)
-        format_ = ":".join(self.format)
+        return info
+
+    def _format_str(self, rec_str: List[str]) -> str:
+        # If format has not been loaded, return the original format string
+        if self._format is None:
+            return rec_str[8]
+        return ":".join(self.format)
+
+    def _samples_str(self, rec_str: List[str]) -> str:
+        # If samples and format have not been loaded, return the original samples string
+        if self._samples is None and self._format is None:
+            return '\t'.join(rec_str[9:])
         samples_list = [":".join([_convert_sample_value(k, self.samples[sample_name][k])
                                  for k in self.format]) for sample_name in self.samples]
         samples = "\t".join(samples_list)
+        return samples
+
+    def __str__(self):
+        rec_str_split = str(self._rec).split('\t')
+        contig = self.contig
+        pos = self.pos
+        id_ = self.id if self.id else '.'
+        ref = self.ref
+        alt = self.alt
+        qual = _str_value(self.qual)
+        filter_ = ";".join(map(str, self.filter)) if self.filter else '.'
+        info = self._info_str(rec_str_split)
+        format_ = self._format_str(rec_str_split)
+        samples = self._samples_str(rec_str_split)
         return f'{contig}\t{pos}\t{id_}\t{ref}\t{alt}\t{qual}\t{filter_}\t{info}\t{format_}\t{samples}'.strip()
