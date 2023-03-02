@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v4.0.3 (2023-03-02)
+### Performance
+* Improve I/O speed by lazy loading fields ([`93782fc`](https://github.com/EUCANCan/variant-extractor/commit/93782fc05585981a3d3ef20a6705e18160486a47))
+
 ## v4.0.2 (2023-02-16)
 ### Fix
 * Add __init__ file to private module ([`549b7c5`](https://github.com/EUCANCan/variant-extractor/commit/549b7c53fcd6c8ede96c177c4f65e414b260c7f5))
