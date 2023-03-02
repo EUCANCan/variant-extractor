@@ -88,6 +88,8 @@ class VariantExtractor:
     def __handle_record(self, rec: pysam.VariantRecord) -> List[VariantRecord]:
         if not rec.alts:
             return []
+        if not rec.ref:
+            raise ValueError('Record does not have a REF field')
         # Handle multiallelic records
         if len(rec.alts) != 1:
             return self.__handle_multiallelic_record(rec)
@@ -127,12 +129,12 @@ class VariantExtractor:
                     record_list.append(new_vcf_record)
         elif len(vcf_record.ref) > len(vcf_record.alt):
             # Deletion
-            new_vcf_record = vcf_record._replace(variant_type=VariantType.DEL)
-            record_list.append(new_vcf_record)
+            vcf_record.variant_type=VariantType.DEL
+            record_list.append(vcf_record)
         elif len(vcf_record.ref) < len(vcf_record.alt):
             # Insertion
-            new_vcf_record = vcf_record._replace(variant_type=VariantType.INS)
-            record_list.append(new_vcf_record)
+            vcf_record.variant_type=VariantType.INS
+            record_list.append(vcf_record)
         return record_list
 
     def __handle_breakend_sv(self, vcf_record: VariantRecord) -> List[VariantRecord]:
@@ -153,8 +155,8 @@ class VariantExtractor:
         filters = set(vcf_record_1.filter) | set(vcf_record_2.filter)
         filters.discard('PASS')
         if len(filters) > 0:
-            vcf_record_1 = vcf_record_1._replace(filter=list(filters))
-            vcf_record_2 = vcf_record_2._replace(filter=list(filters))
+            vcf_record_1.filter = list(filters)
+            vcf_record_2.filter = list(filters)
         contig_comparison = compare_contigs(vcf_record_1.contig, vcf_record_2.contig)
         if contig_comparison == 0:
             if vcf_record_1.pos < vcf_record_2.pos:

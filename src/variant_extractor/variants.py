@@ -1,8 +1,37 @@
 # Copyright 2022 - Barcelona Supercomputing Center
 # Author: Rodrigo Martin
 # MIT License
+from functools import cached_property
 from typing import NamedTuple, Optional, List, Dict, Any
 from enum import Enum, auto
+import copy
+
+import pysam
+
+
+def _build_filter(rec: pysam.VariantRecord) -> List[str | int]:
+    return [f for f in rec.filter]
+
+
+def _build_info(rec: pysam.VariantRecord) -> Dict[str, Any]:
+    info = dict()
+    for key, value in rec.info.items():
+        info[key] = value
+    return info
+
+
+def _build_format(rec: pysam.VariantRecord) -> List[str]:
+    return [f for f in rec.format]
+
+
+def _build_samples(rec: pysam.VariantRecord) -> Dict[str, Dict[str, Any]]:
+    samples = dict()
+    for sample_name in rec.samples:
+        sample_dict = dict()
+        for key, value in rec.samples[sample_name].items():
+            sample_dict[key] = value
+        samples[sample_name] = sample_dict
+    return samples
 
 
 class VariantType(Enum):
@@ -71,7 +100,7 @@ def _convert_sample_value(key, value):
         return _str_value(value)
 
 
-class VariantRecord(NamedTuple):
+class VariantRecord():
     """NamedTuple with the information of a variant record
     """
     contig: str
@@ -90,20 +119,54 @@ class VariantRecord(NamedTuple):
     """Alternative sequence"""
     qual: Optional[float]
     """Quality score for the assertion made in ALT"""
-    filter: List[str]
+    filter: List[str | int]
     """Filter status. PASS if this position has passed all filters. Otherwise, it contains the filters that failed"""
-    info: Dict[str, Any]
-    """Additional information"""
-    format: List[str]
-    """Specifies data types and order of the genotype information"""
-    samples: Dict[str, Dict[str, Any]]
-    """Genotype information for each sample"""
     variant_type: VariantType
     """Variant type"""
     alt_sv_breakend: Optional[BreakendSVRecord]
     """Breakend SV info, present only for SVs with breakend notation. For example, :code:`G]17:198982]`"""
     alt_sv_shorthand: Optional[ShorthandSVRecord]
     """Shorthand SV info, present only for SVs with shorthand notation. For example, :code:`<DUP:TANDEM>`"""
+
+    def __init__(self, rec: pysam.VariantRecord, contig: str, pos: int, end: int,
+                 length: int, id: Optional[str], ref: str,
+                 alt: str, variant_type: VariantType,
+                 alt_sv_breakend: Optional[BreakendSVRecord] = None,
+                 alt_sv_shorthand: Optional[ShorthandSVRecord] = None):
+        self._rec = rec
+        self.contig = contig
+        self.pos = pos
+        self.end = end
+        self.length = length
+        self.id = id
+        self.ref = ref
+        self.alt = alt
+        self.qual = rec.qual
+        self.filter = _build_filter(rec)
+        self.variant_type = variant_type
+        self.alt_sv_breakend = alt_sv_breakend
+        self.alt_sv_shorthand = alt_sv_shorthand
+
+    @cached_property
+    def info(self):
+        """Additional information"""
+        return _build_info(self._rec)
+
+    @cached_property
+    def format(self):
+        """Specifies data types and order of the genotype information"""
+        return _build_format(self._rec)
+
+    @cached_property
+    def samples(self):
+        """Genotype information for each sample"""
+        return _build_samples(self._rec)
+
+    def _replace(self, **kwargs):
+        self_copy = copy.copy(self)
+        for key, value in kwargs.items():
+            setattr(self_copy, key, value)
+        return self_copy
 
     def __str__(self):
         contig = self.contig
@@ -112,7 +175,7 @@ class VariantRecord(NamedTuple):
         ref = self.ref
         alt = self.alt
         qual = _str_value(self.qual)
-        filter_ = ";".join(self.filter) if self.filter else '.'
+        filter_ = ";".join(map(str, self.filter)) if self.filter else '.'
         info_list = []
         for key, value in self.info.items():
             info_str = _convert_info_key_value(key, value)

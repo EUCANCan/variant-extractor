@@ -3,6 +3,7 @@
 # MIT License
 import re
 import warnings
+import pysam
 
 from ..variants import VariantRecord, BreakendSVRecord, ShorthandSVRecord, VariantType
 
@@ -13,32 +14,8 @@ SGL_SV_REGEX = re.compile(r'\.[.A-Za-z]+|[.A-Za-z]+\.')
 STANDARD_RECORD_REGEX = re.compile(r'([.A-Za-z]+)')
 
 
-def _build_filter(rec):
-    return [f for f in rec.filter]
-
-
-def _build_info(rec):
-    info = dict()
-    for key, value in rec.info.items():
-        info[key] = value
-    return info
-
-
-def _build_format(rec):
-    return [f for f in rec.format]
-
-
-def _build_samples(rec):
-    samples = dict()
-    for sample_name in rec.samples:
-        sample_dict = dict()
-        for key, value in rec.samples[sample_name].items():
-            sample_dict[key] = value
-        samples[sample_name] = sample_dict
-    return samples
-
-
-def parse_breakend_sv(rec):
+def parse_breakend_sv(rec: pysam.VariantRecord):
+    assert rec.alts is not None and len(rec.alts) == 1 and rec.ref is not None
     sv_match_breakend = BREAKEND_SV_REGEX.fullmatch(rec.alts[0])
     if not sv_match_breakend:
         return None
@@ -76,13 +53,13 @@ def parse_breakend_sv(rec):
             variant_type = VariantType.INV
 
     # Create new record
-    vcf_record = VariantRecord(rec.contig, rec.pos, end_pos, length, rec.id, rec.ref, rec.alts[0],
-                               rec.qual, _build_filter(rec), _build_info(rec), _build_format(rec),
-                               _build_samples(rec), variant_type, alt_sv_breakend, None)
+    vcf_record = VariantRecord(rec, rec.contig, rec.pos, end_pos, length, rec.id, rec.ref, rec.alts[0],
+                               variant_type, alt_sv_breakend, None)
     return vcf_record
 
 
-def parse_shorthand_sv(rec):
+def parse_shorthand_sv(rec: pysam.VariantRecord):
+    assert rec.alts is not None and len(rec.alts) == 1 and rec.ref is not None
     sv_match_shorthand = SHORTHAND_SV_REGEX.fullmatch(rec.alts[0])
     if not sv_match_shorthand:
         return None
@@ -115,26 +92,26 @@ def parse_shorthand_sv(rec):
         raise ValueError(f'Unknown variant type: {alt_type}. Skipping:\n{rec}')
 
     # Create new record
-    vcf_record = VariantRecord(rec.contig, rec.pos, rec.stop, length, rec.id, rec.ref, rec.alts[0],
-                               rec.qual, _build_filter(rec), _build_info(rec), _build_format(rec),
-                               _build_samples(rec), variant_type, None, alt_sv_shorthand)
+    vcf_record = VariantRecord(rec, rec.contig, rec.pos, rec.stop, length, rec.id,
+                               rec.ref, rec.alts[0], variant_type, None, alt_sv_shorthand)
     return vcf_record
 
 
-def parse_sgl_sv(rec):
+def parse_sgl_sv(rec: pysam.VariantRecord):
+    assert rec.alts is not None and len(rec.alts) == 1 and rec.ref is not None
     sv_match_sgl = SGL_SV_REGEX.fullmatch(rec.alts[0])
     if not sv_match_sgl or 'SVTYPE' not in rec.info:
         return None
     variant_type = VariantType.SGL
     length = 0
     # Create new record
-    vcf_record = VariantRecord(rec.contig, rec.pos, rec.stop, length, rec.id, rec.ref, rec.alts[0],
-                               rec.qual, _build_filter(rec), _build_info(rec), _build_format(rec),
-                               _build_samples(rec), variant_type, None, None)
+    vcf_record = VariantRecord(rec, rec.contig, rec.pos, rec.stop, length, rec.id,
+                               rec.ref, rec.alts[0], variant_type, None, None)
     return vcf_record
 
 
-def parse_standard_record(rec):
+def parse_standard_record(rec: pysam.VariantRecord):
+    assert rec.alts is not None and len(rec.alts) == 1 and rec.ref is not None
     match = STANDARD_RECORD_REGEX.fullmatch(rec.alts[0])
     if not match:
         return None
@@ -148,7 +125,6 @@ def parse_standard_record(rec):
         length = len(rec.ref) - 1
         variant_type = VariantType.DEL
     # Create new record
-    vcf_record = VariantRecord(rec.contig, rec.pos, rec.stop, length, rec.id, rec.ref, rec.alts[0],
-                               rec.qual, _build_filter(rec), _build_info(rec), _build_format(rec),
-                               _build_samples(rec), variant_type, None, None)
+    vcf_record = VariantRecord(rec, rec.contig, rec.pos, rec.stop, length, rec.id,
+                               rec.ref, rec.alts[0], variant_type, None, None)
     return vcf_record
