@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v4.0.5 (2023-03-06)
+### Fix
+* Fix Python3.6 typings ([`5b3bdd6`](https://github.com/EUCANCan/variant-extractor/commit/5b3bdd696437747c5a9cf3874392817bdee0f2d7))
+
 ## v4.0.4 (2023-03-02)
 ### Performance
 * Improve __str__ performance ([`ec14074`](https://github.com/EUCANCan/variant-extractor/commit/ec140748b5abd31284580c5eacfd7bb2e44cacde))
