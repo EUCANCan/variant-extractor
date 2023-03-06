@@ -1,13 +1,13 @@
 # Copyright 2022 - Barcelona Supercomputing Center
 # Author: Rodrigo Martin
 # MIT License
-from typing import NamedTuple, Optional, List, Dict, Any
+from typing import NamedTuple, Optional, List, Dict, Any, Union
 from enum import Enum, auto
 
 import pysam
 
 
-def _build_filter(rec: pysam.VariantRecord) -> List[str | int]:
+def _build_filter(rec: pysam.VariantRecord) -> List[Union[str, int]]:
     return [f for f in rec.filter]
 
 
@@ -117,7 +117,7 @@ class VariantRecord():
     """Alternative sequence"""
     qual: Optional[float]
     """Quality score for the assertion made in ALT"""
-    filter: List[str | int]
+    filter: List[Union[str, int]]
     """Filter status. PASS if this position has passed all filters. Otherwise, it contains the filters that failed"""
     variant_type: VariantType
     """Variant type"""
