@@ -193,7 +193,7 @@ class VariantRecord():
 
     def _info_str(self, rec_str: List[str]) -> str:
         # If info has not been loaded, return the original info string
-        if self._info is None:
+        if self._info is None and len(rec_str) > 7:
             return rec_str[7]
         info_list = []
         for key, value in self.info.items():
@@ -208,13 +208,13 @@ class VariantRecord():
 
     def _format_str(self, rec_str: List[str]) -> str:
         # If format has not been loaded, return the original format string
-        if self._format is None:
+        if self._format is None and len(rec_str) > 8:
             return rec_str[8]
         return ":".join(self.format)
 
     def _samples_str(self, rec_str: List[str]) -> str:
         # If samples and format have not been loaded, return the original samples string
-        if self._samples is None and self._format is None:
+        if self._samples is None and self._format is None and len(rec_str) > 9:
             return '\t'.join(rec_str[9:])
         samples_list = [":".join([_convert_sample_value(k, self.samples[sample_name][k])
                                  for k in self.format]) for sample_name in self.samples]
