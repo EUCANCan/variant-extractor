@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v4.0.6 (2023-03-08)
+### Fix
+* Fix missing fields in str conversion ([`4bbef95`](https://github.com/EUCANCan/variant-extractor/commit/4bbef9546c1c3992a75f3146f67dac0def76c641))
+
 ## v4.0.5 (2023-03-06)
 ### Fix
 * Fix Python3.6 typings ([`5b3bdd6`](https://github.com/EUCANCan/variant-extractor/commit/5b3bdd696437747c5a9cf3874392817bdee0f2d7))
