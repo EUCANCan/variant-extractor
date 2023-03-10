@@ -13,6 +13,20 @@ from .variants import VariantRecord
 
 DATAFRAME_COLUMNS = ['start_chrom', 'start', 'end_chrom', 'end', 'ref',
                      'alt', 'length', 'brackets', 'type_inferred', 'variant_record_obj']
+DATAFRAME_DTYPES = {'start_chrom': 'string', 'start': 'uint64', 'end_chrom': 'string', 'end': 'uint64', 'ref': 'string',
+                    'alt': 'string', 'length': 'uint64', 'brackets': 'string', 'type_inferred': 'string', 'variant_record_obj': object}
+
+def _use_lowest_type(series):
+    series_max = series.max()
+    if series_max < 2 ** 8:
+        series = series.astype('uint8')
+    elif series_max < 2 ** 16:
+        series = series.astype('uint16')
+    elif series_max < 2 ** 32:
+        series = series.astype('uint32')
+    else:
+        series = series.astype('uint64')
+    return series
 
 
 class VariantExtractor:
@@ -26,7 +40,9 @@ class VariantExtractor:
         """Returns an empty pandas DataFrame with the columns used by this class.
         """
         import pandas as pd
-        return pd.DataFrame(columns=DATAFRAME_COLUMNS)
+        df = pd.DataFrame(columns=DATAFRAME_COLUMNS)
+        df = df.astype(DATAFRAME_DTYPES)
+        return df
 
     def __init__(self, vcf_file: str, pass_only=False, ensure_pairs=True, fasta_ref: Optional[str] = None):
         """
@@ -268,4 +284,10 @@ class VariantExtractor:
             variants.append([start_chrom, start, end_chrom, end, ref, alt,
                             length, breakends, type_inferred, variant_record])
 
-        return pd.DataFrame(variants, columns=DATAFRAME_COLUMNS)
+        df = pd.DataFrame(variants, columns=DATAFRAME_COLUMNS)
+        df.astype(DATAFRAME_DTYPES)
+        # Reduce memory usage by using the smallest possible data type for start, end and length
+        df['start'] = _use_lowest_type(df['start'])
+        df['end'] = _use_lowest_type(df['end'])
+        df['length'] = _use_lowest_type(df['length'])
+        return df
