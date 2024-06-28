@@ -5,24 +5,16 @@ on: workflow_dispatch
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
-    - uses: actions/setup-python@v2
-    - uses: actions/checkout@master
+    - id: deployment
+      uses: sphinx-notes/pages@v3
       with:
-        fetch-depth: 0 # otherwise, you will failed to push refs to dest repo
-    - uses: py-actions/py-dependency-install@v3
-      with:
-        path: "./requirements.txt"
-        update-pip: "false"
-        update-setuptools: "false"
-        update-wheel: "false"
-    - name: Build and Commit
-      uses: sphinx-notes/pages@v2
-      with:
+        publish: false
         documentation_path: './docs/source'
         requirements_path: './requeriments_docs.txt'
-    - name: Push changes
-      uses: ad-m/github-push-action@master
+    - uses: peaceiris/actions-gh-pages@v4
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        branch: gh-pages
+        publish_dir: ${{ steps.deployment.outputs.artifact }}

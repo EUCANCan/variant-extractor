@@ -6,6 +6,12 @@ jobs:
   release:
     runs-on: ubuntu-latest
     concurrency: release
+    environment:
+        name: pypi
+        url: https://pypi.org/p/variant-extractor
+    permissions:
+      id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
+      contents: write
 
     steps:
     - uses: actions/checkout@master
@@ -13,8 +19,21 @@ jobs:
         fetch-depth: 0
 
     - name: Python Semantic Release
-      uses: relekang/python-semantic-release@v7.33.1
+      id: release
+      uses: python-semantic-release/python-semantic-release@v9.8.3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        repository_username: ${{ secrets.REPOSITORY_USERNAME }}
-        repository_password: ${{ secrets.REPOSITORY_PASSWORD }}
+    
+    - name: Publish package distributions to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      # The following line is required to ensure that the package is only published to PyPI when a new version is released.
+      # NOTE: DO NOT wrap the conditional in ${{ }} as it will always evaluate to true.
+      # See https://github.com/actions/runner/issues/1173
+      if: steps.release.outputs.released == 'true'
+
+    - name: Publish package distributions to GitHub Releases
+      uses: python-semantic-release/upload-to-gh-release@v9.8.3
+      if: steps.release.outputs.released == 'true'
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        tag: ${{ steps.release.outputs.tag }}

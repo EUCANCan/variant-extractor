@@ -14,15 +14,17 @@
 #
 import os
 import sys
+sys.path.insert(0, os.path.abspath('../../'))
 sys.path.insert(0, os.path.abspath('../../src/'))
 
 
 # -- Project information -----------------------------------------------------
 import variant_extractor
+import setup_package
 
 project = 'variant-extractor'
-copyright = '2022, ' + variant_extractor.__author__
-author = variant_extractor.__author__
+author = setup_package.__author__
+copyright = '2024, ' + author
 
 # The short X.Y version
 version = variant_extractor.__version__

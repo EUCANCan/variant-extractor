@@ -1,5 +1,7 @@
-from setuptools import setup, find_packages
 import re
+from setuptools import setup, find_packages
+
+__author__ = 'Rapsssito'
 
 if __name__ == '__main__':
     with open("README.md", "r", encoding="utf-8") as fh:
@@ -13,9 +15,7 @@ if __name__ == '__main__':
     version = re.search(
         r'^__version__\s*=\s*[\'\"]([^\'\"]*)[\'\"]', init_content, re.MULTILINE
     ).group(1)
-    author = re.search(
-        r'^__author__\s*=\s*[\'\"]([^\'\"]*)[\'\"]', init_content, re.MULTILINE
-    ).group(1)
+    author = __author__
 
     setup(
         name='variant-extractor',
