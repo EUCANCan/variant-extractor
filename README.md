@@ -63,7 +63,7 @@ The `VariantExtractor` constructor returns a generator of `VariantRecord` instan
 | ------------------ | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
 | `contig`           | `str`                                                   | Contig name                                                                                                   |
 | `pos`              | `int`                                                   | Position on the contig                                                                                        |
-| `end`              | `int`                                                   | End position of the variant in the contig (same as `pos` for TRN and SNV)                                     |
+| `end`              | `int`                                                   | End position of the variant in the contig (same as `pos` for TRA and SNV)                                     |
 | `length`           | `int`                                                   | Length of the variant                                                                                         |
 | `id`               | `Optional[str]`                                         | Record identifier                                                                                             |
 | `ref`              | `str`                                                   | Reference sequence                                                                                            |
@@ -89,7 +89,7 @@ The `VariantType` enum describes the type of the variant. For structural variant
 | A    | ]1:20]A or \<DUP\>                       | DUP          | Duplication                                                          |
 | A    | A]1:20] or [1:20[A                       | INV          | Inversion. **[\<INV\> is a special case](#the-special-case-of-inv)** |
 | A    | \<CNV\>                                  | CNV          | Copy number variation                                                |
-| A    | A]X:20] or A[X:20[ or ]X:20]A or [X:20[A | TRN          | Translocation                                                        |
+| A    | A]X:20] or A[X:20[ or ]X:20]A or [X:20[A | TRA          | Translocation                                                        |
 | A    | A. or .A                                 | SGL          | Single breakend                                                      |
 
 ### BreakendSVRecord
@@ -221,7 +221,7 @@ are returned as one entry per variant:
 
 | CHROM | POS  | ID        | REF | ALT       | FILTER | INFO       | [`VariantType`](#varianttype) |
 | ----- | ---- | --------- | --- | --------- | ------ | ---------- | ----------------------------- |
-| 2     | 3000 | event_1_o | T   | ]3:5000]T | PASS   | SVTYPE=BND | TRN                           |
+| 2     | 3000 | event_1_o | T   | ]3:5000]T | PASS   | SVTYPE=BND | TRA                           |
 | 1     | 3000 | event_2_o | A   | A[1:5000[ | PASS   | SVTYPE=BND | DEL                           |
 
 
@@ -237,7 +237,7 @@ are returned as their inferred breakend pair with the lowest chromosome and/or p
 
 | CHROM | POS  | ID        | REF | ALT       | FILTER | INFO       | [`VariantType`](#varianttype) |
 | ----- | ---- | --------- | --- | --------- | ------ | ---------- | ----------------------------- |
-| 2     | 3000 | event_1_h | N   | ]3:5000]N | PASS   | SVTYPE=BND | TRN                           |
+| 2     | 3000 | event_1_h | N   | ]3:5000]N | PASS   | SVTYPE=BND | TRA                           |
 | 1     | 3000 | event_2_h | A   | A[1:5000[ | PASS   | SVTYPE=BND | DEL                           |
 
 Note that the `N` will be replaced with the correct nucleotide if `fasta_ref` is provided to VariantExtractor. The following equivalencies are applied:
@@ -262,7 +262,7 @@ are paired and the entry with the lowest chromosome and/or position is returned:
 
 | CHROM | POS  | ID        | REF | ALT       | FILTER | INFO                            | [`VariantType`](#varianttype) |
 | ----- | ---- | --------- | --- | --------- | ------ | ------------------------------- | ----------------------------- |
-| 2     | 3010 | event_1_o | T   | T[3:5000[ | PASS   | SVTYPE=BND;CIPOS=0,50;PARID=a_h | TRN                           |
+| 2     | 3010 | event_1_o | T   | T[3:5000[ | PASS   | SVTYPE=BND;CIPOS=0,50;PARID=a_h | TRA                           |
 
 
 #### Single breakends
