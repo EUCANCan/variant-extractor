@@ -1,21 +1,22 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>variant_extractor.VariantExtractor &mdash; variant-extractor 4.0.0 documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <title>variant_extractor.VariantExtractor &mdash; variant-extractor 4.0.7 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=f88d6929"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -33,7 +34,7 @@
             variant-extractor
           </a>
               <div class="version">
-                4.0.0
+                4.0.7
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -46,7 +47,7 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../variant_extractor.html">variant_extractor API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">CHANGELOG</a></li>
 </ul>
 
         </div>
@@ -77,7 +78,6 @@
 <span></span><span class="c1"># Copyright 2022 - Barcelona Supercomputing Center</span>
 <span class="c1"># Author: Rodrigo Martin</span>
 <span class="c1"># MIT License</span>
-<span class="kn">from</span> <span class="nn">types</span> <span class="kn">import</span> <span class="n">SimpleNamespace</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">import</span> <span class="nn">pysam</span>
@@ -90,22 +90,45 @@
 
 <span class="n">DATAFRAME_COLUMNS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;start_chrom&#39;</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">,</span> <span class="s1">&#39;end_chrom&#39;</span><span class="p">,</span> <span class="s1">&#39;end&#39;</span><span class="p">,</span> <span class="s1">&#39;ref&#39;</span><span class="p">,</span>
                      <span class="s1">&#39;alt&#39;</span><span class="p">,</span> <span class="s1">&#39;length&#39;</span><span class="p">,</span> <span class="s1">&#39;brackets&#39;</span><span class="p">,</span> <span class="s1">&#39;type_inferred&#39;</span><span class="p">,</span> <span class="s1">&#39;variant_record_obj&#39;</span><span class="p">]</span>
+<span class="n">DATAFRAME_DTYPES</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;start_chrom&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="s1">&#39;uint64&#39;</span><span class="p">,</span> <span class="s1">&#39;end_chrom&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="s1">&#39;uint64&#39;</span><span class="p">,</span> <span class="s1">&#39;ref&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;alt&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;length&#39;</span><span class="p">:</span> <span class="s1">&#39;uint64&#39;</span><span class="p">,</span> <span class="s1">&#39;brackets&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;type_inferred&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;variant_record_obj&#39;</span><span class="p">:</span> <span class="nb">object</span><span class="p">}</span>
+
+<span class="k">def</span> <span class="nf">_use_lowest_type</span><span class="p">(</span><span class="n">series</span><span class="p">):</span>
+    <span class="n">series_max</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">series_max</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="o">**</span> <span class="mi">8</span><span class="p">:</span>
+        <span class="n">series</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;uint8&#39;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">series_max</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="o">**</span> <span class="mi">16</span><span class="p">:</span>
+        <span class="n">series</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;uint16&#39;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">series_max</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="o">**</span> <span class="mi">32</span><span class="p">:</span>
+        <span class="n">series</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;uint32&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">series</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;uint64&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">series</span>
 
 
-<div class="viewcode-block" id="VariantExtractor"><a class="viewcode-back" href="../../variant_extractor.html#variant_extractor.VariantExtractor">[docs]</a><span class="k">class</span> <span class="nc">VariantExtractor</span><span class="p">:</span>
+<div class="viewcode-block" id="VariantExtractor">
+<a class="viewcode-back" href="../../variant_extractor.html#variant_extractor.VariantExtractor">[docs]</a>
+<span class="k">class</span> <span class="nc">VariantExtractor</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Reads and extracts variants from VCF files. This class is designed to be</span>
 <span class="sd">    used in a pipeline, where the variants are ingested from VCF files and then used in downstream analysis.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="VariantExtractor.empty_dataframe"><a class="viewcode-back" href="../../variant_extractor.html#variant_extractor.VariantExtractor.empty_dataframe">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="VariantExtractor.empty_dataframe">
+<a class="viewcode-back" href="../../variant_extractor.html#variant_extractor.VariantExtractor.empty_dataframe">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">empty_dataframe</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns an empty pandas DataFrame with the columns used by this class.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">DATAFRAME_COLUMNS</span><span class="p">)</span></div>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">DATAFRAME_COLUMNS</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">DATAFRAME_DTYPES</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">df</span></div>
 
-<div class="viewcode-block" id="VariantExtractor.__init__"><a class="viewcode-back" href="../../variant_extractor.html#variant_extractor.VariantExtractor.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vcf_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">pass_only</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ensure_pairs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fasta_ref</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="VariantExtractor.__init__">
+<a class="viewcode-back" href="../../variant_extractor.html#variant_extractor.VariantExtractor.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vcf_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">pass_only</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ensure_pairs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fasta_ref</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -132,10 +155,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">__variant_file</span> <span class="o">=</span> <span class="n">pysam</span><span class="o">.</span><span class="n">VariantFile</span><span class="p">(</span><span class="n">vcf_handle</span><span class="p">)</span>
         <span class="n">pysam</span><span class="o">.</span><span class="n">set_verbosity</span><span class="p">(</span><span class="n">save</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="VariantExtractor.close"><a class="viewcode-back" href="../../variant_extractor.html#variant_extractor.VariantExtractor.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="VariantExtractor.close">
+<a class="viewcode-back" href="../../variant_extractor.html#variant_extractor.VariantExtractor.close">[docs]</a>
+    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Closes the VCF file.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__variant_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
 
     <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># Read the next record from the VCF file</span>
@@ -164,6 +191,8 @@
     <span class="k">def</span> <span class="nf">__handle_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rec</span><span class="p">:</span> <span class="n">pysam</span><span class="o">.</span><span class="n">VariantRecord</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">VariantRecord</span><span class="p">]:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">rec</span><span class="o">.</span><span class="n">alts</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">rec</span><span class="o">.</span><span class="n">ref</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Record does not have a REF field&#39;</span><span class="p">)</span>
         <span class="c1"># Handle multiallelic records</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rec</span><span class="o">.</span><span class="n">alts</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__handle_multiallelic_record</span><span class="p">(</span><span class="n">rec</span><span class="p">)</span>
@@ -203,12 +232,12 @@
                     <span class="n">record_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_vcf_record</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">vcf_record</span><span class="o">.</span><span class="n">ref</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">vcf_record</span><span class="o">.</span><span class="n">alt</span><span class="p">):</span>
             <span class="c1"># Deletion</span>
-            <span class="n">new_vcf_record</span> <span class="o">=</span> <span class="n">vcf_record</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">variant_type</span><span class="o">=</span><span class="n">VariantType</span><span class="o">.</span><span class="n">DEL</span><span class="p">)</span>
-            <span class="n">record_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_vcf_record</span><span class="p">)</span>
+            <span class="n">vcf_record</span><span class="o">.</span><span class="n">variant_type</span><span class="o">=</span><span class="n">VariantType</span><span class="o">.</span><span class="n">DEL</span>
+            <span class="n">record_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vcf_record</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">vcf_record</span><span class="o">.</span><span class="n">ref</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">vcf_record</span><span class="o">.</span><span class="n">alt</span><span class="p">):</span>
             <span class="c1"># Insertion</span>
-            <span class="n">new_vcf_record</span> <span class="o">=</span> <span class="n">vcf_record</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">variant_type</span><span class="o">=</span><span class="n">VariantType</span><span class="o">.</span><span class="n">INS</span><span class="p">)</span>
-            <span class="n">record_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_vcf_record</span><span class="p">)</span>
+            <span class="n">vcf_record</span><span class="o">.</span><span class="n">variant_type</span><span class="o">=</span><span class="n">VariantType</span><span class="o">.</span><span class="n">INS</span>
+            <span class="n">record_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vcf_record</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">record_list</span>
 
     <span class="k">def</span> <span class="nf">__handle_breakend_sv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vcf_record</span><span class="p">:</span> <span class="n">VariantRecord</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">VariantRecord</span><span class="p">]:</span>
@@ -229,8 +258,8 @@
         <span class="n">filters</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">vcf_record_1</span><span class="o">.</span><span class="n">filter</span><span class="p">)</span> <span class="o">|</span> <span class="nb">set</span><span class="p">(</span><span class="n">vcf_record_2</span><span class="o">.</span><span class="n">filter</span><span class="p">)</span>
         <span class="n">filters</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="s1">&#39;PASS&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">filters</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">vcf_record_1</span> <span class="o">=</span> <span class="n">vcf_record_1</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">filters</span><span class="p">))</span>
-            <span class="n">vcf_record_2</span> <span class="o">=</span> <span class="n">vcf_record_2</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">filters</span><span class="p">))</span>
+            <span class="n">vcf_record_1</span><span class="o">.</span><span class="n">filter</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">filters</span><span class="p">)</span>
+            <span class="n">vcf_record_2</span><span class="o">.</span><span class="n">filter</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">filters</span><span class="p">)</span>
         <span class="n">contig_comparison</span> <span class="o">=</span> <span class="n">compare_contigs</span><span class="p">(</span><span class="n">vcf_record_1</span><span class="o">.</span><span class="n">contig</span><span class="p">,</span> <span class="n">vcf_record_2</span><span class="o">.</span><span class="n">contig</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">contig_comparison</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">vcf_record_1</span><span class="o">.</span><span class="n">pos</span> <span class="o">&lt;</span> <span class="n">vcf_record_2</span><span class="o">.</span><span class="n">pos</span><span class="p">:</span>
@@ -264,25 +293,9 @@
             <span class="k">return</span> <span class="p">[</span><span class="n">vcf_record</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">__handle_multiallelic_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rec</span><span class="p">:</span> <span class="n">pysam</span><span class="o">.</span><span class="n">VariantRecord</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">VariantRecord</span><span class="p">]:</span>
-        <span class="k">if</span> <span class="n">rec</span><span class="o">.</span><span class="n">alts</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">[]</span>
         <span class="n">record_list</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">fake_rec</span> <span class="o">=</span> <span class="n">SimpleNamespace</span><span class="p">()</span>
-        <span class="n">fake_rec</span><span class="o">.</span><span class="n">contig</span> <span class="o">=</span> <span class="n">rec</span><span class="o">.</span><span class="n">contig</span>
-        <span class="n">fake_rec</span><span class="o">.</span><span class="n">pos</span> <span class="o">=</span> <span class="n">rec</span><span class="o">.</span><span class="n">pos</span>
-        <span class="n">fake_rec</span><span class="o">.</span><span class="n">stop</span> <span class="o">=</span> <span class="n">rec</span><span class="o">.</span><span class="n">stop</span>
-        <span class="n">fake_rec</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="n">rec</span><span class="o">.</span><span class="n">start</span>
-        <span class="n">fake_rec</span><span class="o">.</span><span class="n">alleles</span> <span class="o">=</span> <span class="n">rec</span><span class="o">.</span><span class="n">alleles</span>
-        <span class="n">fake_rec</span><span class="o">.</span><span class="n">chrom</span> <span class="o">=</span> <span class="n">rec</span><span class="o">.</span><span class="n">chrom</span>
-        <span class="n">fake_rec</span><span class="o">.</span><span class="n">rid</span> <span class="o">=</span> <span class="n">rec</span><span class="o">.</span><span class="n">rid</span>
-        <span class="n">fake_rec</span><span class="o">.</span><span class="n">rlen</span> <span class="o">=</span> <span class="n">rec</span><span class="o">.</span><span class="n">rlen</span>
-        <span class="n">fake_rec</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">rec</span><span class="o">.</span><span class="n">id</span>
-        <span class="n">fake_rec</span><span class="o">.</span><span class="n">ref</span> <span class="o">=</span> <span class="n">rec</span><span class="o">.</span><span class="n">ref</span>
-        <span class="n">fake_rec</span><span class="o">.</span><span class="n">alts</span> <span class="o">=</span> <span class="n">rec</span><span class="o">.</span><span class="n">alts</span>
-        <span class="n">fake_rec</span><span class="o">.</span><span class="n">qual</span> <span class="o">=</span> <span class="n">rec</span><span class="o">.</span><span class="n">qual</span>
-        <span class="n">fake_rec</span><span class="o">.</span><span class="n">filter</span> <span class="o">=</span> <span class="n">rec</span><span class="o">.</span><span class="n">filter</span>
-        <span class="n">fake_rec</span><span class="o">.</span><span class="n">info</span> <span class="o">=</span> <span class="n">rec</span><span class="o">.</span><span class="n">info</span>
-        <span class="n">fake_rec</span><span class="o">.</span><span class="n">format</span> <span class="o">=</span> <span class="n">rec</span><span class="o">.</span><span class="n">format</span>
+        <span class="n">fake_rec</span> <span class="o">=</span> <span class="n">rec</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="n">fake_rec</span><span class="o">.</span><span class="n">alts</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">fake_rec</span><span class="o">.</span><span class="n">alts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span>
         <span class="n">alts</span> <span class="o">=</span> <span class="n">fake_rec</span><span class="o">.</span><span class="n">alts</span>
         <span class="n">samples</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">sample_name</span> <span class="ow">in</span> <span class="n">rec</span><span class="o">.</span><span class="n">samples</span><span class="p">:</span>
@@ -294,10 +307,11 @@
         <span class="n">original_id</span> <span class="o">=</span> <span class="n">fake_rec</span><span class="o">.</span><span class="n">id</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">alt</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">alts</span><span class="p">):</span>
             <span class="c1"># WARNING: This overrides the record</span>
-            <span class="n">fake_rec</span><span class="o">.</span><span class="n">alts</span> <span class="o">=</span> <span class="p">[</span><span class="n">alt</span><span class="p">]</span>
+            <span class="n">fake_rec</span><span class="o">.</span><span class="n">alts</span> <span class="o">=</span> <span class="p">(</span><span class="n">alt</span><span class="p">,)</span>
             <span class="k">if</span> <span class="n">original_id</span><span class="p">:</span>
                 <span class="n">new_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">original_id</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span>
                 <span class="n">fake_rec</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">new_id</span>
+            <span class="n">new_records</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__handle_record</span><span class="p">(</span><span class="n">fake_rec</span><span class="p">)</span>
             <span class="n">new_samples</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
             <span class="k">for</span> <span class="n">sample_name</span> <span class="ow">in</span> <span class="n">samples</span><span class="p">:</span>
                 <span class="n">new_samples</span><span class="p">[</span><span class="n">sample_name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
@@ -313,11 +327,14 @@
                             <span class="n">new_samples</span><span class="p">[</span><span class="n">sample_name</span><span class="p">][</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="n">i</span><span class="p">::</span><span class="nb">len</span><span class="p">(</span><span class="n">alts</span><span class="p">)]</span>
                         <span class="k">else</span><span class="p">:</span>
                             <span class="n">new_samples</span><span class="p">[</span><span class="n">sample_name</span><span class="p">][</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
-                <span class="n">fake_rec</span><span class="o">.</span><span class="n">samples</span> <span class="o">=</span> <span class="n">new_samples</span>
-            <span class="n">record_list</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__handle_record</span><span class="p">(</span><span class="n">fake_rec</span><span class="p">)</span> <span class="c1"># type: ignore</span>
+            <span class="k">for</span> <span class="n">new_record</span> <span class="ow">in</span> <span class="n">new_records</span><span class="p">:</span>
+                <span class="n">new_record</span><span class="o">.</span><span class="n">samples</span> <span class="o">=</span> <span class="n">new_samples</span>
+            <span class="n">record_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">new_records</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">record_list</span>
 
-<div class="viewcode-block" id="VariantExtractor.to_dataframe"><a class="viewcode-back" href="../../variant_extractor.html#variant_extractor.VariantExtractor.to_dataframe">[docs]</a>    <span class="k">def</span> <span class="nf">to_dataframe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="VariantExtractor.to_dataframe">
+<a class="viewcode-back" href="../../variant_extractor.html#variant_extractor.VariantExtractor.to_dataframe">[docs]</a>
+    <span class="k">def</span> <span class="nf">to_dataframe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
         <span class="n">variants</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -357,7 +374,15 @@
             <span class="n">variants</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">start_chrom</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end_chrom</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">ref</span><span class="p">,</span> <span class="n">alt</span><span class="p">,</span>
                             <span class="n">length</span><span class="p">,</span> <span class="n">breakends</span><span class="p">,</span> <span class="n">type_inferred</span><span class="p">,</span> <span class="n">variant_record</span><span class="p">])</span>
 
-        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">variants</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">DATAFRAME_COLUMNS</span><span class="p">)</span></div></div>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">variants</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">DATAFRAME_COLUMNS</span><span class="p">)</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">DATAFRAME_DTYPES</span><span class="p">)</span>
+        <span class="c1"># Reduce memory usage by using the smallest possible data type for start, end and length</span>
+        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_use_lowest_type</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">])</span>
+        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_use_lowest_type</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">])</span>
+        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;length&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_use_lowest_type</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;length&#39;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">df</span></div>
+</div>
+
 </pre></div>
 
            </div>
@@ -367,7 +392,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Rapsssito.</p>
+    <p>&#169; Copyright 2024, Rapsssito.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
