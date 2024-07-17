@@ -1,6 +1,9 @@
 name: Semantic Release
 
-on: workflow_dispatch
+on:
+  push:
+    branches:
+      - main
 
 jobs:
   release:
@@ -37,3 +40,21 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         tag: ${{ steps.release.outputs.tag }}
+
+  build_docs:
+    needs: release
+    if: needs.release.outputs.released == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - id: deployment
+      uses: sphinx-notes/pages@v3
+      with:
+        publish: false
+        documentation_path: './docs/source'
+        requirements_path: './requeriments_docs.txt'
+    - uses: peaceiris/actions-gh-pages@v4
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ${{ steps.deployment.outputs.artifact }}
