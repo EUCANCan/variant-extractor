@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v4.0.8 (2024-07-17)
+
+### Fix
+
+* fix: Dummy release to generate Zenodo DOI ([`2c890f9`](https://github.com/EUCANCan/variant-extractor/commit/2c890f99f006f74d247262d6cd3e7995e8bb2b16))
+
 ## v4.0.7 (2024-06-28)
 
 ### Fix
