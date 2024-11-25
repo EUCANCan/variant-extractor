@@ -9,7 +9,7 @@ from ..variants import VariantRecord, BreakendSVRecord, ShorthandSVRecord, Varia
 
 # Regex for SVs
 BREAKEND_SV_REGEX = re.compile(r'([.A-Za-z]*)(\[|\])([^\]\[:]+:[0-9]+)(\[|\])([.A-Za-z]*)')
-SHORTHAND_SV_REGEX = re.compile(r'<(DEL|INS|DUP|INV|CNV])(:[A-Za-z]+)*>')
+SHORTHAND_SV_REGEX = re.compile(r'<(DEL|INS|DUP|INV|CNV])(:[A-Za-z0-9]+)*>')
 SGL_SV_REGEX = re.compile(r'\.[.A-Za-z]+|[.A-Za-z]+\.')
 STANDARD_RECORD_REGEX = re.compile(r'([.A-Za-z]+)')
 
