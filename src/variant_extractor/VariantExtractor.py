@@ -12,9 +12,9 @@ from .variants import VariantType
 from .variants import VariantRecord
 
 DATAFRAME_COLUMNS = ['start_chrom', 'start', 'end_chrom', 'end', 'ref',
-                     'alt', 'length', 'brackets', 'type_inferred', 'variant_record_obj']
-DATAFRAME_DTYPES = {'start_chrom': 'category', 'start': 'uint64', 'end_chrom': 'category', 'end': 'uint64', 'ref': 'string',
-                    'alt': 'string', 'length': 'uint64', 'brackets': 'category', 'type_inferred': 'category', 'variant_record_obj': object}
+                     'alt', 'length', 'brackets', 'type_inferred']
+DATAFRAME_DTYPES = {'start_chrom': 'category', 'start': 'uint64', 'end_chrom': 'category', 'end': 'uint64', 'ref': 'category',
+                    'alt': 'category', 'length': 'uint64', 'brackets': 'category', 'type_inferred': 'category'}
 
 def _downcast(series):
     series_max = series.max()
@@ -282,7 +282,7 @@ class VariantExtractor:
                 breakends = prefix + variant_record.alt_sv_breakend.bracket + variant_record.alt_sv_breakend.bracket + suffix
 
             variants.append([start_chrom, start, end_chrom, end, ref, alt,
-                            length, breakends, type_inferred, variant_record])
+                            length, breakends, type_inferred])
 
         df = pd.DataFrame(variants, columns=DATAFRAME_COLUMNS)
         df = df.astype(DATAFRAME_DTYPES)
