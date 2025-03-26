@@ -1,6 +1,20 @@
 # CHANGELOG
 
 
+## v5.0.0 (2025-03-26)
+
+### Bug Fixes
+
+- Remove variant_record from to_dataframe()
+  ([`015f823`](https://github.com/EUCANCan/variant-extractor/commit/015f823f4960a9e6af9fa6c34dcbcf4dec125d93))
+
+BREAKING CHANGE: variant_record is no longer returned from to_dataframe() to reduce memory footprint
+
+### Breaking Changes
+
+- Variant_record is no longer returned from to_dataframe() to reduce memory footprint
+
+
 ## v4.0.10 (2025-03-26)
 
 ### Bug Fixes
