@@ -18,6 +18,9 @@ classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Operating System :: OS Independent"
 ]
+dependencies = [
+    "pysam>=0.22.1"
+]
 
 [project.urls]
 homepage = "https://github.com/EUCANCan/variant-extractor"
