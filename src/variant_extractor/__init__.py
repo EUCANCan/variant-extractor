@@ -3,5 +3,5 @@
 # MIT License
 from .VariantExtractor import VariantExtractor
 
-__version__ = '4.0.8'
+__version__ = '4.0.9'
 __author__ = 'Rapsssito'
