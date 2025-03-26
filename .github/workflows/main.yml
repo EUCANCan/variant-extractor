@@ -15,21 +15,33 @@ jobs:
     permissions:
       id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
       contents: write
-    outputs:
-      released: ${{ steps.release.outputs.released }}
-      version: ${{ steps.release.outputs.version }}
 
     steps:
     - uses: actions/checkout@master
       with:
         fetch-depth: 0
 
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.9"
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install build
+
     - name: Python Semantic Release
       id: release
-      uses: python-semantic-release/python-semantic-release@v9.8.3
+      uses: python-semantic-release/python-semantic-release@v9.20.0
       with:
+        build: false
         github_token: ${{ secrets.GITHUB_TOKEN }}
-    
+
+    - name: Build package
+      if: steps.release.outputs.released == 'true'
+      run: python -m build
+
     - name: Publish package distributions to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
       # The following line is required to ensure that the package is only published to PyPI when a new version is released.
@@ -38,26 +50,25 @@ jobs:
       if: steps.release.outputs.released == 'true'
 
     - name: Publish package distributions to GitHub Releases
-      uses: python-semantic-release/upload-to-gh-release@v9.8.3
+      uses: python-semantic-release/publish-action@v9.20.0
       if: steps.release.outputs.released == 'true'
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         tag: ${{ steps.release.outputs.tag }}
 
-  build_docs:
-    needs: release
-    if: needs.release.outputs.released == 'true'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-    - id: deployment
+    - name: Set permissions  # Sphinx needs write permissions to perform the checkout
+      run: |
+        sudo chmod -R 777 .
+
+    - id: deployment_docs
       uses: sphinx-notes/pages@v3
       with:
         publish: false
         documentation_path: './docs/source'
-        requirements_path: './requeriments_docs.txt'
+      if: steps.release.outputs.released == 'true'
+  
     - uses: peaceiris/actions-gh-pages@v4
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ${{ steps.deployment.outputs.artifact }}
+        publish_dir: ${{ steps.deployment_docs.outputs.artifact }}
+      if: steps.release.outputs.released == 'true'

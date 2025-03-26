@@ -4,3 +4,4 @@
 from .VariantExtractor import VariantExtractor
 
 __version__ = '4.0.8'
+__author__ = 'Rapsssito'
