@@ -1,6 +1,17 @@
 # CHANGELOG
 
 
+## v4.0.10 (2025-03-26)
+
+### Bug Fixes
+
+- Add pysam missing dependency
+  ([`0660910`](https://github.com/EUCANCan/variant-extractor/commit/0660910e5ca16e2df44d5c8cba4b905430aeabb3))
+
+- Reduce dataframe memory footprint
+  ([`d81bcd9`](https://github.com/EUCANCan/variant-extractor/commit/d81bcd90ee390bbb618f858350fc949ade131a27))
+
+
 ## v4.0.9 (2025-03-26)
 
 ### Bug Fixes
