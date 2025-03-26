@@ -13,10 +13,10 @@ from .variants import VariantRecord
 
 DATAFRAME_COLUMNS = ['start_chrom', 'start', 'end_chrom', 'end', 'ref',
                      'alt', 'length', 'brackets', 'type_inferred', 'variant_record_obj']
-DATAFRAME_DTYPES = {'start_chrom': 'string', 'start': 'uint64', 'end_chrom': 'string', 'end': 'uint64', 'ref': 'string',
-                    'alt': 'string', 'length': 'uint64', 'brackets': 'string', 'type_inferred': 'string', 'variant_record_obj': object}
+DATAFRAME_DTYPES = {'start_chrom': 'category', 'start': 'uint64', 'end_chrom': 'category', 'end': 'uint64', 'ref': 'string',
+                    'alt': 'string', 'length': 'uint64', 'brackets': 'category', 'type_inferred': 'category', 'variant_record_obj': object}
 
-def _use_lowest_type(series):
+def _downcast(series):
     series_max = series.max()
     if series_max < 2 ** 8:
         series = series.astype('uint8')
@@ -285,9 +285,9 @@ class VariantExtractor:
                             length, breakends, type_inferred, variant_record])
 
         df = pd.DataFrame(variants, columns=DATAFRAME_COLUMNS)
-        df.astype(DATAFRAME_DTYPES)
+        df = df.astype(DATAFRAME_DTYPES)
         # Reduce memory usage by using the smallest possible data type for start, end and length
-        df['start'] = _use_lowest_type(df['start'])
-        df['end'] = _use_lowest_type(df['end'])
-        df['length'] = _use_lowest_type(df['length'])
+        df['start'] = _downcast(df['start'])
+        df['end'] = _downcast(df['end'])
+        df['length'] = _downcast(df['length'])
         return df
