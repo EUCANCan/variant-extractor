@@ -257,6 +257,11 @@ class VariantExtractor:
         - length: length of the variant (0 for insertions)
         - brackets: breakend brackets for breakend SVs (or equivalent for indels or shorthand SVs)
         - type_inferred: inferred type of the variant (see VariantType)
+        Beware of the types of the columns, as they are optimized for memory usage. Use :code:`df.dtypes` to check the types of the columns.
+        For example, 'start' and 'end' are unsigned integers (of the minimum size possible!), so you must take this into account when performing
+        operations with these columns. If you want to calculate the distance between two variants, you should first convert the columns to a larger
+        (signed) integer type to avoid overflow issues.
+
         The DataFrame can be extended with extra fields from the VariantRecord
         by passing their names in the extra_fields parameter. For example, passing 'id' will add the id field to the DataFrame.
         If :code:`variant_record_obj` is passed in extra_fields, the original VariantRecord object will be added to the DataFrame in a column named 'variant_record_obj'.
