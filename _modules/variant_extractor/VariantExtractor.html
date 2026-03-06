@@ -5,16 +5,16 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>variant_extractor.VariantExtractor &mdash; variant-extractor 4.0.10 documentation</title>
+  <title>variant_extractor.VariantExtractor &mdash; variant-extractor 5.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
 
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=b8a5ba81"></script>
-      <script src="../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/documentation_options.js?v=ce74c6a2"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -108,18 +108,6 @@
 <span class="sd">    Reads and extracts variants from VCF files. This class is designed to be</span>
 <span class="sd">    used in a pipeline, where the variants are ingested from VCF files and then used in downstream analysis.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
-<div class="viewcode-block" id="VariantExtractor.empty_dataframe">
-<a class="viewcode-back" href="../../variant_extractor.html#variant_extractor.VariantExtractor.empty_dataframe">[docs]</a>
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">empty_dataframe</span><span class="p">():</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns an empty pandas DataFrame with the columns used by this class.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">DATAFRAME_COLUMNS</span><span class="p">)</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">DATAFRAME_DTYPES</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">df</span></div>
-
 
 <div class="viewcode-block" id="VariantExtractor.__init__">
 <a class="viewcode-back" href="../../variant_extractor.html#variant_extractor.VariantExtractor.__init__">[docs]</a>
@@ -327,9 +315,37 @@
             <span class="n">record_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">new_records</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">record_list</span>
 
+<div class="viewcode-block" id="VariantExtractor.empty_dataframe">
+<a class="viewcode-back" href="../../variant_extractor.html#variant_extractor.VariantExtractor.empty_dataframe">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">empty_dataframe</span><span class="p">(</span><span class="n">extra_fields</span><span class="o">=</span><span class="p">[]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns an empty pandas DataFrame with the columns used by this class.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">DATAFRAME_COLUMNS</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">DATAFRAME_DTYPES</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">extra_fields</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">df</span></div>
+
+
 <div class="viewcode-block" id="VariantExtractor.to_dataframe">
 <a class="viewcode-back" href="../../variant_extractor.html#variant_extractor.VariantExtractor.to_dataframe">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">to_dataframe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_dataframe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extra_fields</span><span class="o">=</span><span class="p">[]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a pandas DataFrame with the variants extracted from the VCF file. The columns are:</span>
+<span class="sd">        - start_chrom: chromosome of the start position</span>
+<span class="sd">        - start: start position of the variant</span>
+<span class="sd">        - end_chrom: chromosome of the end position</span>
+<span class="sd">        - end: end position of the variant</span>
+<span class="sd">        - ref: reference allele</span>
+<span class="sd">        - alt: alternative allele</span>
+<span class="sd">        - length: length of the variant (0 for insertions)</span>
+<span class="sd">        - brackets: breakend brackets for breakend SVs (or equivalent for indels or shorthand SVs)</span>
+<span class="sd">        - type_inferred: inferred type of the variant (see VariantType)</span>
+<span class="sd">        The DataFrame can be extended with extra fields from the VariantRecord</span>
+<span class="sd">        by passing their names in the extra_fields parameter. For example, passing &#39;id&#39; will add the id field to the DataFrame.</span>
+<span class="sd">        If :code:`variant_record_obj` is passed in extra_fields, the original VariantRecord object will be added to the DataFrame in a column named &#39;variant_record_obj&#39;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
         <span class="n">variants</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -365,12 +381,21 @@
                 <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;N&#39;</span> <span class="k">if</span> <span class="n">variant_record</span><span class="o">.</span><span class="n">alt_sv_breakend</span><span class="o">.</span><span class="n">prefix</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
                 <span class="n">suffix</span> <span class="o">=</span> <span class="s1">&#39;N&#39;</span> <span class="k">if</span> <span class="n">variant_record</span><span class="o">.</span><span class="n">alt_sv_breakend</span><span class="o">.</span><span class="n">suffix</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
                 <span class="n">breakends</span> <span class="o">=</span> <span class="n">prefix</span> <span class="o">+</span> <span class="n">variant_record</span><span class="o">.</span><span class="n">alt_sv_breakend</span><span class="o">.</span><span class="n">bracket</span> <span class="o">+</span> <span class="n">variant_record</span><span class="o">.</span><span class="n">alt_sv_breakend</span><span class="o">.</span><span class="n">bracket</span> <span class="o">+</span> <span class="n">suffix</span>
-
+            
+            <span class="n">extra_values</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">extra_fields</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">field</span> <span class="o">==</span> <span class="s1">&#39;variant_record_obj&#39;</span><span class="p">:</span>
+                    <span class="n">extra_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">variant_record</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">variant_record</span><span class="p">,</span> <span class="n">field</span><span class="p">):</span>
+                    <span class="n">extra_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">variant_record</span><span class="p">,</span> <span class="n">field</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">extra_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
             <span class="n">variants</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">start_chrom</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end_chrom</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">ref</span><span class="p">,</span> <span class="n">alt</span><span class="p">,</span>
-                            <span class="n">length</span><span class="p">,</span> <span class="n">breakends</span><span class="p">,</span> <span class="n">type_inferred</span><span class="p">])</span>
+                            <span class="n">length</span><span class="p">,</span> <span class="n">breakends</span><span class="p">,</span> <span class="n">type_inferred</span><span class="p">]</span> <span class="o">+</span> <span class="n">extra_values</span><span class="p">)</span>
 
-        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">variants</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">DATAFRAME_COLUMNS</span><span class="p">)</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">DATAFRAME_DTYPES</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">variants</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">DATAFRAME_COLUMNS</span> <span class="o">+</span> <span class="n">extra_fields</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">DATAFRAME_COLUMNS</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">DATAFRAME_DTYPES</span><span class="p">[</span><span class="n">col</span><span class="p">])</span>
         <span class="c1"># Reduce memory usage by using the smallest possible data type for start, end and length</span>
         <span class="n">df</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_downcast</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">])</span>
         <span class="n">df</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_downcast</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">])</span>
