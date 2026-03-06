@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v5.1.0 (2026-03-06)
+
+### Features
+
+- Add extra_fields to to_daframe
+  ([`3f80062`](https://github.com/EUCANCan/variant-extractor/commit/3f80062fc415eb19581648962605b670019d8a0c))
+
+
 ## v5.0.0 (2025-03-26)
 
 ### Bug Fixes
