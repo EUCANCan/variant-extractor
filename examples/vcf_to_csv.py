@@ -26,9 +26,7 @@ if __name__ == '__main__':
 
     print(f'Reading VCF file: {args.vcf_file}')
     extractor = VariantExtractor(args.vcf_file, fasta_ref=args.fasta_ref)
-    df = extractor.to_dataframe()
-    # Insert id column in the first position
-    df.insert(0, 'id', '')
-    df['id'] = df['variant_record_obj'].apply(lambda x: x.id)
-    df.drop(['variant_record_obj'], axis=1, inplace=True)
+    df = extractor.to_dataframe(extra_fields=['id'])
+    # Set id column in the first position
+    df = df[['id'] + [col for col in df.columns if col != 'id']]
     df.to_csv(f'{args.output_file}', index=False)

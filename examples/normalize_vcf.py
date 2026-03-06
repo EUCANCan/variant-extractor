@@ -26,7 +26,6 @@ if __name__ == '__main__':
     import sys
     sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)) + '/../src/')
     from variant_extractor import VariantExtractor
-    from variant_extractor.variants import VariantType
 
     # Parse arguments
     parser = ArgumentParser(description='Generate normalized VCF file from a VCF file')

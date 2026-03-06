@@ -35,15 +35,6 @@ class VariantExtractor:
     used in a pipeline, where the variants are ingested from VCF files and then used in downstream analysis.
     """
 
-    @staticmethod
-    def empty_dataframe():
-        """Returns an empty pandas DataFrame with the columns used by this class.
-        """
-        import pandas as pd
-        df = pd.DataFrame(columns=DATAFRAME_COLUMNS)
-        df = df.astype(DATAFRAME_DTYPES)
-        return df
-
     def __init__(self, vcf_file: str, pass_only=False, ensure_pairs=True, fasta_ref: Optional[str] = None):
         """
         Parameters
@@ -244,7 +235,32 @@ class VariantExtractor:
             record_list.extend(new_records)
         return record_list
 
-    def to_dataframe(self):
+    @staticmethod
+    def empty_dataframe(extra_fields=[]):
+        """Returns an empty pandas DataFrame with the columns used by this class.
+        """
+        import pandas as pd
+        df = pd.DataFrame(columns=DATAFRAME_COLUMNS)
+        df = df.astype(DATAFRAME_DTYPES)
+        for field in extra_fields:
+            df[field] = None
+        return df
+
+    def to_dataframe(self, extra_fields=[]):
+        """Returns a pandas DataFrame with the variants extracted from the VCF file. The columns are:
+        - start_chrom: chromosome of the start position
+        - start: start position of the variant
+        - end_chrom: chromosome of the end position
+        - end: end position of the variant
+        - ref: reference allele
+        - alt: alternative allele
+        - length: length of the variant (0 for insertions)
+        - brackets: breakend brackets for breakend SVs (or equivalent for indels or shorthand SVs)
+        - type_inferred: inferred type of the variant (see VariantType)
+        The DataFrame can be extended with extra fields from the VariantRecord
+        by passing their names in the extra_fields parameter. For example, passing 'id' will add the id field to the DataFrame.
+        If :code:`variant_record_obj` is passed in extra_fields, the original VariantRecord object will be added to the DataFrame in a column named 'variant_record_obj'.
+        """
         import pandas as pd
         variants = []
 
@@ -280,12 +296,21 @@ class VariantExtractor:
                 prefix = 'N' if variant_record.alt_sv_breakend.prefix else ''
                 suffix = 'N' if variant_record.alt_sv_breakend.suffix else ''
                 breakends = prefix + variant_record.alt_sv_breakend.bracket + variant_record.alt_sv_breakend.bracket + suffix
-
+            
+            extra_values = []
+            for field in extra_fields:
+                if field == 'variant_record_obj':
+                    extra_values.append(variant_record)
+                elif hasattr(variant_record, field):
+                    extra_values.append(getattr(variant_record, field))
+                else:
+                    extra_values.append(None)
             variants.append([start_chrom, start, end_chrom, end, ref, alt,
-                            length, breakends, type_inferred])
+                            length, breakends, type_inferred] + extra_values)
 
-        df = pd.DataFrame(variants, columns=DATAFRAME_COLUMNS)
-        df = df.astype(DATAFRAME_DTYPES)
+        df = pd.DataFrame(variants, columns=DATAFRAME_COLUMNS + extra_fields)
+        for col in DATAFRAME_COLUMNS:
+            df[col] = df[col].astype(DATAFRAME_DTYPES[col])
         # Reduce memory usage by using the smallest possible data type for start, end and length
         df['start'] = _downcast(df['start'])
         df['end'] = _downcast(df['end'])
