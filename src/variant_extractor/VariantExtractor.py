@@ -248,6 +248,7 @@ class VariantExtractor:
 
     def to_dataframe(self, extra_fields=[]):
         """Returns a pandas DataFrame with the variants extracted from the VCF file. The columns are:
+
         - start_chrom: chromosome of the start position
         - start: start position of the variant
         - end_chrom: chromosome of the end position
@@ -257,6 +258,7 @@ class VariantExtractor:
         - length: length of the variant (0 for insertions)
         - brackets: breakend brackets for breakend SVs (or equivalent for indels or shorthand SVs)
         - type_inferred: inferred type of the variant (see VariantType)
+
         Beware of the types of the columns, as they are optimized for memory usage. Use :code:`df.dtypes` to check the types of the columns.
         For example, 'start' and 'end' are unsigned integers (of the minimum size possible!), so you must take this into account when performing
         operations with these columns. If you want to calculate the distance between two variants, you should first convert the columns to a larger
