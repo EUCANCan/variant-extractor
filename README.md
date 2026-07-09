@@ -79,7 +79,7 @@ The `VariantExtractor` constructor returns a generator of `VariantRecord` instan
 | `format`           | `List[str]`                                             | Specifies data types and order of the genotype information                                                    |
 | `samples`          | `Dict[str, Dict[str, Any]]`                             | Genotype information for each sample                                                                          |
 | `variant_type`     | [`VariantType`](#varianttype)                           | Variant type inferred                                                                                         |
-| `alt_sv_breakend`  | `Optional[`[`BreakendSVRecord`](#brekendsvrecord)`]`    | Breakend SV info, present only for SVs with breakend notation. For example, `G]17:198982]`                    |
+| `alt_sv_breakend`  | `Optional[`[`BreakendSVRecord`](#breakendsvrecord)`]`    | Breakend SV info, present only for SVs with breakend notation. For example, `G]17:198982]`                    |
 | `alt_sv_shorthand` | `Optional[`[`ShorthandSVRecord`](#shorthandsvrecord)`]` | Shorthand SV info, present only for SVs with shorthand notation. For example, `<DUP:TANDEM>`                  |
 
 ### VariantType
