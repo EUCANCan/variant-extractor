@@ -111,6 +111,8 @@ class VariantRecord():
     """Length of the variant"""
     id: Optional[str]
     """Record identifier"""
+    ids: List[str]
+    """Identifiers of the original VCF records represented by this variant"""
     ref: str
     """Reference sequence"""
     alt: str
@@ -130,13 +132,15 @@ class VariantRecord():
                  length: int, id: Optional[str], ref: str,
                  alt: str, variant_type: VariantType,
                  alt_sv_breakend: Optional[BreakendSVRecord] = None,
-                 alt_sv_shorthand: Optional[ShorthandSVRecord] = None):
+                 alt_sv_shorthand: Optional[ShorthandSVRecord] = None,
+                 ids: Optional[List[str]] = None):
         self._rec = rec
         self.contig = contig
         self.pos = pos
         self.end = end
         self.length = length
         self.id = id
+        self.ids = ids if ids is not None else ([id] if id is not None else [])
         self.ref = ref
         self.alt = alt
         self.qual = rec.qual
@@ -186,7 +190,7 @@ class VariantRecord():
         new_record = VariantRecord(self._rec, self.contig, self.pos, self.end,
                                    self.length, self.id, self.ref, self.alt,
                                    self.variant_type, self.alt_sv_breakend,
-                                   self.alt_sv_shorthand)
+                                   self.alt_sv_shorthand, self.ids)
         for key, value in kwargs.items():
             setattr(new_record, key, value)
         return new_record

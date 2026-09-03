@@ -71,6 +71,7 @@ The `VariantExtractor` constructor returns a generator of `VariantRecord` instan
 | `end`              | `int`                                                   | End position of the variant in the contig (same as `pos` for TRA and SNV)                                     |
 | `length`           | `int`                                                   | Length of the variant                                                                                         |
 | `id`               | `Optional[str]`                                         | Record identifier                                                                                             |
+| `ids`              | `List[str]`                                             | Identifiers of all VCF records represented by this variant                                                    |
 | `ref`              | `str`                                                   | Reference sequence                                                                                            |
 | `alt`              | `str`                                                   | Alternative sequence                                                                                          |
 | `qual`             | `Optional[float]`                                       | Quality score for the assertion made in ALT                                                                   |
