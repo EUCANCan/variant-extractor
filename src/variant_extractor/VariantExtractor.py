@@ -164,15 +164,21 @@ class VariantExtractor:
             vcf_record_1.filter = list(filters)
             vcf_record_2.filter = list(filters)
         contig_comparison = compare_contigs(vcf_record_1.contig, vcf_record_2.contig)
+
         if contig_comparison == 0:
             if vcf_record_1.pos < vcf_record_2.pos:
-                return self.__handle_breakend_individual_sv(vcf_record_1)
+                vcf_record = vcf_record_1
             else:
-                return self.__handle_breakend_individual_sv(vcf_record_2)
+                vcf_record = vcf_record_2
         elif contig_comparison == -1:
-            return self.__handle_breakend_individual_sv(vcf_record_1)
+            vcf_record = vcf_record_1
         else:
-            return self.__handle_breakend_individual_sv(vcf_record_2)
+            vcf_record = vcf_record_2
+
+        # Keep the IDs of both VCF records represented by the paired BND.
+        vcf_record.ids = sorted(vcf_record_1.ids + vcf_record_2.ids)
+
+        return self.__handle_breakend_individual_sv(vcf_record)
 
     def __handle_breakend_individual_sv(self, vcf_record: VariantRecord) -> List[VariantRecord]:
         assert vcf_record.alt_sv_breakend is not None
