@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>variant_extractor.VariantExtractor &mdash; variant-extractor 5.0.0 documentation</title>
+  <title>variant_extractor.VariantExtractor &mdash; variant-extractor 5.1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
 
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=ce74c6a2"></script>
+      <script src="../../_static/documentation_options.js?v=bfa18cfb"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -83,36 +83,36 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">.variants</span><span class="w"> </span><span class="kn">import</span> <span class="n">VariantType</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.variants</span><span class="w"> </span><span class="kn">import</span> <span class="n">VariantRecord</span>
 
-<span class="n">DATAFRAME_COLUMNS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;start_chrom&#39;</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">,</span> <span class="s1">&#39;end_chrom&#39;</span><span class="p">,</span> <span class="s1">&#39;end&#39;</span><span class="p">,</span> <span class="s1">&#39;ref&#39;</span><span class="p">,</span>
-                     <span class="s1">&#39;alt&#39;</span><span class="p">,</span> <span class="s1">&#39;length&#39;</span><span class="p">,</span> <span class="s1">&#39;brackets&#39;</span><span class="p">,</span> <span class="s1">&#39;type_inferred&#39;</span><span class="p">]</span>
-<span class="n">DATAFRAME_DTYPES</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;start_chrom&#39;</span><span class="p">:</span> <span class="s1">&#39;category&#39;</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="s1">&#39;uint64&#39;</span><span class="p">,</span> <span class="s1">&#39;end_chrom&#39;</span><span class="p">:</span> <span class="s1">&#39;category&#39;</span><span class="p">,</span> <span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="s1">&#39;uint64&#39;</span><span class="p">,</span> <span class="s1">&#39;ref&#39;</span><span class="p">:</span> <span class="s1">&#39;category&#39;</span><span class="p">,</span>
-                    <span class="s1">&#39;alt&#39;</span><span class="p">:</span> <span class="s1">&#39;category&#39;</span><span class="p">,</span> <span class="s1">&#39;length&#39;</span><span class="p">:</span> <span class="s1">&#39;uint64&#39;</span><span class="p">,</span> <span class="s1">&#39;brackets&#39;</span><span class="p">:</span> <span class="s1">&#39;category&#39;</span><span class="p">,</span> <span class="s1">&#39;type_inferred&#39;</span><span class="p">:</span> <span class="s1">&#39;category&#39;</span><span class="p">}</span>
+<span class="n">DATAFRAME_COLUMNS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'start_chrom'</span><span class="p">,</span> <span class="s1">'start'</span><span class="p">,</span> <span class="s1">'end_chrom'</span><span class="p">,</span> <span class="s1">'end'</span><span class="p">,</span> <span class="s1">'ref'</span><span class="p">,</span>
+                     <span class="s1">'alt'</span><span class="p">,</span> <span class="s1">'length'</span><span class="p">,</span> <span class="s1">'brackets'</span><span class="p">,</span> <span class="s1">'type_inferred'</span><span class="p">]</span>
+<span class="n">DATAFRAME_DTYPES</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'start_chrom'</span><span class="p">:</span> <span class="s1">'category'</span><span class="p">,</span> <span class="s1">'start'</span><span class="p">:</span> <span class="s1">'uint64'</span><span class="p">,</span> <span class="s1">'end_chrom'</span><span class="p">:</span> <span class="s1">'category'</span><span class="p">,</span> <span class="s1">'end'</span><span class="p">:</span> <span class="s1">'uint64'</span><span class="p">,</span> <span class="s1">'ref'</span><span class="p">:</span> <span class="s1">'category'</span><span class="p">,</span>
+                    <span class="s1">'alt'</span><span class="p">:</span> <span class="s1">'category'</span><span class="p">,</span> <span class="s1">'length'</span><span class="p">:</span> <span class="s1">'uint64'</span><span class="p">,</span> <span class="s1">'brackets'</span><span class="p">:</span> <span class="s1">'category'</span><span class="p">,</span> <span class="s1">'type_inferred'</span><span class="p">:</span> <span class="s1">'category'</span><span class="p">}</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_downcast</span><span class="p">(</span><span class="n">series</span><span class="p">):</span>
     <span class="n">series_max</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">series_max</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="o">**</span> <span class="mi">8</span><span class="p">:</span>
-        <span class="n">series</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;uint8&#39;</span><span class="p">)</span>
+        <span class="n">series</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">'uint8'</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">series_max</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="o">**</span> <span class="mi">16</span><span class="p">:</span>
-        <span class="n">series</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;uint16&#39;</span><span class="p">)</span>
+        <span class="n">series</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">'uint16'</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">series_max</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="o">**</span> <span class="mi">32</span><span class="p">:</span>
-        <span class="n">series</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;uint32&#39;</span><span class="p">)</span>
+        <span class="n">series</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">'uint32'</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">series</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;uint64&#39;</span><span class="p">)</span>
+        <span class="n">series</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">'uint64'</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">series</span>
 
 
 <div class="viewcode-block" id="VariantExtractor">
 <a class="viewcode-back" href="../../variant_extractor.html#variant_extractor.VariantExtractor">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">VariantExtractor</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Reads and extracts variants from VCF files. This class is designed to be</span>
 <span class="sd">    used in a pipeline, where the variants are ingested from VCF files and then used in downstream analysis.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="VariantExtractor.__init__">
 <a class="viewcode-back" href="../../variant_extractor.html#variant_extractor.VariantExtractor.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vcf_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">pass_only</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ensure_pairs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fasta_ref</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        vcf_file : str</span>
@@ -123,7 +123,7 @@
 <span class="sd">            If :code:`True`, throws an exception if a breakend is missing a pair when all other were paired successfully.</span>
 <span class="sd">        fasta_ref : str, optional</span>
 <span class="sd">            A FASTA file with the reference genome. Must be indexed.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__ensure_pairs</span> <span class="o">=</span> <span class="n">ensure_pairs</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__pass_only</span> <span class="o">=</span> <span class="n">pass_only</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__pairs_found</span> <span class="o">=</span> <span class="mi">0</span>
@@ -133,7 +133,7 @@
         <span class="k">if</span> <span class="n">fasta_ref</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__fasta_ref</span> <span class="o">=</span> <span class="n">pysam</span><span class="o">.</span><span class="n">FastaFile</span><span class="p">(</span><span class="n">fasta_ref</span><span class="p">)</span>
         <span class="c1"># Open VCF file</span>
-        <span class="n">vcf_handle</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="n">vcf_file</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+        <span class="n">vcf_handle</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="n">vcf_file</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">'r'</span><span class="p">)</span>
         <span class="n">save</span> <span class="o">=</span> <span class="n">pysam</span><span class="o">.</span><span class="n">set_verbosity</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__variant_file</span> <span class="o">=</span> <span class="n">pysam</span><span class="o">.</span><span class="n">VariantFile</span><span class="p">(</span><span class="n">vcf_handle</span><span class="p">)</span>
         <span class="n">pysam</span><span class="o">.</span><span class="n">set_verbosity</span><span class="p">(</span><span class="n">save</span><span class="p">)</span></div>
@@ -142,8 +142,8 @@
 <div class="viewcode-block" id="VariantExtractor.close">
 <a class="viewcode-back" href="../../variant_extractor.html#variant_extractor.VariantExtractor.close">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Closes the VCF file.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Closes the VCF file.</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__variant_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
 
@@ -155,7 +155,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__pass_only</span><span class="p">:</span>
             <span class="n">vcf_records</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__pending_breakends</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
             <span class="k">for</span> <span class="n">vcf_record</span> <span class="ow">in</span> <span class="n">vcf_records</span><span class="p">:</span>
-                <span class="k">if</span> <span class="s1">&#39;PASS&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">vcf_record</span><span class="o">.</span><span class="n">filter</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s1">'PASS'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">vcf_record</span><span class="o">.</span><span class="n">filter</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">__pending_breakends</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">vcf_record</span><span class="p">)</span>
         <span class="c1"># Only single-paired records or not ensuring pairs</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">__ensure_pairs</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">__pairs_found</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -163,19 +163,19 @@
                 <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">__handle_breakend_individual_sv</span><span class="p">(</span><span class="n">vcf_record</span><span class="p">)</span>
         <span class="c1"># Found unpaired records</span>
         <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__pending_breakends</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">exception_text</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+            <span class="n">exception_text</span> <span class="o">=</span> <span class="s1">''</span>
             <span class="k">for</span> <span class="n">vcf_record</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__pending_breakends</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-                <span class="n">exception_text</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="n">vcf_record</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+                <span class="n">exception_text</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="n">vcf_record</span><span class="p">)</span><span class="o">+</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
-                <span class="p">(</span><span class="sa">f</span><span class="s1">&#39;There are </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__pending_breakends</span><span class="p">)</span><span class="si">}</span><span class="s1"> unpaired SV breakends. &#39;</span>
-                 <span class="s1">&#39;Please, check the entires shown below in VCF file. &#39;</span>
-                 <span class="sa">f</span><span class="s1">&#39;Use ensure_pairs=False to ignore unpaired SV breakends.</span><span class="se">\n</span><span class="si">{</span><span class="n">exception_text</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">))</span>
+                <span class="p">(</span><span class="sa">f</span><span class="s1">'There are </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__pending_breakends</span><span class="p">)</span><span class="si">}</span><span class="s1"> unpaired SV breakends. '</span>
+                 <span class="s1">'Please, check the entires shown below in VCF file. '</span>
+                 <span class="sa">f</span><span class="s1">'Use ensure_pairs=False to ignore unpaired SV breakends.</span><span class="se">\n</span><span class="si">{</span><span class="n">exception_text</span><span class="si">}</span><span class="s1">'</span><span class="p">))</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__handle_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rec</span><span class="p">:</span> <span class="n">pysam</span><span class="o">.</span><span class="n">VariantRecord</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">VariantRecord</span><span class="p">]:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">rec</span><span class="o">.</span><span class="n">alts</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">rec</span><span class="o">.</span><span class="n">ref</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Record does not have a REF field&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'Record does not have a REF field'</span><span class="p">)</span>
         <span class="c1"># Handle multiallelic records</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rec</span><span class="o">.</span><span class="n">alts</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__handle_multiallelic_record</span><span class="p">(</span><span class="n">rec</span><span class="p">)</span>
@@ -184,7 +184,7 @@
         <span class="k">if</span> <span class="n">vcf_record</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__handle_breakend_sv</span><span class="p">(</span><span class="n">vcf_record</span><span class="p">)</span>
         <span class="c1"># Check PASS filter</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__pass_only</span> <span class="ow">and</span> <span class="s1">&#39;PASS&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">rec</span><span class="o">.</span><span class="n">filter</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__pass_only</span> <span class="ow">and</span> <span class="s1">'PASS'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">rec</span><span class="o">.</span><span class="n">filter</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[]</span>
         <span class="c1"># Check if shorthand SV record</span>
         <span class="n">vcf_record</span> <span class="o">=</span> <span class="n">parse_shorthand_sv</span><span class="p">(</span><span class="n">rec</span><span class="p">)</span>
@@ -199,7 +199,7 @@
         <span class="k">if</span> <span class="n">vcf_record</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__handle_standard_record</span><span class="p">(</span><span class="n">vcf_record</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Skipping unrecognized record:</span><span class="se">\n</span><span class="si">{</span><span class="n">rec</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Skipping unrecognized record:</span><span class="se">\n</span><span class="si">{</span><span class="n">rec</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
             <span class="k">return</span> <span class="p">[]</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__handle_standard_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vcf_record</span><span class="p">:</span> <span class="n">VariantRecord</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">VariantRecord</span><span class="p">]:</span>
@@ -208,7 +208,7 @@
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">vcf_record</span><span class="o">.</span><span class="n">ref</span><span class="p">)):</span>
                 <span class="c1"># Atomize SNVs</span>
                 <span class="k">if</span> <span class="n">vcf_record</span><span class="o">.</span><span class="n">ref</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">!=</span> <span class="n">vcf_record</span><span class="o">.</span><span class="n">alt</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
-                    <span class="n">variant_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">vcf_record</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vcf_record</span><span class="o">.</span><span class="n">ref</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">vcf_record</span><span class="o">.</span><span class="n">id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> \
+                    <span class="n">variant_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">vcf_record</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">'</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vcf_record</span><span class="o">.</span><span class="n">ref</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">vcf_record</span><span class="o">.</span><span class="n">id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> \
                         <span class="k">else</span> <span class="n">vcf_record</span><span class="o">.</span><span class="n">id</span>
                     <span class="n">new_vcf_record</span> <span class="o">=</span> <span class="n">vcf_record</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span>
                         <span class="n">ref</span><span class="o">=</span><span class="n">vcf_record</span><span class="o">.</span><span class="n">ref</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">pos</span><span class="o">=</span><span class="n">i</span><span class="o">+</span><span class="n">vcf_record</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">i</span><span class="o">+</span><span class="n">vcf_record</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">alt</span><span class="o">=</span><span class="n">vcf_record</span><span class="o">.</span><span class="n">alt</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="nb">id</span><span class="o">=</span><span class="n">variant_id</span><span class="p">,</span> <span class="n">variant_type</span><span class="o">=</span><span class="n">VariantType</span><span class="o">.</span><span class="n">SNV</span><span class="p">)</span>
@@ -235,24 +235,30 @@
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__handle_braked_paired_sv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vcf_record_1</span><span class="p">:</span> <span class="n">VariantRecord</span><span class="p">,</span> <span class="n">vcf_record_2</span><span class="p">:</span> <span class="n">VariantRecord</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">VariantRecord</span><span class="p">]:</span>
         <span class="c1"># Check PASS filter</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__pass_only</span> <span class="ow">and</span> <span class="p">(</span><span class="s1">&#39;PASS&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">vcf_record_1</span><span class="o">.</span><span class="n">filter</span> <span class="ow">or</span> <span class="s1">&#39;PASS&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">vcf_record_2</span><span class="o">.</span><span class="n">filter</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__pass_only</span> <span class="ow">and</span> <span class="p">(</span><span class="s1">'PASS'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">vcf_record_1</span><span class="o">.</span><span class="n">filter</span> <span class="ow">or</span> <span class="s1">'PASS'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">vcf_record_2</span><span class="o">.</span><span class="n">filter</span><span class="p">):</span>
             <span class="k">return</span> <span class="p">[]</span>
         <span class="c1"># Unify filters</span>
         <span class="n">filters</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">vcf_record_1</span><span class="o">.</span><span class="n">filter</span><span class="p">)</span> <span class="o">|</span> <span class="nb">set</span><span class="p">(</span><span class="n">vcf_record_2</span><span class="o">.</span><span class="n">filter</span><span class="p">)</span>
-        <span class="n">filters</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="s1">&#39;PASS&#39;</span><span class="p">)</span>
+        <span class="n">filters</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="s1">'PASS'</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">filters</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">vcf_record_1</span><span class="o">.</span><span class="n">filter</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">filters</span><span class="p">)</span>
             <span class="n">vcf_record_2</span><span class="o">.</span><span class="n">filter</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">filters</span><span class="p">)</span>
         <span class="n">contig_comparison</span> <span class="o">=</span> <span class="n">compare_contigs</span><span class="p">(</span><span class="n">vcf_record_1</span><span class="o">.</span><span class="n">contig</span><span class="p">,</span> <span class="n">vcf_record_2</span><span class="o">.</span><span class="n">contig</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="n">contig_comparison</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">vcf_record_1</span><span class="o">.</span><span class="n">pos</span> <span class="o">&lt;</span> <span class="n">vcf_record_2</span><span class="o">.</span><span class="n">pos</span><span class="p">:</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__handle_breakend_individual_sv</span><span class="p">(</span><span class="n">vcf_record_1</span><span class="p">)</span>
+                <span class="n">vcf_record</span> <span class="o">=</span> <span class="n">vcf_record_1</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__handle_breakend_individual_sv</span><span class="p">(</span><span class="n">vcf_record_2</span><span class="p">)</span>
+                <span class="n">vcf_record</span> <span class="o">=</span> <span class="n">vcf_record_2</span>
         <span class="k">elif</span> <span class="n">contig_comparison</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__handle_breakend_individual_sv</span><span class="p">(</span><span class="n">vcf_record_1</span><span class="p">)</span>
+            <span class="n">vcf_record</span> <span class="o">=</span> <span class="n">vcf_record_1</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__handle_breakend_individual_sv</span><span class="p">(</span><span class="n">vcf_record_2</span><span class="p">)</span>
+            <span class="n">vcf_record</span> <span class="o">=</span> <span class="n">vcf_record_2</span>
+
+        <span class="c1"># Keep the IDs of both VCF records represented by the paired BND.</span>
+        <span class="n">vcf_record</span><span class="o">.</span><span class="n">ids</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">vcf_record_1</span><span class="o">.</span><span class="n">ids</span> <span class="o">+</span> <span class="n">vcf_record_2</span><span class="o">.</span><span class="n">ids</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__handle_breakend_individual_sv</span><span class="p">(</span><span class="n">vcf_record</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__handle_breakend_individual_sv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vcf_record</span><span class="p">:</span> <span class="n">VariantRecord</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">VariantRecord</span><span class="p">]:</span>
         <span class="k">assert</span> <span class="n">vcf_record</span><span class="o">.</span><span class="n">alt_sv_breakend</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
@@ -292,21 +298,21 @@
             <span class="c1"># WARNING: This overrides the record</span>
             <span class="n">fake_rec</span><span class="o">.</span><span class="n">alts</span> <span class="o">=</span> <span class="p">(</span><span class="n">alt</span><span class="p">,)</span>
             <span class="k">if</span> <span class="n">original_id</span><span class="p">:</span>
-                <span class="n">new_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">original_id</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="n">new_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">original_id</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">'</span>
                 <span class="n">fake_rec</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">new_id</span>
             <span class="n">new_records</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__handle_record</span><span class="p">(</span><span class="n">fake_rec</span><span class="p">)</span>
             <span class="n">new_samples</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
             <span class="k">for</span> <span class="n">sample_name</span> <span class="ow">in</span> <span class="n">samples</span><span class="p">:</span>
                 <span class="n">new_samples</span><span class="p">[</span><span class="n">sample_name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
                 <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">samples</span><span class="p">[</span><span class="n">sample_name</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s1">&#39;__iter__&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">__variant_file</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">formats</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">number</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s1">'__iter__'</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">__variant_file</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">formats</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">number</span><span class="p">:</span>
                         <span class="n">new_samples</span><span class="p">[</span><span class="n">sample_name</span><span class="p">][</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;GT&#39;</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">'GT'</span><span class="p">:</span>
                             <span class="n">new_samples</span><span class="p">[</span><span class="n">sample_name</span><span class="p">][</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">samples</span><span class="p">[</span><span class="n">sample_name</span><span class="p">][</span><span class="n">key</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
                         <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">alts</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span>
                             <span class="n">new_samples</span><span class="p">[</span><span class="n">sample_name</span><span class="p">][</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">value</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
-                        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s1">&#39;__iter__&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">alts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s1">'__iter__'</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">alts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                             <span class="n">new_samples</span><span class="p">[</span><span class="n">sample_name</span><span class="p">][</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="n">i</span><span class="p">::</span><span class="nb">len</span><span class="p">(</span><span class="n">alts</span><span class="p">)]</span>
                         <span class="k">else</span><span class="p">:</span>
                             <span class="n">new_samples</span><span class="p">[</span><span class="n">sample_name</span><span class="p">][</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
@@ -319,8 +325,8 @@
 <a class="viewcode-back" href="../../variant_extractor.html#variant_extractor.VariantExtractor.empty_dataframe">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">empty_dataframe</span><span class="p">(</span><span class="n">extra_fields</span><span class="o">=</span><span class="p">[]):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns an empty pandas DataFrame with the columns used by this class.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Returns an empty pandas DataFrame with the columns used by this class.</span>
+<span class="sd">        """</span>
         <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">DATAFRAME_COLUMNS</span><span class="p">)</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">DATAFRAME_DTYPES</span><span class="p">)</span>
@@ -332,7 +338,8 @@
 <div class="viewcode-block" id="VariantExtractor.to_dataframe">
 <a class="viewcode-back" href="../../variant_extractor.html#variant_extractor.VariantExtractor.to_dataframe">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_dataframe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extra_fields</span><span class="o">=</span><span class="p">[]):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a pandas DataFrame with the variants extracted from the VCF file. The columns are:</span>
+<span class="w">        </span><span class="sd">"""Returns a pandas DataFrame with the variants extracted from the VCF file. The columns are:</span>
+
 <span class="sd">        - start_chrom: chromosome of the start position</span>
 <span class="sd">        - start: start position of the variant</span>
 <span class="sd">        - end_chrom: chromosome of the end position</span>
@@ -342,22 +349,28 @@
 <span class="sd">        - length: length of the variant (0 for insertions)</span>
 <span class="sd">        - brackets: breakend brackets for breakend SVs (or equivalent for indels or shorthand SVs)</span>
 <span class="sd">        - type_inferred: inferred type of the variant (see VariantType)</span>
+
+<span class="sd">        Beware of the types of the columns, as they are optimized for memory usage. Use :code:`df.dtypes` to check the types of the columns.</span>
+<span class="sd">        For example, 'start' and 'end' are unsigned integers (of the minimum size possible!), so you must take this into account when performing</span>
+<span class="sd">        operations with these columns. If you want to calculate the distance between two variants, you should first convert the columns to a larger</span>
+<span class="sd">        (signed) integer type to avoid overflow issues.</span>
+
 <span class="sd">        The DataFrame can be extended with extra fields from the VariantRecord</span>
-<span class="sd">        by passing their names in the extra_fields parameter. For example, passing &#39;id&#39; will add the id field to the DataFrame.</span>
-<span class="sd">        If :code:`variant_record_obj` is passed in extra_fields, the original VariantRecord object will be added to the DataFrame in a column named &#39;variant_record_obj&#39;.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        by passing their names in the extra_fields parameter. For example, passing 'id' will add the id field to the DataFrame.</span>
+<span class="sd">        If :code:`variant_record_obj` is passed in extra_fields, the original VariantRecord object will be added to the DataFrame in a column named 'variant_record_obj'.</span>
+<span class="sd">        """</span>
         <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
         <span class="n">variants</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="k">for</span> <span class="n">variant_record</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
-            <span class="n">start_chrom</span> <span class="o">=</span> <span class="n">variant_record</span><span class="o">.</span><span class="n">contig</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;chr&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="n">start_chrom</span> <span class="o">=</span> <span class="n">variant_record</span><span class="o">.</span><span class="n">contig</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'chr'</span><span class="p">,</span> <span class="s1">''</span><span class="p">)</span>
             <span class="n">start</span> <span class="o">=</span> <span class="n">variant_record</span><span class="o">.</span><span class="n">pos</span>
             <span class="n">ref</span> <span class="o">=</span> <span class="n">variant_record</span><span class="o">.</span><span class="n">ref</span>
             <span class="n">alt</span> <span class="o">=</span> <span class="n">variant_record</span><span class="o">.</span><span class="n">alt</span>
             <span class="n">length</span> <span class="o">=</span> <span class="n">variant_record</span><span class="o">.</span><span class="n">length</span>
             <span class="n">end</span> <span class="o">=</span> <span class="n">variant_record</span><span class="o">.</span><span class="n">end</span>
             <span class="k">if</span> <span class="n">variant_record</span><span class="o">.</span><span class="n">alt_sv_breakend</span><span class="p">:</span>
-                <span class="n">end_chrom</span> <span class="o">=</span> <span class="n">variant_record</span><span class="o">.</span><span class="n">alt_sv_breakend</span><span class="o">.</span><span class="n">contig</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;chr&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+                <span class="n">end_chrom</span> <span class="o">=</span> <span class="n">variant_record</span><span class="o">.</span><span class="n">alt_sv_breakend</span><span class="o">.</span><span class="n">contig</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'chr'</span><span class="p">,</span> <span class="s1">''</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">start_chrom</span> <span class="o">!=</span> <span class="n">end_chrom</span><span class="p">:</span>
                     <span class="n">end</span> <span class="o">=</span> <span class="n">variant_record</span><span class="o">.</span><span class="n">alt_sv_breakend</span><span class="o">.</span><span class="n">pos</span>
             <span class="k">else</span><span class="p">:</span>
@@ -366,25 +379,25 @@
             <span class="c1"># Inferred type</span>
             <span class="n">type_inferred</span> <span class="o">=</span> <span class="n">variant_record</span><span class="o">.</span><span class="n">variant_type</span><span class="o">.</span><span class="n">name</span>
             <span class="c1"># breakends</span>
-            <span class="n">breakends</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+            <span class="n">breakends</span> <span class="o">=</span> <span class="s1">''</span>
             <span class="k">if</span> <span class="n">type_inferred</span> <span class="o">==</span> <span class="n">VariantType</span><span class="o">.</span><span class="n">DEL</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
-                <span class="n">breakends</span> <span class="o">=</span> <span class="s1">&#39;N[&#39;</span>
+                <span class="n">breakends</span> <span class="o">=</span> <span class="s1">'N['</span>
             <span class="k">elif</span> <span class="n">type_inferred</span> <span class="o">==</span> <span class="n">VariantType</span><span class="o">.</span><span class="n">DUP</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
-                <span class="n">breakends</span> <span class="o">=</span> <span class="s1">&#39;]N&#39;</span>
+                <span class="n">breakends</span> <span class="o">=</span> <span class="s1">']N'</span>
             <span class="k">elif</span> <span class="n">type_inferred</span> <span class="o">==</span> <span class="n">VariantType</span><span class="o">.</span><span class="n">INV</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
                 <span class="k">assert</span> <span class="n">variant_record</span><span class="o">.</span><span class="n">alt_sv_breakend</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-                <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;N&#39;</span> <span class="k">if</span> <span class="n">variant_record</span><span class="o">.</span><span class="n">alt_sv_breakend</span><span class="o">.</span><span class="n">prefix</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
-                <span class="n">suffix</span> <span class="o">=</span> <span class="s1">&#39;N&#39;</span> <span class="k">if</span> <span class="n">variant_record</span><span class="o">.</span><span class="n">alt_sv_breakend</span><span class="o">.</span><span class="n">suffix</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+                <span class="n">prefix</span> <span class="o">=</span> <span class="s1">'N'</span> <span class="k">if</span> <span class="n">variant_record</span><span class="o">.</span><span class="n">alt_sv_breakend</span><span class="o">.</span><span class="n">prefix</span> <span class="k">else</span> <span class="s1">''</span>
+                <span class="n">suffix</span> <span class="o">=</span> <span class="s1">'N'</span> <span class="k">if</span> <span class="n">variant_record</span><span class="o">.</span><span class="n">alt_sv_breakend</span><span class="o">.</span><span class="n">suffix</span> <span class="k">else</span> <span class="s1">''</span>
                 <span class="n">breakends</span> <span class="o">=</span> <span class="n">prefix</span> <span class="o">+</span> <span class="n">variant_record</span><span class="o">.</span><span class="n">alt_sv_breakend</span><span class="o">.</span><span class="n">bracket</span> <span class="o">+</span> <span class="n">suffix</span>
             <span class="k">elif</span> <span class="n">type_inferred</span> <span class="o">==</span> <span class="n">VariantType</span><span class="o">.</span><span class="n">TRA</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
                 <span class="k">assert</span> <span class="n">variant_record</span><span class="o">.</span><span class="n">alt_sv_breakend</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-                <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;N&#39;</span> <span class="k">if</span> <span class="n">variant_record</span><span class="o">.</span><span class="n">alt_sv_breakend</span><span class="o">.</span><span class="n">prefix</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
-                <span class="n">suffix</span> <span class="o">=</span> <span class="s1">&#39;N&#39;</span> <span class="k">if</span> <span class="n">variant_record</span><span class="o">.</span><span class="n">alt_sv_breakend</span><span class="o">.</span><span class="n">suffix</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+                <span class="n">prefix</span> <span class="o">=</span> <span class="s1">'N'</span> <span class="k">if</span> <span class="n">variant_record</span><span class="o">.</span><span class="n">alt_sv_breakend</span><span class="o">.</span><span class="n">prefix</span> <span class="k">else</span> <span class="s1">''</span>
+                <span class="n">suffix</span> <span class="o">=</span> <span class="s1">'N'</span> <span class="k">if</span> <span class="n">variant_record</span><span class="o">.</span><span class="n">alt_sv_breakend</span><span class="o">.</span><span class="n">suffix</span> <span class="k">else</span> <span class="s1">''</span>
                 <span class="n">breakends</span> <span class="o">=</span> <span class="n">prefix</span> <span class="o">+</span> <span class="n">variant_record</span><span class="o">.</span><span class="n">alt_sv_breakend</span><span class="o">.</span><span class="n">bracket</span> <span class="o">+</span> <span class="n">variant_record</span><span class="o">.</span><span class="n">alt_sv_breakend</span><span class="o">.</span><span class="n">bracket</span> <span class="o">+</span> <span class="n">suffix</span>
             
             <span class="n">extra_values</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">extra_fields</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">field</span> <span class="o">==</span> <span class="s1">&#39;variant_record_obj&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">field</span> <span class="o">==</span> <span class="s1">'variant_record_obj'</span><span class="p">:</span>
                     <span class="n">extra_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">variant_record</span><span class="p">)</span>
                 <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">variant_record</span><span class="p">,</span> <span class="n">field</span><span class="p">):</span>
                     <span class="n">extra_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">variant_record</span><span class="p">,</span> <span class="n">field</span><span class="p">))</span>
@@ -397,9 +410,9 @@
         <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">DATAFRAME_COLUMNS</span><span class="p">:</span>
             <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">DATAFRAME_DTYPES</span><span class="p">[</span><span class="n">col</span><span class="p">])</span>
         <span class="c1"># Reduce memory usage by using the smallest possible data type for start, end and length</span>
-        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_downcast</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">])</span>
-        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_downcast</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">])</span>
-        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;length&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_downcast</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;length&#39;</span><span class="p">])</span>
+        <span class="n">df</span><span class="p">[</span><span class="s1">'start'</span><span class="p">]</span> <span class="o">=</span> <span class="n">_downcast</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">'start'</span><span class="p">])</span>
+        <span class="n">df</span><span class="p">[</span><span class="s1">'end'</span><span class="p">]</span> <span class="o">=</span> <span class="n">_downcast</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">'end'</span><span class="p">])</span>
+        <span class="n">df</span><span class="p">[</span><span class="s1">'length'</span><span class="p">]</span> <span class="o">=</span> <span class="n">_downcast</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">'length'</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">df</span></div>
 </div>
 

@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>VariantExtractor &mdash; variant-extractor 5.0.0 documentation</title>
+  <title>VariantExtractor &mdash; variant-extractor 5.1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=ce74c6a2"></script>
+      <script src="_static/documentation_options.js?v=bfa18cfb"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/js/theme.js"></script>
@@ -127,20 +127,20 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">variant_extractor</span><span class="w"> </span><span class="kn">import</span> <span class="n">VariantExtractor</span>
 
 <span class="c1"># Create a new instance of the class</span>
-<span class="n">extractor</span> <span class="o">=</span> <span class="n">VariantExtractor</span><span class="p">(</span><span class="s1">&#39;/path/to/file.vcf&#39;</span><span class="p">)</span>
+<span class="n">extractor</span> <span class="o">=</span> <span class="n">VariantExtractor</span><span class="p">(</span><span class="s1">'/path/to/file.vcf'</span><span class="p">)</span>
 <span class="c1"># Iterate through the variants</span>
 <span class="k">for</span> <span class="n">variant_record</span> <span class="ow">in</span> <span class="n">extractor</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Found variant of type </span><span class="si">{</span><span class="n">variant_record</span><span class="o">.</span><span class="n">variant_type</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">variant_record</span><span class="o">.</span><span class="n">contig</span><span class="si">}</span><span class="s1">:</span><span class="si">{</span><span class="n">variant_record</span><span class="o">.</span><span class="n">pos</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Found variant of type </span><span class="si">{</span><span class="n">variant_record</span><span class="o">.</span><span class="n">variant_type</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">variant_record</span><span class="o">.</span><span class="n">contig</span><span class="si">}</span><span class="s1">:</span><span class="si">{</span><span class="n">variant_record</span><span class="o">.</span><span class="n">pos</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Import the package</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">variant_extractor</span><span class="w"> </span><span class="kn">import</span> <span class="n">VariantExtractor</span>
 
 <span class="c1"># Create a new instance of the class</span>
-<span class="n">extractor</span> <span class="o">=</span> <span class="n">VariantExtractor</span><span class="p">(</span><span class="s1">&#39;/path/to/file.vcf&#39;</span><span class="p">)</span>
+<span class="n">extractor</span> <span class="o">=</span> <span class="n">VariantExtractor</span><span class="p">(</span><span class="s1">'/path/to/file.vcf'</span><span class="p">)</span>
 
 <span class="c1"># Save variants to a CSV file</span>
-<span class="n">extractor</span><span class="o">.</span><span class="n">to_dataframe</span><span class="p">()</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s1">&#39;variant_record_obj&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s1">&#39;/path/to/output.csv&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">extractor</span><span class="o">.</span><span class="n">to_dataframe</span><span class="p">()</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s1">'/path/to/output.csv'</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>For a more complete list of examples, check the <a class="reference internal" href="#./examples/"><span class="xref myst">examples</span></a> directory. This folder also includes an example of a <a class="reference internal" href="#examples/normalize_vcf.py"><span class="xref myst">script for normalizing VCF files</span></a> following the <a class="reference internal" href="#homogenization-rules"><span class="xref myst">homogenization rules</span></a>.</p>
@@ -176,43 +176,47 @@
 <td><p><code class="docutils literal notranslate"><span class="pre">Optional[str]</span></code></p></td>
 <td><p>Record identifier</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ref</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ids</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">List[str]</span></code></p></td>
+<td><p>Identifiers of all VCF records represented by this variant</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ref</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">str</span></code></p></td>
 <td><p>Reference sequence</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">alt</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">alt</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">str</span></code></p></td>
 <td><p>Alternative sequence</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">qual</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">qual</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">Optional[float]</span></code></p></td>
 <td><p>Quality score for the assertion made in ALT</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">filter</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">filter</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">List[str]</span></code></p></td>
 <td><p>Filter status. <code class="docutils literal notranslate"><span class="pre">PASS</span></code> if this position has passed all filters. Otherwise, it contains the filters that failed</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">info</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">info</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">Dict[str,</span> <span class="pre">Any]</span></code></p></td>
 <td><p>Additional information</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">format</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">format</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">List[str]</span></code></p></td>
 <td><p>Specifies data types and order of the genotype information</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">samples</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">samples</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">Dict[str,</span> <span class="pre">Dict[str,</span> <span class="pre">Any]]</span></code></p></td>
 <td><p>Genotype information for each sample</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">variant_type</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">variant_type</span></code></p></td>
 <td><p><a class="reference internal" href="#varianttype"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">VariantType</span></code></span></a></p></td>
 <td><p>Variant type inferred</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">alt_sv_breakend</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">Optional[</span></code><a class="reference internal" href="#brekendsvrecord"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">BreakendSVRecord</span></code></span></a><code class="docutils literal notranslate"><span class="pre">]</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">alt_sv_breakend</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Optional[</span></code><a class="reference internal" href="#breakendsvrecord"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">BreakendSVRecord</span></code></span></a><code class="docutils literal notranslate"><span class="pre">]</span></code></p></td>
 <td><p>Breakend SV info, present only for SVs with breakend notation. For example, <code class="docutils literal notranslate"><span class="pre">G]17:198982]</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">alt_sv_shorthand</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">alt_sv_shorthand</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">Optional[</span></code><a class="reference internal" href="#shorthandsvrecord"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">ShorthandSVRecord</span></code></span></a><code class="docutils literal notranslate"><span class="pre">]</span></code></p></td>
 <td><p>Shorthand SV info, present only for SVs with shorthand notation. For example, <code class="docutils literal notranslate"><span class="pre">&lt;DUP:TANDEM&gt;</span></code></p></td>
 </tr>
@@ -995,6 +999,7 @@ are returned as:
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">CHANGELOG</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#v5-1-0-2026-03-06">v5.1.0 (2026-03-06)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="changelog.html#v5-0-0-2025-03-26">v5.0.0 (2025-03-26)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="changelog.html#v4-0-10-2025-03-26">v4.0.10 (2025-03-26)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="changelog.html#v4-0-9-2025-03-26">v4.0.9 (2025-03-26)</a></li>
