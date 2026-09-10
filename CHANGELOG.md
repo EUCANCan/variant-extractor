@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v5.2.0 (2026-09-10)
+
+### Features
+
+- Preserve original IDs for paired BNDs ([#7](https://github.com/EUCANCan/variant-extractor/pull/7),
+  [`b44695b`](https://github.com/EUCANCan/variant-extractor/commit/b44695bce20b4174f3fa45e1c0a1268955820eb7))
+
+
 ## v5.1.0 (2026-03-06)
 
 ### Features
